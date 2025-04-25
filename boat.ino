@@ -1,3 +1,6 @@
+#include "switch.h"
+#ifdef BOAT
+
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
@@ -43,3 +46,5 @@ void loop()
         Serial.println(receivedText);
     }
 }
+
+#endif

@@ -1,3 +1,6 @@
+#include "switch.h"
+#ifdef CONTROL
+
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
@@ -52,3 +55,5 @@ void loop()
 
     delay(1000);
 }
+
+#endif
