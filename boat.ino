@@ -2,10 +2,9 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 
-#define CE_PIN 4
-#define CSN_PIN 9
+#include "define.h"
 
-RF24 radio(CE_PIN, CSN_PIN);
+RF24 radio(CE, SS);
 const byte address[6] = "765FA";
 
 void setup()
@@ -14,7 +13,7 @@ void setup()
     delay(1000);
 
     // 初始化 SPI
-    SPI.begin(10, 12, 11, 9); // SCK, MISO, MOSI, SS
+    SPI.begin(SCK, MISO, MOSI, SS);
 
     Serial.println("初始化 NRF24L01...");
     if (!radio.begin())
