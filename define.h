@@ -2,7 +2,7 @@
 #define MISO 12
 #define MOSI 11
 #define SCK 10
-#define SS 9
+#define CSN 9
 #define CE 4
 
 // MPU6050

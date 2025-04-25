@@ -7,8 +7,10 @@
 
 #include "define.h"
 
-RF24 radio(CE, SS);
-const byte address[6] = "00001";
+#include <string>
+
+RF24 radio(CE, CSN);
+const byte address[6] = "765FA";
 
 void setup()
 {
@@ -16,7 +18,7 @@ void setup()
     delay(1000);
 
     // 初始化 SPI
-    SPI.begin(SCK, MISO, MOSI, SS);
+    SPI.begin(SCK, MISO, MOSI, CSN);
 
     Serial.println("初始化 NRF24L01...");
     if (!radio.begin())
@@ -36,24 +38,23 @@ void setup()
     Serial.println("发送端初始化完成");
 }
 
+int cnt = 0;
+int failCnt = 0;
+
 void loop()
 {
-    const char text[] = "HellAAAA NRF24L01!";
+    std::string text = "Hello";
+    text += std::to_string(cnt);
+    cnt++;
     Serial.print("发送中: ");
-    Serial.println(text);
+    Serial.println(text.c_str());
 
-    bool success = radio.write(&text, sizeof(text));
+    bool success = radio.write(text.c_str(), sizeof(char) * text.size());
+    failCnt += !success;
 
-    if (success)
-    {
-        Serial.println("发送成功");
-    }
-    else
-    {
-        Serial.println("发送失败");
-    }
+    Serial.print(("失败率" + std::to_string(failCnt * 1.0 / cnt * 100) + "%").c_str());
 
-    delay(1000);
+    delay(50);
 }
 
 #endif

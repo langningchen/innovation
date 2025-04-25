@@ -7,7 +7,7 @@
 
 #include "define.h"
 
-RF24 radio(CE, SS);
+RF24 radio(CE, CSN);
 const byte address[6] = "765FA";
 
 void setup()
@@ -16,7 +16,7 @@ void setup()
     delay(1000);
 
     // 初始化 SPI
-    SPI.begin(SCK, MISO, MOSI, SS);
+    SPI.begin(SCK, MISO, MOSI, CSN);
 
     Serial.println("初始化 NRF24L01...");
     if (!radio.begin())
