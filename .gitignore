@@ -3,4 +3,3 @@ output/
 switch.h
 
 !.vscode/settings.json
-!.vscode/arduino.json
