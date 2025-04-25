@@ -10,12 +10,11 @@
 #include <string>
 
 RF24 radio(CE, CSN);
-const byte address[6] = "765FA";
 
 void setup()
 {
     Serial.begin(115200);
-    delay(1000);
+    // delay(1000);
 
     // 初始化 SPI
     SPI.begin(SCK, MISO, MOSI, CSN);
@@ -29,7 +28,7 @@ void setup()
     }
 
     radio.setChannel(76);
-    radio.setDataRate(RF24_250KBPS); // 更强抗干扰
+    radio.setDataRate(RF24_250KBPS);
     radio.setPALevel(RF24_PA_LOW);
     radio.setAutoAck(true);
     radio.openWritingPipe(address);
@@ -47,14 +46,18 @@ void loop()
     text += std::to_string(cnt);
     cnt++;
     Serial.print("发送中: ");
-    Serial.println(text.c_str());
+    Serial.print(text.c_str());
 
-    bool success = radio.write(text.c_str(), sizeof(char) * text.size());
+    bool success = radio.write(text.c_str(), text.size());
     failCnt += !success;
+    if (success)
+        Serial.print("     ");
+    else
+        Serial.print(" 失败");
 
-    Serial.print(("失败率" + std::to_string(failCnt * 1.0 / cnt * 100) + "%").c_str());
+    Serial.println(("  失败率" + std::to_string(failCnt * 1.0 / cnt * 100) + "%").c_str());
 
-    delay(50);
+    delay(100);
 }
 
 #endif

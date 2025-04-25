@@ -8,12 +8,11 @@
 #include "define.h"
 
 RF24 radio(CE, CSN);
-const byte address[6] = "765FA";
 
 void setup()
 {
     Serial.begin(115200);
-    delay(1000);
+    // delay(1000);
 
     // 初始化 SPI
     SPI.begin(SCK, MISO, MOSI, CSN);
