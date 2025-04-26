@@ -1,3 +1,4 @@
-struct HEADER
+enum MSG_TYPE
 {
+    MSG_HEARBEAT
 };

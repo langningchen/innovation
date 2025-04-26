@@ -7,17 +7,12 @@
 
 #include "define.h"
 
-#include <string>
-
-RF24 radio(CE, CSN);
+RF24 radio(PIN_CE, PIN_CSN);
 
 void setup()
 {
     Serial.begin(115200);
-    // delay(1000);
-
-    // 初始化 SPI
-    SPI.begin(SCK, MISO, MOSI, CSN);
+    SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CSN);
 
     Serial.println("初始化 NRF24L01...");
     if (!radio.begin())
@@ -42,22 +37,30 @@ int failCnt = 0;
 
 void loop()
 {
-    std::string text = "Hello";
-    text += std::to_string(cnt);
-    cnt++;
-    Serial.print("发送中: ");
-    Serial.print(text.c_str());
+    if (Serial.available())
+    {
+        String text = Serial.readStringUntil('\n');
+        text.trim();
+        if (text.length() == 0)
+            return;
+        if (text.length() > 32)
+        {
+            Serial.println("输入的字符串过长，最大长度为32个字符！");
+            return;
+        }
+        cnt++;
+        Serial.print("发送数据: ");
+        Serial.print(text);
 
-    bool success = radio.write(text.c_str(), text.size());
-    failCnt += !success;
-    if (success)
-        Serial.print("     ");
-    else
-        Serial.print(" 失败");
+        bool success = radio.write(text.c_str(), text.length() * sizeof(char));
+        failCnt += !success;
+        if (success)
+            Serial.print("     ");
+        else
+            Serial.print(" 失败");
 
-    Serial.println(("  失败率" + std::to_string(failCnt * 1.0 / cnt * 100) + "%").c_str());
-
-    delay(100);
+        Serial.println("  失败" + String(failCnt) + "/" + String(cnt) + String(failCnt * 1.0 / cnt * 100) + "%");
+    }
 }
 
 #endif
