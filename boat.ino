@@ -9,7 +9,7 @@
 
 RF24 radio(PIN_CE, PIN_CSN);
 
-SERVO servo(PIN_PWM0, 100, 12, 180);
+SERVO servo(PIN_PWM0, 100, 12, 180, 0.05, 0.25);
 
 void setup()
 {
