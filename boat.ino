@@ -9,27 +9,28 @@
 
 RF24 radio(PIN_CE, PIN_CSN);
 
-SERVO servo(PIN_PWM0, 100, 12, 180, 0.05, 0.25);
+SERVO servo(PIN_PWM0, 100, 12, 0,
+            180, 0.05, 0.25);
 
 void setup()
 {
     Serial.begin(115200);
     SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CSN);
 
-    Serial.print("初始化 NRF24L01...   ");
-    if (!radio.begin())
-    {
-        Serial.println("失败！");
-        while (1)
-            ;
-    }
-    radio.setChannel(76);
-    radio.setDataRate(RF24_250KBPS);
-    radio.setPALevel(RF24_PA_LOW);
-    radio.setAutoAck(true);
-    radio.openReadingPipe(0, address);
-    radio.startListening();
-    Serial.println("成功！");
+    // Serial.print("初始化 NRF24L01...   ");
+    // if (!radio.begin())
+    // {
+    //     Serial.println("失败！");
+    //     while (1)
+    //         ;
+    // }
+    // radio.setChannel(76);
+    // radio.setDataRate(RF24_250KBPS);
+    // radio.setPALevel(RF24_PA_LOW);
+    // radio.setAutoAck(true);
+    // radio.openReadingPipe(0, address);
+    // radio.startListening();
+    // Serial.println("成功！");
 
     Serial.print("初始化舵机...   ");
     if (!servo.begin())
@@ -51,10 +52,13 @@ void loop()
     if (Serial.available())
     {
         String receivedText = Serial.readStringUntil('\n');
-        Serial.print("接收到数据: ");
-        Serial.println(receivedText);
-        servo.setAngle(receivedText.toInt());
-
+        Serial.print("旋转舵机到 ");
+        Serial.print(receivedText);
+        Serial.print("°...   ");
+        if (servo.setAngle(receivedText.toInt()))
+            Serial.println("成功！");
+        else
+            Serial.println("失败！");
         lst_msg = clock();
     }
     else

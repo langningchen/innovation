@@ -11,11 +11,12 @@ inline uint32_t PWM::ratio2Duty(double ratio)
 }
 
 /// @brief PWM constructor
-/// @param pin Pin number
-/// @param freq Frequency in hertz (Hz)
-/// @param resolution Resolution
-PWM::PWM(uint8_t pin, uint32_t freq, uint8_t resolution)
-    : pin(pin), freq(freq), resolution(resolution) {}
+/// @param pin GPIO pin
+/// @param freq Frequency of PWM signal in hertz (Hz)
+/// @param resolution Resolution for LEDC pin
+/// @param channel LEDC channel to attach to
+PWM::PWM(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel)
+    : pin(pin), freq(freq), resolution(resolution), channel(channel) {}
 
 /// @brief Initialize the PWM
 /// @return true if successful, false otherwise

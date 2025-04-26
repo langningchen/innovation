@@ -6,9 +6,9 @@
 /// @param maxDuty Maximum duty cycle in percentage (%)
 /// @note The angle range is from 0 to aglRng
 /// @see PWM::PWM()
-SERVO::SERVO(uint8_t pin, uint32_t freq, uint8_t resolution,
+SERVO::SERVO(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel,
              uint8_t aglRng, uint8_t minDuty, uint8_t maxDuty)
-    : PWM(pin, freq, resolution)
+    : PWM(pin, freq, resolution, channel)
 {
     assert(aglRng > 0 && aglRng <= 360);
     this->aglRng = aglRng;
@@ -25,7 +25,8 @@ SERVO::SERVO(uint8_t pin, uint32_t freq, uint8_t resolution,
 bool SERVO::setAngle(uint8_t angle)
 {
     assert(angle >= 0 && angle <= this->aglRng);
-    return ledcWrite(this->pin, map(angle,
-                                    0, this->aglRng,
-                                    ratio2Duty(this->minDuty), ratio2Duty(this->maxDuty)));
+    return ledcWrite(this->pin,
+                     map(angle,
+                         0, this->aglRng,
+                         ratio2Duty(this->minDuty), ratio2Duty(this->maxDuty)));
 }
