@@ -1,14 +1,11 @@
 #pragma once
 
-class SERVO
+#include <pwm.h>
+
+class SERVO : public PWM
 {
-    inline int timeToPWM(double time);
-    int angleToPWM(int angle);
-
-    int pin, freq, res, aglRng;
-
+    uint8_t aglRng; // Angle range in degrees (°)
 public:
-    SERVO(int pin, int freq, int res, int aglRng);
-    bool begin();
-    void setAngle(int angle);
+    SERVO(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t aglRng);
+    bool setAngle(uint8_t angle);
 };

@@ -1,33 +1,23 @@
 #include "servo.h"
 
-inline int SERVO::timeToPWM(double time) { return time * this->freq * pow(2, this->res) / 1000; }
-int SERVO::angleToPWM(int angle)
+/// @brief Servo constructor
+/// @param aglRng Angle range in degrees (°)
+/// @note The angle range is from 0 to aglRng
+/// @see PWM::PWM()
+SERVO::SERVO(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t aglRng)
+    : PWM(pin, freq, resolution)
 {
-    if (angle < -this->aglRng || angle > this->aglRng)
-        return -1;
-    return map(angle, -this->aglRng, this->aglRng, timeToPWM(0.5), timeToPWM(2.5));
+    assert(aglRng > 0 && aglRng <= 360);
+    this->aglRng = aglRng;
 }
 
-SERVO::SERVO(int pin, int freq, int res, int aglRng) : pin(pin), freq(freq), res(res), aglRng(aglRng) {}
-
-bool SERVO::begin()
+/// @brief Set the angle of the SERVO
+/// @param angle Angle in degrees (°)
+/// @return true if successful, false otherwise
+bool SERVO::setAngle(uint8_t angle)
 {
-    if (!ledcAttach(this->pin, this->freq, this->res))
-        return false;
-    ledcWrite(this->pin, angleToPWM(0));
-    return true;
-}
-
-void SERVO::setAngle(int angle)
-{
-    int pwmValue = angleToPWM(angle);
-    if (pwmValue == -1)
-    {
-        Serial.println("无效的角度值");
-        return;
-    }
-    ledcWrite(pin, pwmValue);
-    Serial.print("舵机转向: ");
-    Serial.print(angle);
-    Serial.println(" 度");
+    assert(angle >= 0 && angle <= this->aglRng);
+    return ledcWrite(this->pin, map(angle,
+                                    0, this->aglRng,
+                                    ratio2Duty(0.05), ratio2Duty(0.25)));
 }

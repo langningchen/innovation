@@ -2,7 +2,6 @@
 #ifdef BOAT
 
 #include <SPI.h>
-#include <nRF24L01.h>
 #include <RF24.h>
 
 #include "define.h"
@@ -10,7 +9,7 @@
 
 RF24 radio(PIN_CE, PIN_CSN);
 
-SERVO servo(PIN_PWM0, 100, 12, 90);
+SERVO servo(PIN_PWM0, 100, 12, 180);
 
 void setup()
 {
