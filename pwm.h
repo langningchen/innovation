@@ -3,7 +3,7 @@
 class PWM
 {
 protected:
-    inline uint32_t ratio2Duty(double ratio);
+    inline uint32_t ratio2Duty(float_t ratio);
 
     uint8_t pin;        // GPIO pin
     uint32_t freq;      // Frequency of PWM signal in hertz (Hz)

@@ -7,7 +7,7 @@
 /// @note The angle range is from 0 to aglRng
 /// @see PWM::PWM()
 SERVO::SERVO(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel,
-             uint8_t aglRng, uint8_t minDuty, uint8_t maxDuty)
+             uint8_t aglRng, float_t minDuty, float_t maxDuty)
     : PWM(pin, freq, resolution, channel)
 {
     assert(aglRng > 0 && aglRng <= 360);

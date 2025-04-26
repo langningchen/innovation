@@ -4,7 +4,7 @@
 /// @param ratio Input ratio, range is from 0 to 1
 /// @return Duty cycle value
 /// @note The ratio is the percentage of the duty cycle, where 0 is 0% and 1 is 100%
-inline uint32_t PWM::ratio2Duty(double ratio)
+inline uint32_t PWM::ratio2Duty(float_t ratio)
 {
     assert(ratio >= 0 && ratio <= 1);
     return ratio * pow(2, this->resolution);
