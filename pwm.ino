@@ -1,13 +1,13 @@
 #include <pwm.h>
 
 /// @brief Convert ratio to duty cycle value
-/// @param ratio Input ratio, range is from 0 to 1
+/// @param ratio Input ratio, range is [0, 100]
 /// @return Duty cycle value
-/// @note The ratio is the percentage of the duty cycle, where 0 is 0% and 1 is 100%
-inline uint32_t PWM::ratio2Duty(float_t ratio)
+/// @note The ratio is the percentage of the duty cycle
+inline uint32_t PWM::ratio2Duty(uint8_t ratio)
 {
-    assert(ratio >= 0 && ratio <= 1);
-    return ratio * pow(2, this->resolution);
+    assert(ratio >= 0), assert(ratio <= 100);
+    return ratio * pow(2, resolution) / 100;
 }
 
 /// @brief PWM constructor
@@ -23,5 +23,5 @@ PWM::PWM(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel)
 /// @note This function must be called before using any other functions in this class
 bool PWM::begin()
 {
-    return ledcAttach(this->pin, this->freq, this->resolution);
+    return ledcAttachChannel(pin, freq, resolution, channel);
 }

@@ -1,16 +1,21 @@
-#include "switch.h"
+#include <switch.h>
 #ifdef BOAT
 
 #include <SPI.h>
 #include <RF24.h>
 
-#include "define.h"
-#include "servo.h"
+#include <define.h>
+#include <servo.h>
+#include <motor.h>
 
 RF24 radio(PIN_CE, PIN_CSN);
 
-SERVO servo(PIN_PWM0, 100, 12, 0,
-            180, 0.05, 0.25);
+// CAUTION! It seems that setting
+// any channel to 0 will cause
+// the configuration of first PWM channel
+// overwritten by the second one
+SERVO servo(PIN_PWM0, 100, 12, 1, 180, 5, 25);
+MOTOR motor(PIN_PWM1, 5000, 8, 2);
 
 void setup()
 {
@@ -41,6 +46,15 @@ void setup()
     }
     Serial.println("成功！");
 
+    Serial.print("初始化电机...   ");
+    if (!motor.begin())
+    {
+        Serial.println("失败！");
+        while (1)
+            ;
+    }
+    Serial.println("成功！");
+
     Serial.println("接收端初始化完成，等待数据...");
 }
 
@@ -51,14 +65,16 @@ void loop()
 {
     if (Serial.available())
     {
-        String receivedText = Serial.readStringUntil('\n');
-        Serial.print("旋转舵机到 ");
-        Serial.print(receivedText);
-        Serial.print("°...   ");
-        if (servo.setAngle(receivedText.toInt()))
-            Serial.println("成功！");
+        String type = Serial.readStringUntil(' ');
+        auto Data = Serial.readStringUntil('\n').toInt();
+        Serial.print(type == "servo" ? "servo" : "motor");
+        Serial.print(" set to ");
+        Serial.print(Data);
+        Serial.print("...   ");
+        if ((type == "servo" ? servo.setAngle(Data) : motor.setSpeed(Data)))
+            Serial.println("success");
         else
-            Serial.println("失败！");
+            Serial.println("failed");
         lst_msg = clock();
     }
     else

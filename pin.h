@@ -9,5 +9,5 @@
 #define PIN_SDA 6
 #define PIN_SCL 7
 
-// 舵机
-#define PIN_PWM0 40
+#define PIN_PWM0 40 // Servo
+#define PIN_PWM1 41 // Motor

@@ -1,10 +1,10 @@
-#include "switch.h"
+#include <switch.h>
 #ifdef CONTROL
 
 #include <SPI.h>
 #include <RF24.h>
 
-#include "define.h"
+#include <define.h>
 
 RF24 radio(PIN_CE, PIN_CSN);
 
