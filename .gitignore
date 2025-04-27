@@ -1,3 +1,5 @@
 .vscode/*
 output/
 switch.h
+
+!.vscode/extensions.json
