@@ -1,4 +1,4 @@
-// Copyright (C) 2025 langningchen
+// Copyright (C) 2025 Langning Chen
 //
 // This file is part of innovation.
 //
@@ -15,18 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with innovation.  If not, see <https://www.gnu.org/licenses/>.
 
-// NRF24L01
-#define PIN_MISO 12
-#define PIN_MOSI 11
-#define PIN_SCK 10
-#define PIN_CSN 9
-#define PIN_CE 4
+#pragma once
 
-// MPU6050
-#define PIN_SDA 6
-#define PIN_SCL 7
+class BATTERY
+{
+private:
+    const uint8_t ADC_RESOLUTION = 12; // ADC resolution in bits
+    uint8_t pin;
+    float_t minVoltage;
+    float_t maxVoltage;
 
-#define PIN_PWM0 40 // Servo
-#define PIN_PWM1 41 // Motor
-
-#define PIN_ADC 15 // Battery monitor
+public:
+    BATTERY(uint8_t pin, float_t minVoltage, float_t maxVoltage);
+    bool begin();
+    float_t getVoltage();
+    uint8_t getPercentage();
+};

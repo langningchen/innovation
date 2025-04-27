@@ -24,6 +24,7 @@
 #include <define.h>
 #include <servo.h>
 #include <motor.h>
+#include <battery.h>
 
 RF24 radio(PIN_CE, PIN_CSN);
 
@@ -33,6 +34,9 @@ RF24 radio(PIN_CE, PIN_CSN);
 // overwritten by the second one
 SERVO servo(PIN_PWM0, 100, 12, 1, 180, 5, 25);
 MOTOR motor(PIN_PWM1, 5000, 8, 2);
+BATTERY battery(PIN_ADC,
+                14.0 / (270 + 40) * 40,  // 1.8064516129
+                14.8 / (270 + 40) * 40); // 1.9096774194
 
 void setup()
 {
@@ -72,6 +76,15 @@ void setup()
     }
     Serial.println("成功！");
 
+    Serial.print("初始化电池...   ");
+    if (!battery.begin())
+    {
+        Serial.println("失败！");
+        while (1)
+            ;
+    }
+    Serial.println("成功！");
+
     Serial.println("接收端初始化完成，等待数据...");
 }
 
@@ -84,6 +97,15 @@ void loop()
     {
         String type = Serial.readStringUntil(' ');
         auto Data = Serial.readStringUntil('\n').toInt();
+        if (type == "battery")
+        {
+            Serial.print("电池电压：");
+            Serial.print(battery.getVoltage());
+            Serial.print("V，电量：");
+            Serial.print(battery.getPercentage());
+            Serial.println("%");
+            return;
+        }
         Serial.print(type == "servo" ? "servo" : "motor");
         Serial.print(" set to ");
         Serial.print(Data);
