@@ -41,9 +41,8 @@ void setup()
     radio.setChannel(76);
     radio.setDataRate(RF24_250KBPS);
     radio.setPALevel(RF24_PA_LOW);
-    radio.setAutoAck(true);
+    radio.enableAckPayload();
     radio.openWritingPipe(address);
-    radio.stopListening();
 
     Serial.println("发送端初始化完成");
 }
@@ -70,6 +69,14 @@ void loop()
 
         bool success = radio.write(text.c_str(), text.length() * sizeof(char));
         failCnt += !success;
+        if (radio.isAckPayloadAvailable())
+        {
+            uint16_t ack = {0};
+            radio.read(&ack, sizeof(ack));
+            Serial.print("  收到应答: ");
+            Serial.print(ack);
+        }
+
         if (success)
             Serial.print("     ");
         else
