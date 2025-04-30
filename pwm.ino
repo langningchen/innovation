@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with innovation.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <pwm.h>
+#include <pwm.hpp>
 
 /**
  * @brief Convert ratio to duty cycle value

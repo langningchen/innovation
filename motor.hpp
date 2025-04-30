@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <pwm.h>
+#include <pwm.hpp>
 
 class MOTOR : public PWM
 {

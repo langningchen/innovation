@@ -1,5 +1,5 @@
 .vscode/*
 output/
-switch.h
+switch.hpp
 
 !.vscode/extensions.json

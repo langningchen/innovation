@@ -1,4 +1,4 @@
-#include <network.h>
+#include <network.hpp>
 
 /**
  * @brief NETWORK constructor

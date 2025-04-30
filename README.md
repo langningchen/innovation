@@ -17,7 +17,7 @@
  along with innovation.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
-### Innovation for the Future
+## Innovation for the Future
 
 The school has an event called "Innovation for the Future", which requires each group to design an innovative ship model. The ship model should be able to sail on water and can be made of any material. The design should be creative and practical, and the ship model should be able to carry a certain amount of weight. The event encourages students to think outside the box and come up with unique ideas for their ship models.
 

@@ -15,15 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with innovation.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <switch.h>
+#include <switch.hpp>
 #ifdef BOAT
 
-#include <define.h>
-#include <servo.h>
-#include <motor.h>
-#include <battery.h>
-#include <network.h>
-#include <messages.h>
+#include <define.hpp>
+#include <servo.hpp>
+#include <motor.hpp>
+#include <battery.hpp>
+#include <network.hpp>
+#include <messages.hpp>
 
 // CAUTION! It seems that setting
 // any channel to 0 will cause

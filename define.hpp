@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <pin.h>
+#include <pin.hpp>
 #define CONTROL_TIMEOUT 5000 // ms
 
 const uint64_t address = 0xF0F0F0F0F0LL;

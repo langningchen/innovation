@@ -15,12 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with innovation.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <switch.h>
+#include <switch.hpp>
 #ifdef CONTROL
 
-#include <define.h>
-#include <network.h>
-#include <messages.h>
+#include <define.hpp>
+#include <network.hpp>
+#include <messages.hpp>
 
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CE, PIN_CSN,
                                        76, RF24_250KBPS, RF24_PA_LOW,
