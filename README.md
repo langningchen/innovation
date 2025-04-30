@@ -19,6 +19,8 @@
 
 ## Innovation for the Future
 
+[![wakatime](https://wakatime.com/badge/user/576a8b82-13f2-4f92-aa69-6fff06354a54/project/70d26c7c-18f7-4863-a7f6-ae7049ec9f53.svg)](https://wakatime.com/badge/user/576a8b82-13f2-4f92-aa69-6fff06354a54/project/70d26c7c-18f7-4863-a7f6-ae7049ec9f53)
+
 The school has an event called "Innovation for the Future", which requires each group to design an innovative ship model. The ship model should be able to sail on water and can be made of any material. The design should be creative and practical, and the ship model should be able to carry a certain amount of weight. The event encourages students to think outside the box and come up with unique ideas for their ship models.
 
 #### Network communication
