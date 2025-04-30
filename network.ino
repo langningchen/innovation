@@ -96,7 +96,7 @@ bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedClient(CLIENT_MSG clientMsg, SERVER
     if (!radio.write(&clientMsg, sizeof(clientMsg)))
         return false;
     memset(&serverMsg, 0, sizeof(serverMsg));
-    if (radio.isAckPayloadAvailable())
+    if (radio.available())
     {
         radio.read(&serverMsg, sizeof(serverMsg));
         return true;
