@@ -72,6 +72,7 @@ bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedServer(boolean &hasData)
 {
     if (radio.available())
     {
+        hasData = true;
         CLIENT_MSG clientMsg;
         memset(&clientMsg, 0, sizeof(clientMsg));
         radio.read(&clientMsg, sizeof(clientMsg));
