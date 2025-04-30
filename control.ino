@@ -18,71 +18,53 @@
 #include <switch.h>
 #ifdef CONTROL
 
-#include <SPI.h>
-#include <RF24.h>
-
 #include <define.h>
+#include <network.h>
+#include <messages.h>
 
-RF24 radio(PIN_CE, PIN_CSN);
+NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CE, PIN_CSN,
+                                       76, RF24_250KBPS, RF24_PA_LOW,
+                                       5, 15,
+                                       address);
 
 void setup()
 {
     Serial.begin(115200);
     SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CSN);
 
-    Serial.println("初始化 NRF24L01...");
-    if (!radio.begin())
+    if (!network.begin())
     {
-        Serial.println("NRF24L01 初始化失败！");
+        Serial.println("Network initialization failed");
         while (1)
             ;
     }
+    network.setClient();
 
-    radio.setChannel(76);
-    radio.setDataRate(RF24_250KBPS);
-    radio.setPALevel(RF24_PA_LOW);
-    radio.enableAckPayload();
-    radio.openWritingPipe(address);
-
-    Serial.println("发送端初始化完成");
+    Serial.println("Control initialization completed");
 }
-
-int cnt = 0;
-int failCnt = 0;
 
 void loop()
 {
     if (Serial.available())
     {
-        String text = Serial.readStringUntil('\n');
-        text.trim();
-        if (text.length() == 0)
-            return;
-        if (text.length() > 32)
+        uint8_t servoDegree = Serial.readStringUntil(' ').toInt();
+        uint8_t motorSpeed = Serial.readStringUntil('\n').toInt();
+        CONTROL_MSG controlMsg = {servoDegree, motorSpeed};
+        BOAT_MSG boatMsg = {0, 0, 0};
+        if (network.proceedClient(controlMsg, boatMsg))
         {
-            Serial.println("输入的字符串过长，最大长度为32个字符！");
-            return;
+            Serial.print("servo ");
+            Serial.print(controlMsg.servoDegree);
+            Serial.print("°  motor ");
+            Serial.print(controlMsg.motorSpeed);
+            Serial.print("%  battery ");
+            Serial.print(boatMsg.batteryVoltage);
+            Serial.print("V ");
+            Serial.print(boatMsg.batteryPercentage);
+            Serial.println("%");
         }
-        cnt++;
-        Serial.print("发送数据: ");
-        Serial.print(text);
-
-        bool success = radio.write(text.c_str(), text.length() * sizeof(char));
-        failCnt += !success;
-        if (radio.isAckPayloadAvailable())
-        {
-            uint16_t ack = {0};
-            radio.read(&ack, sizeof(ack));
-            Serial.print("  收到应答: ");
-            Serial.print(ack);
-        }
-
-        if (success)
-            Serial.print("     ");
         else
-            Serial.print(" 失败");
-
-        Serial.println("  失败" + String(failCnt) + "/" + String(cnt) + String(failCnt * 1.0 / cnt * 100) + "%");
+            Serial.print("Network error");
     }
 }
 

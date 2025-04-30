@@ -15,7 +15,25 @@
 // You should have received a copy of the GNU General Public License
 // along with innovation.  If not, see <https://www.gnu.org/licenses/>.
 
-enum MSG_TYPE
+#pragma once
+
+/**
+ * @brief Message structure for the control
+ * @details This structure is used for the control to send messages to the boat
+ */
+struct CONTROL_MSG
 {
-    MSG_HEARBEAT
+    uint8_t servoDegree;
+    uint8_t motorSpeed;
+};
+
+/**
+ * @brief Message structure for the boat
+ * @details This structure is used for the boat to send messages to the control
+ */
+struct BOAT_MSG
+{
+    uint8_t result;
+    float_t batteryVoltage;
+    uint8_t batteryPercentage;
 };

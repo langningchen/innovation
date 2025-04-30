@@ -20,4 +20,4 @@
 #include <pin.h>
 #define CONTROL_TIMEOUT 5000 // ms
 
-const byte address[6] = "765FA";
+const uint64_t address = 0xF0F0F0F0F0LL;

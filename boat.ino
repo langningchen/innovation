@@ -18,15 +18,12 @@
 #include <switch.h>
 #ifdef BOAT
 
-#include <SPI.h>
-#include <RF24.h>
-
 #include <define.h>
 #include <servo.h>
 #include <motor.h>
 #include <battery.h>
-
-RF24 radio(PIN_CE, PIN_CSN);
+#include <network.h>
+#include <messages.h>
 
 // CAUTION! It seems that setting
 // any channel to 0 will cause
@@ -37,56 +34,65 @@ MOTOR motor(PIN_PWM1, 5000, 8, 2);
 BATTERY battery(PIN_ADC,
                 14.0 / (270 + 40) * 40,  // 1.8064516129
                 14.8 / (270 + 40) * 40); // 1.9096774194
+NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CE, PIN_CSN,
+                                       76, RF24_250KBPS, RF24_PA_LOW,
+                                       5, 15,
+                                       address);
 
 void setup()
 {
     Serial.begin(115200);
     SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CSN);
 
-    Serial.print("初始化 NRF24L01...   ");
-    if (!radio.begin())
+    if (!network.begin())
     {
-        Serial.println("失败！");
+        Serial.println("Network initialization failed");
         while (1)
             ;
     }
-    radio.setChannel(76);
-    radio.setDataRate(RF24_250KBPS);
-    radio.setPALevel(RF24_PA_LOW);
-    radio.setRetries(1, 5); // Delay 500us, 5 retries
-    radio.enableAckPayload();
-    radio.openReadingPipe(1, address);
-    radio.startListening();
-    Serial.println("成功！");
+    network.setServer(1,
+                      [&](CONTROL_MSG controlMsg) -> BOAT_MSG
+                      {
+                          servo.setAngle(controlMsg.servoDegree);
+                          motor.setSpeed(controlMsg.motorSpeed);
+                          BOAT_MSG boatMsg;
+                          boatMsg.result = 0;
+                          boatMsg.batteryVoltage = battery.getVoltage();
+                          boatMsg.batteryPercentage = battery.getPercentage();
+                          Serial.print("servo ");
+                          Serial.print(controlMsg.servoDegree);
+                          Serial.print("°  motor ");
+                          Serial.print(controlMsg.motorSpeed);
+                          Serial.print("%  battery ");
+                          Serial.print(boatMsg.batteryVoltage);
+                          Serial.print("V ");
+                          Serial.print(boatMsg.batteryPercentage);
+                          Serial.println("%");
+                          return boatMsg;
+                      });
 
-    Serial.print("初始化舵机...   ");
     if (!servo.begin())
     {
-        Serial.println("失败！");
+        Serial.println("Servo initialization failed");
         while (1)
             ;
     }
-    Serial.println("成功！");
 
-    Serial.print("初始化电机...   ");
     if (!motor.begin())
     {
-        Serial.println("失败！");
+        Serial.println("Motor initialization failed");
         while (1)
             ;
     }
-    Serial.println("成功！");
 
-    Serial.print("初始化电池...   ");
     if (!battery.begin())
     {
-        Serial.println("失败！");
+        Serial.println("Battery initialization failed");
         while (1)
             ;
     }
-    Serial.println("成功！");
 
-    Serial.println("接收端初始化完成，等待数据...");
+    Serial.println("Boat initialization completed");
 }
 
 clock_t lst_msg = 0;
@@ -94,38 +100,18 @@ clock_t lst_chk = 0;
 
 void loop()
 {
-    if (radio.available())
+    bool hasData = false;
+    if (!network.proceedServer(hasData))
     {
-        char type;
-        radio.read(&type, sizeof(type));
-        if (type == 's')
-        {
-            uint8_t angle;
-            radio.read(&angle, sizeof(angle));
-            Serial.print("舵机角度：");
-            Serial.println(angle);
-            servo.setAngle(angle);
-        }
-        else if (type == 'm')
-        {
-            uint8_t speed;
-            radio.read(&speed, sizeof(speed));
-            Serial.print("电机速度：");
-            Serial.println(speed);
-            motor.setSpeed(speed);
-        }
-        // 返回电池电压和电量
-        uint16_t voltage = battery.getVoltage() * 1000;
-        radio.writeAckPayload(1, &voltage, sizeof(voltage));
-        lst_msg = clock();
+        Serial.println("Network error");
+        return;
     }
-    else
+    if (hasData)
+        lst_msg = clock();
+    else if (clock() - lst_msg > CONTROL_TIMEOUT && clock() - lst_chk > 1000)
     {
-        if (clock() - lst_msg > CONTROL_TIMEOUT && clock() - lst_chk > 1000)
-        {
-            Serial.println(lst_msg == 0 ? "等待遥控器信号中..." : "丢失遥控器信号，等待中...");
-            lst_chk = clock();
-        }
+        Serial.println(lst_msg == 0 ? "No data received" : "Timeout");
+        lst_chk = clock();
     }
 }
 
