@@ -20,3 +20,23 @@
 ### Innovation for the Future
 
 The school has an event called "Innovation for the Future", which requires each group to design an innovative ship model. The ship model should be able to sail on water and can be made of any material. The design should be creative and practical, and the ship model should be able to carry a certain amount of weight. The event encourages students to think outside the box and come up with unique ideas for their ship models.
+
+#### Network communication
+
+The ship model should be able to communicate with a controller via a 2.4G wireless network. 
+
+```mermaid
+sequenceDiagram
+    participant SP as Ship Processor
+    participant S as Ship Model
+    participant C as Controller
+    participant CP as Controller processor
+    C-->>CP: Query command
+    CP-->>C: Return command
+    C->>S: Send command
+    S-->>SP: Process command
+    S-->>SP: Query status
+    SP-->>S: Return status
+    S->>C: Send status
+    C->>CP: Process status
+```
