@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <pwm.hpppp>
+#include <pwm.hpp>
 
 class SERVO : public PWM
 {
