@@ -27,9 +27,9 @@ BATTERY::BATTERY(uint8_t pin, float_t minVoltage, float_t maxVoltage)
     : pin(pin), minVoltage(minVoltage), maxVoltage(maxVoltage) {}
 
 /**
- * * @brief Initialize the battery monitor
- * * @return true if successful, false otherwise
- * * @note This function must be called before using any other functions in this class
+ * @brief Initialize the battery monitor
+ * @return true if successful, false otherwise
+ * @note This function must be called before using any other functions in this class
  */
 bool BATTERY::begin()
 {
