@@ -24,6 +24,7 @@
 #include <battery.hpp>
 #include <network.hpp>
 #include <messages.hpp>
+#include <mpu6050.hpp>
 
 // CAUTION! It seems that setting
 // any channel to 0 will cause
@@ -37,12 +38,20 @@ BATTERY battery(PIN_ADC,
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CE, PIN_CSN,
                                        76, RF24_250KBPS, RF24_PA_LOW,
                                        5, 15,
-                                       address);
+                                       NETWORK_ADDRESS);
+MPU6050 mpu6050(MPU_ADDRESS, MPU6050_RANGE_2_G, MPU6050_RANGE_250_DEG);
 
 void setup()
 {
     Serial.begin(115200);
     SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CSN);
+
+    if (!Wire.begin(PIN_SDA, PIN_SCL))
+    {
+        Serial.println("I2C initialization failed");
+        while (1)
+            ;
+    }
 
     if (!network.begin())
     {
@@ -88,6 +97,13 @@ void setup()
     if (!battery.begin())
     {
         Serial.println("Battery initialization failed");
+        while (1)
+            ;
+    }
+
+    if (!mpu6050.begin())
+    {
+        Serial.println("MPU6050 initialization failed");
         while (1)
             ;
     }

@@ -1,4 +1,4 @@
-#include <pwm6050.hpp>
+#include <mpu6050.hpp>
 
 /**
  * @brief MPU6050 constructor
@@ -7,9 +7,9 @@
  * @param accelRange Accelerometer range
  * @param gyroRange Gyroscope range
  */
-MPU6050::MPU6050(uint8_t pin, uint8_t address,
+MPU6050::MPU6050(uint8_t address,
                  mpu6050_accel_range_t accelRange, mpu6050_gyro_range_t gyroRange)
-    : pin(pin), address(address), accelRange(accelRange), gyroRange(gyroRange) {}
+    : address(address), accelRange(accelRange), gyroRange(gyroRange) {}
 
 /**
  * @brief Initialize the MPU6050

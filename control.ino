@@ -25,7 +25,7 @@
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CE, PIN_CSN,
                                        76, RF24_250KBPS, RF24_PA_LOW,
                                        5, 15,
-                                       address);
+                                       NETWORK_ADDRESS);
 
 void setup()
 {

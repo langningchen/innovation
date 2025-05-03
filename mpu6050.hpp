@@ -40,13 +40,12 @@ class MPU6050
 {
 private:
     Adafruit_MPU6050 mpu;
-    uint8_t pin;
     uint8_t address;
     mpu6050_accel_range_t accelRange;
     mpu6050_gyro_range_t gyroRange;
 
 public:
-    MPU6050(uint8_t pin, uint8_t address,
+    MPU6050(uint8_t address,
             mpu6050_accel_range_t accelRange, mpu6050_gyro_range_t gyroRange);
     bool begin();
     void readData(float_t &ax, float_t &ay, float_t &az,

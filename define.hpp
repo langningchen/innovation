@@ -19,5 +19,5 @@
 
 #include <pin.hpp>
 #define CONTROL_TIMEOUT 5000 // ms
-
-const uint64_t address = 0xF0F0F0F0F0LL;
+#define MPU_ADDRESS 0x68
+#define NETWORK_ADDRESS 0xF0F0F0F0F0LL
