@@ -20,330 +20,206 @@
 // a .ino file with the same name as the project folder.
 // See: https://github.com/microsoft/vscode-arduino/issues/1665#issuecomment-1878109370
 
-#if false
+#if true
 
-/*
-  RadioLib SX128x Transmit with Interrupts Example
-
-  This example transmits LoRa packets with one second delays
-  between them. Each packet contains up to 256 bytes
-  of data, in the form of:
-  - Arduino String
-  - null-terminated char array (C-string)
-  - arbitrary binary data (byte array)
-
-  Other modules from SX128x family can also be used.
-
-  For default module settings, see the wiki page
-  https://github.com/jgromes/RadioLib/wiki/Default-configuration#sx128x---lora-modem
-
-  For full API reference, see the GitHub Pages
-  https://jgromes.github.io/RadioLib/
-*/
-
-// include the library
 #include <RadioLib.h>
-#include <SPI.h>
 #include <define.hpp>
 
-// SX1281 has the following connections:
-// NSS pin:   9
-// DIO1 pin:  8
-// NRST pin:  18
-// BUSY pin:  3
-SX1281 radio = new Module(9, 8, 18, 3);
+// Define pins for SX1281
+#define RADIOLIB_CS 9
+#define RADIOLIB_RESET 8
+#define RADIOLIB_IRQ 18
+#define RADIOLIB_BUSY 3
 
-// or detect the pinout automatically using RadioBoards
-// https://github.com/radiolib-org/RadioBoards
-/*
-#define RADIO_BOARD_AUTO
-#include <RadioBoards.h>
-Radio radio = new RadioModule();
-*/
+SX1281 radio = new Module(RADIOLIB_CS, RADIOLIB_RESET, RADIOLIB_IRQ, RADIOLIB_BUSY);
 
-// save transmission state between loops
-int transmissionState = RADIOLIB_ERR_NONE;
-
-// flag to indicate that a packet was sent
-volatile bool transmittedFlag = false;
-
-// this function is called when a complete packet
-// is transmitted by the module
-// IMPORTANT: this function MUST be 'void' type
-//            and MUST NOT have any arguments!
-#if defined(ESP8266) || defined(ESP32)
-ICACHE_RAM_ATTR
-#endif
-void setFlag(void)
-{
-    // we sent a packet, set the flag
-    transmittedFlag = true;
-}
+volatile bool irqFired = false;
 
 void setup()
 {
     Serial.begin(115200);
+    while (!Serial)
+        ;
+    Serial.println("Device A - Sender");
 
+    // Initialize SPI
     SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CSN);
 
-    // initialize SX1280 with default settings
-    Serial.print(F("[SX1280] Initializing ... "));
-    int state = radio.begin();
-    if (state == RADIOLIB_ERR_NONE)
+    // Initialize radio
+    if (radio.begin() != RADIOLIB_ERR_NONE)
     {
-        Serial.println(F("success!"));
-    }
-    else
-    {
-        Serial.print(F("failed, code "));
-        Serial.println(state);
-        while (true)
-        {
-            delay(10);
-        }
+        Serial.println("Failed to initialize radio");
+        while (1)
+            ;
     }
 
-    // set the function that will be called
-    // when packet transmission is finished
-    radio.setPacketSentAction(setFlag);
+    // Set frequency and other parameters
+    radio.setFrequency(868.0);
+    radio.setBandwidth(125.0);
+    // ... Add other settings as needed
 
-    // start transmitting the first packet
-    Serial.print(F("[SX1280] Sending first packet ... "));
+    // Enable CRC
+    radio.setCRC(2, 0x1D0F, 0x1021);
 
-    // you can transmit C-string or Arduino string up to
-    // 256 characters long
-    transmissionState = radio.startTransmit("Hello World!");
-
-    // you can also transmit byte array up to 256 bytes long
-    /*
-      byte byteArr[] = {0x01, 0x23, 0x45, 0x67,
-                        0x89, 0xAB, 0xCD, 0xEF};
-      state = radio.startTransmit(byteArr, 8);
-    */
+    // Set interrupt action
+    radio.setDio1Action(setFlag);
 }
-
-// counter to keep track of transmitted packets
-int count = 0;
 
 void loop()
 {
-    // check if the previous transmission finished
-    if (transmittedFlag)
+    static unsigned long lastSend = 0;
+    if (millis() - lastSend >= 100)
+    { // Send CONTROL_MSG every 5 seconds
+        lastSend = millis();
+        sendControlMsg();
+        // After sending, start receiving for BOAT_MSG
+        radio.startReceive();
+    }
+
+    if (irqFired)
     {
-        // reset flag
-        transmittedFlag = false;
-
-        if (transmissionState == RADIOLIB_ERR_NONE)
+        irqFired = false;
+        // Check if a packet was received
+        uint32_t irqStatus = radio.getIrqStatus();
+        if (irqStatus & RADIOLIB_SX128X_IRQ_RX_DONE)
         {
-            // packet was successfully sent
-            Serial.println(F("transmission finished!"));
+            unsigned long data = 0;
+            size_t len = sizeof(data);
+            int state = radio.readData((uint8_t *)&data, len);
+            if (state == RADIOLIB_ERR_NONE)
+            {
+                Serial.print("Received BOAT_MSG: ");
+                Serial.println(data);
+            }
+            else
+            {
+                Serial.print("Failed to read data, code: ");
+                Serial.println(state);
+            }
+            // Start receiving again
+            radio.startReceive();
         }
-        else
-        {
-            Serial.print(F("failed, code "));
-            Serial.println(transmissionState);
-        }
+    }
+}
 
-        // clean up after transmission is finished
-        // this will ensure transmitter is disabled,
-        // RF switch is powered down etc.
-        radio.finishTransmit();
+void setFlag(void)
+{
+    irqFired = true;
+}
 
-        // wait a second before transmitting again
-        delay(1000);
-
-        // send another one
-        Serial.print(F("[SX1280] Sending another packet ... "));
-
-        // you can transmit C-string or Arduino string up to
-        // 256 characters long
-        String str = "Hello World! #" + String(count++);
-        transmissionState = radio.startTransmit(str);
-
-        // you can also transmit byte array up to 256 bytes long
-        /*
-          byte byteArr[] = {0x01, 0x23, 0x45, 0x67,
-                            0x89, 0xAB, 0xCD, 0xEF};
-          transmissionState = radio.startTransmit(byteArr, 8);
-        */
+void sendControlMsg()
+{
+    unsigned long controlMsg = millis();
+    int state = radio.transmit((uint8_t *)&controlMsg, sizeof(controlMsg));
+    if (state == RADIOLIB_ERR_NONE)
+    {
+        Serial.println("CONTROL_MSG sent");
+    }
+    else
+    {
+        Serial.print("Failed to send CONTROL_MSG, code: ");
+        Serial.println(state);
     }
 }
 
 #else
 
-/*
-  RadioLib SX128x Receive with Interrupts Example
-
-  This example listens for LoRa transmissions and tries to
-  receive them. Once a packet is received, an interrupt is
-  triggered. To successfully receive data, the following
-  settings have to be the same on both transmitter
-  and receiver:
-  - carrier frequency
-  - bandwidth
-  - spreading factor
-  - coding rate
-  - sync word
-
-  Other modules from SX128x family can also be used.
-
-  For default module settings, see the wiki page
-  https://github.com/jgromes/RadioLib/wiki/Default-configuration#sx128x---lora-modem
-
-  For full API reference, see the GitHub Pages
-  https://jgromes.github.io/RadioLib/
-*/
-
-// include the library
 #include <RadioLib.h>
-#include <SPI.h>
 #include <define.hpp>
 
-// SX1281 has the following connections:
-// NSS pin:   9
-// DIO1 pin:  8
-// NRST pin:  18
-// BUSY pin:  3
-SX1281 radio = new Module(9, 8, 18, 3);
+// Define pins for SX1281
+#define RADIOLIB_CS 9
+#define RADIOLIB_RESET 8
+#define RADIOLIB_IRQ 18
+#define RADIOLIB_BUSY 3 // Adjust if necessary
 
-// or detect the pinout automatically using RadioBoards
-// https://github.com/radiolib-org/RadioBoards
-/*
-#define RADIO_BOARD_AUTO
-#include <RadioBoards.h>
-Radio radio = new RadioModule();
-*/
+SX1281 radio = new Module(RADIOLIB_CS, RADIOLIB_RESET, RADIOLIB_IRQ, RADIOLIB_BUSY);
 
-// flag to indicate that a packet was received
-volatile bool receivedFlag = false;
-
-// this function is called when a complete packet
-// is received by the module
-// IMPORTANT: this function MUST be 'void' type
-//            and MUST NOT have any arguments!
-#if defined(ESP8266) || defined(ESP32)
-ICACHE_RAM_ATTR
-#endif
-void setFlag(void)
-{
-    // we got a packet, set the flag
-    receivedFlag = true;
-}
+volatile bool irqFired = false;
 
 void setup()
 {
     Serial.begin(115200);
+    while (!Serial)
+        ;
+    Serial.println("Device B - Receiver");
 
+    // Initialize SPI
     SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CSN);
 
-    // initialize SX1280 with default settings
-    Serial.print(F("[SX1280] Initializing ... "));
-    int state = radio.begin();
-    if (state == RADIOLIB_ERR_NONE)
+    // Initialize radio
+    if (radio.begin() != RADIOLIB_ERR_NONE)
     {
-        Serial.println(F("success!"));
-    }
-    else
-    {
-        Serial.print(F("failed, code "));
-        Serial.println(state);
-        while (true)
-        {
-            delay(10);
-        }
+        Serial.println("Failed to initialize radio");
+        while (1)
+            ;
     }
 
-    // set the function that will be called
-    // when new packet is received
-    radio.setPacketReceivedAction(setFlag);
+    // Set frequency and other parameters (must match Device A)
+    radio.setFrequency(868.0);
+    radio.setBandwidth(125.0);
+    // ... Add other settings as needed
 
-    // start listening for LoRa packets
-    Serial.print(F("[SX1280] Starting to listen ... "));
-    state = radio.startReceive();
-    if (state == RADIOLIB_ERR_NONE)
-    {
-        Serial.println(F("success!"));
-    }
-    else
-    {
-        Serial.print(F("failed, code "));
-        Serial.println(state);
-        while (true)
-        {
-            delay(10);
-        }
-    }
+    // Enable CRC
+    radio.setCRC(2, 0x1D0F, 0x1021);
 
-    // if needed, 'listen' mode can be disabled by calling
-    // any of the following methods:
-    //
-    // radio.standby()
-    // radio.sleep()
-    // radio.transmit();
-    // radio.receive();
-    // radio.readData();
-    // radio.scanChannel();
+    // Set interrupt action
+    radio.setDio1Action(setFlag);
+
+    // Start receiving
+    radio.startReceive();
 }
 
 void loop()
 {
-    // check if the flag is set
-    if (receivedFlag)
+    if (irqFired)
     {
-        // reset flag
-        receivedFlag = false;
-
-        // you can read received data as an Arduino String
-        String str;
-        int state = radio.readData(str);
-
-        // you can also read received data as byte array
-        /*
-          byte byteArr[8];
-          int numBytes = radio.getPacketLength();
-          int state = radio.readData(byteArr, numBytes);
-        */
-
-        if (state == RADIOLIB_ERR_NONE)
+        irqFired = false;
+        // Check if a packet was received
+        uint32_t irqStatus = radio.getIrqStatus();
+        if (irqStatus & RADIOLIB_SX128X_IRQ_RX_DONE)
         {
-            // packet was successfully received
-            Serial.println(F("[SX1280] Received packet!"));
-
-            // print data of the packet
-            Serial.print(F("[SX1280] Data:\t\t"));
-            Serial.println(str);
-
-            // print RSSI (Received Signal Strength Indicator)
-            Serial.print(F("[SX1280] RSSI:\t\t"));
-            Serial.print(radio.getRSSI());
-            Serial.println(F(" dBm"));
-
-            // print SNR (Signal-to-Noise Ratio)
-            Serial.print(F("[SX1280] SNR:\t\t"));
-            Serial.print(radio.getSNR());
-            Serial.println(F(" dB"));
-
-            // print the Frequency Error
-            // of the last received packet
-
-            Serial.print(F("[SX1280] Frequency Error:\t"));
-            Serial.print(radio.getFrequencyError());
-            Serial.println(F(" Hz"));
+            unsigned long data;
+            size_t len = sizeof(data);
+            int state = radio.readData((uint8_t *)&data, len);
+            if (state == RADIOLIB_ERR_NONE)
+            {
+                Serial.print("Received CONTROL_MSG: ");
+                Serial.println(data);
+                // Run callback
+                doSomething();
+                // Send BOAT_MSG as response
+                sendBoatMsg();
+                // Start receiving again
+                radio.startReceive();
+            }
         }
-        else if (state == RADIOLIB_ERR_CRC_MISMATCH)
-        {
-            // packet was received, but is malformed
-            Serial.println(F("CRC error!"));
-        }
-        else
-        {
-            // some other error occurred
-            Serial.print(F("failed, code "));
-            Serial.println(state);
-        }
+    }
+}
 
-        // put module back to listen mode
-        radio.startReceive();
+void setFlag(void)
+{
+    irqFired = true;
+}
+
+void doSomething()
+{
+    // Serial.println("Doing something after receiving CONTROL_MSG");
+    // User-defined callback action
+}
+
+void sendBoatMsg()
+{
+    unsigned long boatMsg = millis();
+    int state = radio.transmit((uint8_t *)&boatMsg, sizeof(boatMsg));
+    if (state == RADIOLIB_ERR_NONE)
+    {
+        Serial.println("BOAT_MSG sent");
+    }
+    else
+    {
+        Serial.print("Failed to send BOAT_MSG, code: ");
+        Serial.println(state);
     }
 }
 
