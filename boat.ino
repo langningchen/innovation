@@ -39,7 +39,7 @@ NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CE, PIN_CSN,
                                        76, RF24_250KBPS, RF24_PA_LOW,
                                        5, 15,
                                        NETWORK_ADDRESS);
-MPU6050 mpu6050(MPU_ADDRESS, MPU6050_RANGE_2_G, MPU6050_RANGE_250_DEG);
+// MPU6050 mpu6050(MPU_ADDRESS, MPU6050_RANGE_2_G, MPU6050_RANGE_250_DEG);
 
 void setup()
 {
@@ -101,12 +101,12 @@ void setup()
             ;
     }
 
-    if (!mpu6050.begin())
-    {
-        Serial.println("MPU6050 initialization failed");
-        while (1)
-            ;
-    }
+    // if (!mpu6050.begin())
+    // {
+    //     Serial.println("MPU6050 initialization failed");
+    //     while (1)
+    //         ;
+    // }
 
     Serial.println("Boat initialization completed");
 }
