@@ -55,7 +55,7 @@ void NETWORK<CLIENT_MSG, SERVER_MSG>::setClient() { isServer = false; }
  * @see NETWORK::setServer
  */
 template <typename CLIENT_MSG, typename SERVER_MSG>
-bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedServer(boolean &hasData)
+bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedServer(bool &hasData)
 {
     hasData = packageReceived;
     if (packageReceived)
