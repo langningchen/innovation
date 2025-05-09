@@ -70,7 +70,8 @@ bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedServer(bool &hasData)
             SERVER_MSG serverMsg = serverCallback(clientMsg);
             if (!radio.transmit((uint8_t *)&serverMsg, sizeof(serverMsg)))
                 return false;
-            radio.startReceive();
+            if (!radio.startReceive())
+                return false;
         }
         else
             return false;
