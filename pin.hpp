@@ -15,16 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with innovation.  If not, see <https://www.gnu.org/licenses/>.
 
-// NRF24L01
-#define PIN_MISO 12
-#define PIN_MOSI 11
-#define PIN_SCK 10
-#define PIN_CSN 9
-#define PIN_CE 4
+#define PIN_MISO 12 // SPI MISO
+#define PIN_MOSI 11 // SPI MOSI
+#define PIN_SCK 10  // SPI SCK
+#define PIN_CS 9    // SX1281 CS
+#define PIN_RESET 8 // SX1281 RESET
+#define PIN_IRQ 18  // SX1281 IRQ
+#define PIN_BUSY 3  // SX1281 BUSY
 
-// MPU6050
-#define PIN_SDA 6
-#define PIN_SCL 7
+#define PIN_SDA 6 // MPU6050 SDA
+#define PIN_SCL 7 // MPU6050 SCL
 
 #define PIN_PWM0 40 // Servo
 #define PIN_PWM1 41 // Motor

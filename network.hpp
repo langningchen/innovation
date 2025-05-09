@@ -17,30 +17,21 @@
 
 #pragma once
 
-#include <RF24.h>
+#include <RadioLib.h>
 
 template <typename CLIENT_MSG, typename SERVER_MSG>
 class NETWORK
 {
 private:
-    RF24 radio;
-    uint8_t channel;
-    rf24_datarate_e dataRate;
-    rf24_pa_dbm_e powerLevel;
-    uint8_t retriesDelay;
-    uint8_t retriesCount;
-    uint64_t address;
+    SX1281 radio;
+    bool packageReceived = false;
     bool isServer = false;
-    uint8_t pipe;
     std::function<SERVER_MSG(CLIENT_MSG)> serverCallback;
 
 public:
-    NETWORK(uint8_t pinCE, uint8_t pinCSN,
-            uint8_t channel, rf24_datarate_e dataRate, rf24_pa_dbm_e powerLevel,
-            uint8_t retriesDelay, uint8_t retriesCount,
-            uint64_t address);
+    NETWORK(uint8_t pinCS, uint8_t pinRESET, uint8_t pinIRQ, uint8_t pinBUSY);
     bool begin();
-    void setServer(uint8_t pipe, std::function<SERVER_MSG(CLIENT_MSG)> serverCallback);
+    bool setServer(std::function<SERVER_MSG(CLIENT_MSG)> serverCallback);
     void setClient();
     bool proceedServer(boolean &hasData);
     bool proceedClient(CLIENT_MSG clientMsg, SERVER_MSG &serverMsg);
