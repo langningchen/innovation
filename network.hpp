@@ -23,10 +23,12 @@ template <typename CLIENT_MSG, typename SERVER_MSG>
 class NETWORK
 {
 private:
-    SX1281 radio;
+    SX1281 *radio;
     bool packageReceived = false;
     bool isServer = false;
     std::function<SERVER_MSG(CLIENT_MSG)> serverCallback;
+    static NETWORK *currentInstance;
+    static void packetReceived();
 
 public:
     NETWORK(uint8_t pinCS, uint8_t pinRESET, uint8_t pinIRQ, uint8_t pinBUSY);

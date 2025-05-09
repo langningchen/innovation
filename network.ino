@@ -1,5 +1,15 @@
 #include <network.hpp>
 
+template <typename CLIENT_MSG, typename SERVER_MSG>
+NETWORK<CLIENT_MSG, SERVER_MSG> *NETWORK<CLIENT_MSG, SERVER_MSG>::currentInstance = nullptr;
+
+template <typename CLIENT_MSG, typename SERVER_MSG>
+inline void NETWORK<CLIENT_MSG, SERVER_MSG>::packetReceived()
+{
+    if (currentInstance != nullptr)
+        currentInstance->packageReceived = true;
+}
+
 /**
  * @brief NETWORK constructor
  * @tparam CLIENT_MSG message sent from client
@@ -11,7 +21,9 @@
  */
 template <typename CLIENT_MSG, typename SERVER_MSG>
 NETWORK<CLIENT_MSG, SERVER_MSG>::NETWORK(uint8_t pinCS, uint8_t pinRESET, uint8_t pinIRQ, uint8_t pinBUSY)
-    : radio(pinCS, pinRESET, pinIRQ, pinBUSY) {}
+{
+    radio = new SX1281(new Module(pinCS, pinRESET, pinIRQ, pinBUSY));
+}
 
 /**
  * @brief Initialize the NETWORK
@@ -20,10 +32,10 @@ NETWORK<CLIENT_MSG, SERVER_MSG>::NETWORK(uint8_t pinCS, uint8_t pinRESET, uint8_
 template <typename CLIENT_MSG, typename SERVER_MSG>
 bool NETWORK<CLIENT_MSG, SERVER_MSG>::begin()
 {
-    if (radio.begin() != RADIOLIB_ERR_NONE)
+    if (radio->begin() != RADIOLIB_ERR_NONE)
         return false;
-    radio.setPacketReceivedAction([this]() -> void
-                                  { packageReceived = true; });
+    currentInstance = this;
+    radio->setPacketReceivedAction(NETWORK::packetReceived);
     return true;
 }
 
@@ -34,7 +46,7 @@ bool NETWORK<CLIENT_MSG, SERVER_MSG>::begin()
 template <typename CLIENT_MSG, typename SERVER_MSG>
 bool NETWORK<CLIENT_MSG, SERVER_MSG>::setServer(std::function<SERVER_MSG(CLIENT_MSG)> serverCallback)
 {
-    if (!radio.startReceive())
+    if (!radio->startReceive())
         return false;
     isServer = true;
     this->serverCallback = serverCallback;
@@ -61,16 +73,16 @@ bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedServer(bool &hasData)
     if (packageReceived)
     {
         packageReceived = false;
-        uint16_t irqStatus = radio.getIrqStatus();
+        uint16_t irqStatus = radio->getIrqStatus();
         if (irqStatus & RADIOLIB_SX128X_IRQ_RX_DONE)
         {
             CLIENT_MSG clientMsg;
-            if (!radio.readData((uint8_t *)&clientMsg, sizeof(clientMsg)))
+            if (!radio->readData((uint8_t *)&clientMsg, sizeof(clientMsg)))
                 return false;
             SERVER_MSG serverMsg = serverCallback(clientMsg);
-            if (!radio.transmit((uint8_t *)&serverMsg, sizeof(serverMsg)))
+            if (!radio->transmit((uint8_t *)&serverMsg, sizeof(serverMsg)))
                 return false;
-            if (!radio.startReceive())
+            if (!radio->startReceive())
                 return false;
         }
         else
@@ -90,10 +102,10 @@ bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedServer(bool &hasData)
 template <typename CLIENT_MSG, typename SERVER_MSG>
 bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedClient(CLIENT_MSG clientMsg, SERVER_MSG &serverMsg)
 {
-    if (!radio.transmit(&clientMsg, sizeof(clientMsg)))
+    if (!radio->transmit(&clientMsg, sizeof(clientMsg)))
         return false;
     memset(&serverMsg, 0, sizeof(serverMsg));
-    if (!radio.receive(&serverMsg, sizeof(serverMsg)))
+    if (!radio->receive(&serverMsg, sizeof(serverMsg)))
         return false;
     return true;
 }
