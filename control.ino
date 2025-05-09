@@ -22,15 +22,12 @@
 #include <network.hpp>
 #include <messages.hpp>
 
-NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CE, PIN_CSN,
-                                       76, RF24_250KBPS, RF24_PA_LOW,
-                                       5, 15,
-                                       NETWORK_ADDRESS);
+NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_RESET, PIN_IRQ, PIN_BUSY);
 
 void setup()
 {
     Serial.begin(115200);
-    SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CSN);
+    SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
 
     if (!network.begin())
     {

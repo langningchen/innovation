@@ -4,21 +4,14 @@
  * @brief NETWORK constructor
  * @tparam CLIENT_MSG message sent from client
  * @tparam SERVER_MSG message responded from server
- * @param pinCE CE pin
- * @param pinCSN CSN pin
- * @param channel channel number, range is [0, 125]
- * @param dataRate data rate
- * @param powerLevel power level
- * @param retriesDelay delay between retries, in multiples of 250 us
- * @param retriesCount number of retries, range is [0, 15]
- * @param address address for the radio, 5 bytes
+ * @param pinCS CS pin
+ * @param pinRESET RESET pin
+ * @param pinIRQ IRQ pin
+ * @param pinBUSY BUSY pin
  */
 template <typename CLIENT_MSG, typename SERVER_MSG>
-NETWORK<CLIENT_MSG, SERVER_MSG>::NETWORK(uint8_t pinCE, uint8_t pinCSN, uint8_t channel, rf24_datarate_e dataRate, rf24_pa_dbm_e powerLevel, uint8_t retriesDelay, uint8_t retriesCount, uint64_t address)
-    : radio(pinCE, pinCSN),
-      channel(channel), dataRate(dataRate), powerLevel(powerLevel),
-      retriesDelay(retriesDelay), retriesCount(retriesCount),
-      address(address) {}
+NETWORK<CLIENT_MSG, SERVER_MSG>::NETWORK(uint8_t pinCS, uint8_t pinRESET, uint8_t pinIRQ, uint8_t pinBUSY)
+    : radio(pinCS, pinRESET, pinIRQ, pinBUSY) {}
 
 /**
  * @brief Initialize the NETWORK
@@ -27,38 +20,32 @@ NETWORK<CLIENT_MSG, SERVER_MSG>::NETWORK(uint8_t pinCE, uint8_t pinCSN, uint8_t 
 template <typename CLIENT_MSG, typename SERVER_MSG>
 bool NETWORK<CLIENT_MSG, SERVER_MSG>::begin()
 {
-    if (!radio.begin())
+    if (radio.begin() != RADIOLIB_ERR_NONE)
         return false;
-    radio.setChannel(channel);
-    if (!radio.setDataRate(dataRate))
-        return false;
-    radio.setPALevel(powerLevel);
-    radio.setRetries(retriesDelay, retriesCount);
-    radio.enableAckPayload();
+    radio.setPacketReceivedAction([this]() -> void
+                                  { packageReceived = true; });
     return true;
 }
 
 /**
  * @brief Set as the server mode
- * @param pipe pipe number, range is [0, 5]
  * @param serverCallback callback function to handle the client message and return the server message
  */
 template <typename CLIENT_MSG, typename SERVER_MSG>
-void NETWORK<CLIENT_MSG, SERVER_MSG>::setServer(uint8_t pipe, std::function<SERVER_MSG(CLIENT_MSG)> serverCallback)
+bool NETWORK<CLIENT_MSG, SERVER_MSG>::setServer(std::function<SERVER_MSG(CLIENT_MSG)> serverCallback)
 {
-    radio.openReadingPipe(pipe, address), radio.startListening();
-    isServer = true, this->pipe = pipe, this->serverCallback = serverCallback;
+    if (!radio.startReceive())
+        return false;
+    isServer = true;
+    this->serverCallback = serverCallback;
+    return true;
 }
 
 /**
  * @brief Set as the client mode
  */
 template <typename CLIENT_MSG, typename SERVER_MSG>
-void NETWORK<CLIENT_MSG, SERVER_MSG>::setClient()
-{
-    radio.openWritingPipe(address), radio.stopListening();
-    isServer = false;
-}
+void NETWORK<CLIENT_MSG, SERVER_MSG>::setClient() { isServer = false; }
 
 /**
  * @brief Proceed the server mode
@@ -68,16 +55,26 @@ void NETWORK<CLIENT_MSG, SERVER_MSG>::setClient()
  * @see NETWORK::setServer
  */
 template <typename CLIENT_MSG, typename SERVER_MSG>
-bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedServer(boolean &hasData)
+bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedServer(bool &hasData)
 {
-    if (radio.available())
+    hasData = packageReceived;
+    if (packageReceived)
     {
-        hasData = true;
-        CLIENT_MSG clientMsg;
-        memset(&clientMsg, 0, sizeof(clientMsg));
-        radio.read(&clientMsg, sizeof(clientMsg));
-        SERVER_MSG serverMsg = serverCallback(clientMsg);
-        return radio.writeAckPayload(pipe, &serverMsg, sizeof(serverMsg));
+        packageReceived = false;
+        uint16_t irqStatus = radio.getIrqStatus();
+        if (irqStatus & RADIOLIB_SX128X_IRQ_RX_DONE)
+        {
+            CLIENT_MSG clientMsg;
+            if (!radio.readData((uint8_t *)&clientMsg, sizeof(clientMsg)))
+                return false;
+            SERVER_MSG serverMsg = serverCallback(clientMsg);
+            if (!radio.transmit((uint8_t *)&serverMsg, sizeof(serverMsg)))
+                return false;
+            if (!radio.startReceive())
+                return false;
+        }
+        else
+            return false;
     }
     return true;
 }
@@ -93,13 +90,10 @@ bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedServer(boolean &hasData)
 template <typename CLIENT_MSG, typename SERVER_MSG>
 bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedClient(CLIENT_MSG clientMsg, SERVER_MSG &serverMsg)
 {
-    if (!radio.write(&clientMsg, sizeof(clientMsg)))
+    if (!radio.transmit(&clientMsg, sizeof(clientMsg)))
         return false;
     memset(&serverMsg, 0, sizeof(serverMsg));
-    if (radio.available())
-    {
-        radio.read(&serverMsg, sizeof(serverMsg));
-        return true;
-    }
-    return false;
+    if (!radio.receive(&serverMsg, sizeof(serverMsg)))
+        return false;
+    return true;
 }

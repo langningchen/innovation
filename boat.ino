@@ -35,16 +35,13 @@ MOTOR motor(PIN_PWM1, 5000, 8, 2);
 BATTERY battery(PIN_ADC,
                 14.0 / (270 + 40) * 40,  // 1.8064516129
                 14.8 / (270 + 40) * 40); // 1.9096774194
-NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CE, PIN_CSN,
-                                       76, RF24_250KBPS, RF24_PA_LOW,
-                                       5, 15,
-                                       NETWORK_ADDRESS);
+NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_RESET, PIN_IRQ, PIN_BUSY);
 MPU6050 mpu6050(MPU_ADDRESS, MPU6050_RANGE_2_G, MPU6050_RANGE_250_DEG);
 
 void setup()
 {
     Serial.begin(115200);
-    SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CSN);
+    SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
 
     if (!Wire.begin(PIN_SDA, PIN_SCL))
     {
@@ -59,26 +56,32 @@ void setup()
         while (1)
             ;
     }
-    network.setServer(1,
-                      [&](CONTROL_MSG controlMsg) -> BOAT_MSG
-                      {
-                          servo.setAngle(controlMsg.servoDegree);
-                          motor.setSpeed(controlMsg.motorSpeed);
-                          BOAT_MSG boatMsg;
-                          boatMsg.result = 0;
-                          boatMsg.batteryVoltage = battery.getVoltage();
-                          boatMsg.batteryPercentage = battery.getPercentage();
-                          Serial.print("servo ");
-                          Serial.print(controlMsg.servoDegree);
-                          Serial.print("°  motor ");
-                          Serial.print(controlMsg.motorSpeed);
-                          Serial.print("%  battery ");
-                          Serial.print(boatMsg.batteryVoltage);
-                          Serial.print("V ");
-                          Serial.print(boatMsg.batteryPercentage);
-                          Serial.println("%");
-                          return boatMsg;
-                      });
+
+    if (!network.setServer(
+            [&](CONTROL_MSG controlMsg) -> BOAT_MSG
+            {
+                servo.setAngle(controlMsg.servoDegree);
+                motor.setSpeed(controlMsg.motorSpeed);
+                BOAT_MSG boatMsg;
+                boatMsg.result = 0;
+                boatMsg.batteryVoltage = battery.getVoltage();
+                boatMsg.batteryPercentage = battery.getPercentage();
+                Serial.print("servo ");
+                Serial.print(controlMsg.servoDegree);
+                Serial.print("°  motor ");
+                Serial.print(controlMsg.motorSpeed);
+                Serial.print("%  battery ");
+                Serial.print(boatMsg.batteryVoltage);
+                Serial.print("V ");
+                Serial.print(boatMsg.batteryPercentage);
+                Serial.println("%");
+                return boatMsg;
+            }))
+    {
+        Serial.println("Network server initialization failed");
+        while (1)
+            ;
+    }
 
     if (!servo.begin())
     {
