@@ -36,7 +36,7 @@ BATTERY battery(PIN_ADC,
                 14.0 / (270 + 40) * 40,  // 1.8064516129
                 14.8 / (270 + 40) * 40); // 1.9096774194
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_RESET, PIN_IRQ, PIN_BUSY);
-MPU6050 mpu6050(MPU_ADDRESS, MPU6050_RANGE_2_G, MPU6050_RANGE_250_DEG);
+// MPU6050 mpu6050(MPU_ADDR0ESS, MPU6050_RANGE_2_G, MPU6050_RANGE_250_DEG);
 
 void setup()
 {
@@ -104,12 +104,12 @@ void setup()
             ;
     }
 
-    if (!mpu6050.begin())
-    {
-        Serial.println("MPU6050 initialization failed");
-        while (1)
-            ;
-    }
+    // if (!mpu6050.begin())
+    // {
+    //     Serial.println("MPU6050 initialization failed");
+    //     while (1)
+    //         ;
+    // }
 
     Serial.println("Boat initialization completed");
 }

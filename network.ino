@@ -46,7 +46,7 @@ bool NETWORK<CLIENT_MSG, SERVER_MSG>::begin()
 template <typename CLIENT_MSG, typename SERVER_MSG>
 bool NETWORK<CLIENT_MSG, SERVER_MSG>::setServer(std::function<SERVER_MSG(CLIENT_MSG)> serverCallback)
 {
-    if (!radio->startReceive())
+    if (radio->startReceive() != RADIOLIB_ERR_NONE)
         return false;
     isServer = true;
     this->serverCallback = serverCallback;
@@ -77,16 +77,14 @@ bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedServer(bool &hasData)
         if (irqStatus & RADIOLIB_SX128X_IRQ_RX_DONE)
         {
             CLIENT_MSG clientMsg;
-            if (!radio->readData((uint8_t *)&clientMsg, sizeof(clientMsg)))
+            if (radio->readData((uint8_t *)&clientMsg, sizeof(clientMsg)) != RADIOLIB_ERR_NONE)
                 return false;
             SERVER_MSG serverMsg = serverCallback(clientMsg);
-            if (!radio->transmit((uint8_t *)&serverMsg, sizeof(serverMsg)))
+            if (radio->transmit((uint8_t *)&serverMsg, sizeof(serverMsg)) != RADIOLIB_ERR_NONE)
                 return false;
-            if (!radio->startReceive())
+            if (radio->startReceive() != RADIOLIB_ERR_NONE)
                 return false;
         }
-        else
-            return false;
     }
     return true;
 }
@@ -102,10 +100,10 @@ bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedServer(bool &hasData)
 template <typename CLIENT_MSG, typename SERVER_MSG>
 bool NETWORK<CLIENT_MSG, SERVER_MSG>::proceedClient(CLIENT_MSG clientMsg, SERVER_MSG &serverMsg)
 {
-    if (!radio->transmit(&clientMsg, sizeof(clientMsg)))
+    if (radio->transmit((uint8_t *)&clientMsg, sizeof(clientMsg)) != RADIOLIB_ERR_NONE)
         return false;
     memset(&serverMsg, 0, sizeof(serverMsg));
-    if (!radio->receive(&serverMsg, sizeof(serverMsg)))
+    if (radio->receive((uint8_t *)&serverMsg, sizeof(serverMsg)) != RADIOLIB_ERR_NONE)
         return false;
     return true;
 }
