@@ -56,26 +56,32 @@ void setup()
         while (1)
             ;
     }
-    network.setServer(
-        [&](CONTROL_MSG controlMsg) -> BOAT_MSG
-        {
-            servo.setAngle(controlMsg.servoDegree);
-            motor.setSpeed(controlMsg.motorSpeed);
-            BOAT_MSG boatMsg;
-            boatMsg.result = 0;
-            boatMsg.batteryVoltage = battery.getVoltage();
-            boatMsg.batteryPercentage = battery.getPercentage();
-            Serial.print("servo ");
-            Serial.print(controlMsg.servoDegree);
-            Serial.print("°  motor ");
-            Serial.print(controlMsg.motorSpeed);
-            Serial.print("%  battery ");
-            Serial.print(boatMsg.batteryVoltage);
-            Serial.print("V ");
-            Serial.print(boatMsg.batteryPercentage);
-            Serial.println("%");
-            return boatMsg;
-        });
+
+    if (!network.setServer(
+            [&](CONTROL_MSG controlMsg) -> BOAT_MSG
+            {
+                servo.setAngle(controlMsg.servoDegree);
+                motor.setSpeed(controlMsg.motorSpeed);
+                BOAT_MSG boatMsg;
+                boatMsg.result = 0;
+                boatMsg.batteryVoltage = battery.getVoltage();
+                boatMsg.batteryPercentage = battery.getPercentage();
+                Serial.print("servo ");
+                Serial.print(controlMsg.servoDegree);
+                Serial.print("°  motor ");
+                Serial.print(controlMsg.motorSpeed);
+                Serial.print("%  battery ");
+                Serial.print(boatMsg.batteryVoltage);
+                Serial.print("V ");
+                Serial.print(boatMsg.batteryPercentage);
+                Serial.println("%");
+                return boatMsg;
+            }))
+    {
+        Serial.println("Network server initialization failed");
+        while (1)
+            ;
+    }
 
     if (!servo.begin())
     {
