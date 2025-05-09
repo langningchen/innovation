@@ -3,3 +3,4 @@ output/
 switch.hpp
 
 !.vscode/extensions.json
+!.vscode/settings.json
