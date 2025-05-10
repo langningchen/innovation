@@ -31,7 +31,7 @@ private:
     static void packetReceived();
 
 public:
-    NETWORK(uint8_t pinCS, uint8_t pinRESET, uint8_t pinIRQ, uint8_t pinBUSY);
+    NETWORK(uint8_t pinCS, uint8_t pinIRQ, uint8_t pinRESET, uint8_t pinBUSY);
     bool begin();
     bool setServer(std::function<SERVER_MSG(CLIENT_MSG)> serverCallback);
     void setClient();

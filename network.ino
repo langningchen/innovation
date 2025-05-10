@@ -15,14 +15,14 @@ inline void NETWORK<CLIENT_MSG, SERVER_MSG>::packetReceived()
  * @tparam CLIENT_MSG message sent from client
  * @tparam SERVER_MSG message responded from server
  * @param pinCS CS pin
- * @param pinRESET RESET pin
  * @param pinIRQ IRQ pin
+ * @param pinRESET RESET pin
  * @param pinBUSY BUSY pin
  */
 template <typename CLIENT_MSG, typename SERVER_MSG>
-NETWORK<CLIENT_MSG, SERVER_MSG>::NETWORK(uint8_t pinCS, uint8_t pinRESET, uint8_t pinIRQ, uint8_t pinBUSY)
+NETWORK<CLIENT_MSG, SERVER_MSG>::NETWORK(uint8_t pinCS, uint8_t pinIRQ, uint8_t pinRESET, uint8_t pinBUSY)
 {
-    radio = new SX1281(new Module(pinCS, pinRESET, pinIRQ, pinBUSY));
+    radio = new SX1281(new Module(pinCS, pinIRQ, pinRESET, pinBUSY));
 }
 
 /**

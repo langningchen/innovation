@@ -19,8 +19,8 @@
 #define PIN_MOSI 11  // SPI MOSI
 #define PIN_SCK 10   // SPI SCK
 #define PIN_CS 9     // SX1281 CS
-#define PIN_RESET 21 // SX1281 RESET
-#define PIN_IRQ 18   // SX1281 IRQ
+#define PIN_RESET 18 // SX1281 RESET
+#define PIN_IRQ 21   // SX1281 IRQ
 #define PIN_BUSY 3   // SX1281 BUSY
 
 #define PIN_SDA 6 // MPU6050 SDA

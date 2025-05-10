@@ -22,7 +22,7 @@
 #include <network.hpp>
 #include <messages.hpp>
 
-NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_RESET, PIN_IRQ, PIN_BUSY);
+NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_IRQ, PIN_RESET, PIN_BUSY);
 
 void setup()
 {
