@@ -26,7 +26,16 @@
 #define PIN_SDA 6 // MPU6050 SDA
 #define PIN_SCL 7 // MPU6050 SCL
 
-#define PIN_PWM0 40 // Servo
-#define PIN_PWM1 41 // Motor
+#define PIN_PWM0 40 // Servo 1
+#define PIN_PWM1 41 // Motor 1
+#define PIN_PWM2 37 // Servo 2
+#define PIN_PWM3 38 // Motor 2
 
 #define PIN_ADC 15 // Battery monitor
+
+#define PIN_SPEED_MAX 6       // Speed max
+#define PIN_SPEED_CRUISE 5    // Speed cruise
+#define PIN_SPEED_CONTROL 1  // Speed control
+#define PIN_STEER_CONTROL 2  // Steer control
+#define PIN_CRUISE_CONTROL 16 // Cruise control
+#define PIN_CONTROL_LOCK 15   // Control lock

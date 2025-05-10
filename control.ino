@@ -21,8 +21,10 @@
 #include <define.hpp>
 #include <network.hpp>
 #include <messages.hpp>
+#include <a2d.hpp>
 
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_IRQ, PIN_RESET, PIN_BUSY);
+A2D a2d(PIN_SPEED_MAX, PIN_SPEED_CRUISE, PIN_SPEED_CONTROL, PIN_STEER_CONTROL, PIN_CRUISE_CONTROL, PIN_CONTROL_LOCK);
 
 void setup()
 {
@@ -37,11 +39,30 @@ void setup()
     }
     network.setClient();
 
+    if (!a2d.begin())
+    {
+        Serial.println("A2D initialization failed");
+        while (1)
+            ;
+    }
+    a2d.collaborate();
+
     Serial.println("Control initialization completed");
 }
 
 void loop()
 {
+    a2d.process();
+    uint16_t speedMax, speedCruise, speedControl, steerControl;
+    bool cruiseControl, controlLock;
+    a2d.getData(speedMax, speedCruise, speedControl, steerControl, cruiseControl, controlLock);
+    Serial.print("\tspeedControl\t"), Serial.print(speedControl);
+    Serial.print("\tsteerControl\t"), Serial.print(steerControl);
+    Serial.print("\tspeedMax\t"), Serial.print(speedMax);
+    Serial.print("\tspeedCruise\t"), Serial.print(speedCruise);
+    Serial.print("\tcruiseControl\t"), Serial.print(cruiseControl);
+    Serial.print("\tcontrolLock\t"), Serial.print(controlLock);
+    Serial.println();
     if (Serial.available())
     {
         uint8_t servoDegree = Serial.readStringUntil(' ').toInt();
