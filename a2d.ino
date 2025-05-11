@@ -55,7 +55,6 @@ bool A2D::begin()
 
 /**
  * @brief Collaborate the A2D
- * @return true if successful, false otherwise
  */
 void A2D::collaborate()
 {
@@ -90,6 +89,9 @@ void A2D::collaborate()
 
 /**
  * @brief Record a new data
+ * @param collaborate whether to collaborate the data
+ * @details This function will record the new data,
+ * if the collaborate parameter is true, it will update the min and max values
  */
 void A2D::process(bool collaborate)
 {
