@@ -75,13 +75,7 @@ void setup()
             ;
     }
 
-    if (!a2d.begin())
-    {
-        Serial.println("A2D initialization failed");
-        while (1)
-            ;
-    }
-    a2d.collaborate();
+    a2d.begin();
 
     Serial.println("Control initialization completed");
     lastMsg = millis();

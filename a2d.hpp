@@ -42,8 +42,9 @@ public:
     A2D(uint8_t speedMaxPin, uint8_t speedCruisePin,
         uint8_t speedControlPin, uint8_t steerControlPin,
         uint8_t enableCruisePin, uint8_t enableLockPin);
-    bool begin();
-    void collaborate();
+    void begin();
+    void reset();
+    void setBasis();
     void process(bool collaborate = false);
     void getData(uint8_t &speedMax, uint8_t &speedCruise,
                  int8_t &speedControl, int8_t &steerControl,

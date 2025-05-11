@@ -35,9 +35,8 @@ A2D::A2D(uint8_t speedMaxPin, uint8_t speedCruisePin,
 
 /**
  * @brief Initialize the A2D
- * @return true if successful, false otherwise
  */
-bool A2D::begin()
+void A2D::begin()
 {
     pinMode(speedMaxPin, INPUT), pinMode(speedCruisePin, INPUT);
     pinMode(speedControlPin, INPUT), pinMode(steerControlPin, INPUT);
@@ -47,45 +46,26 @@ bool A2D::begin()
 
     speedMaxMin = speedCruiseMin = speedControlMin = steerControlMin = 0;
     speedMaxMax = speedCruiseMax = speedControlMax = steerControlMax = (1 << ADC_RESOLUTION) - 1;
+    speedControlBasis = steerControlBasis = 1 << (ADC_RESOLUTION - 1);
+
     speedMax = analogRead(speedMaxPin), speedCruise = analogRead(speedCruisePin);
     speedControl = analogRead(speedControlPin), steerControl = analogRead(steerControlPin);
     enableCruise = digitalRead(enableCruisePin), enableLock = digitalRead(enableLockPin);
-    return true;
 }
 
 /**
- * @brief Collaborate the A2D
+ * @brief Reset the A2D min and max values
  */
-void A2D::collaborate()
+void A2D::reset()
 {
-    Serial.println("Collaborating A2D...");
-    uint32_t startTime;
-
-    Serial.println("Please move the steering wheel and the throttle pedal.");
-    sleep(1);
-    Serial.println("Starting to record the data...");
-    startTime = millis();
-    while (millis() - startTime < 5000)
-        process(true);
-    Serial.println("Stop recording the data...");
-
-    Serial.println("Please do not move the steering wheel or the throttle pedal.");
-    sleep(1);
-    Serial.println("Starting to record the data...");
-    startTime = millis();
-    while (millis() - startTime < 5000)
-        process();
-    speedControlBasis = speedControl;
-    steerControlBasis = steerControl;
-    Serial.println("Stop recording the data...");
-
-    Serial.println("A2D collaboration completed");
-    Serial.print("speedMax "), Serial.print(speedMaxMin), Serial.print("~"), Serial.println(speedMaxMax);
-    Serial.print("speedCruise "), Serial.print(speedCruiseMin), Serial.print("~"), Serial.println(speedCruiseMax);
-    Serial.print("speedControl "), Serial.print(speedControlMin), Serial.print("~"), Serial.print(speedControlMax), Serial.print(" "), Serial.println(speedControlBasis);
-    Serial.print("steerControl "), Serial.print(steerControlMin), Serial.print("~"), Serial.print(steerControlMax), Serial.print(" "), Serial.println(steerControlBasis);
-    Serial.println("");
+    speedMaxMin = speedCruiseMin = speedControlMin = steerControlMin = 0;
+    speedMaxMax = speedCruiseMax = speedControlMax = steerControlMax = (1 << ADC_RESOLUTION) - 1;
 }
+
+/**
+ * @brief Set current values as the basis
+ */
+void A2D::setBasis() { speedControlBasis = speedControl, steerControlBasis = steerControl; }
 
 /**
  * @brief Record a new data
@@ -122,6 +102,7 @@ void A2D::process(bool collaborate)
  * @param steerControl output steer control
  * @param enableCruise output whether cruise control is enabled
  * @param enableLock output whether control lock is enabled
+ * @details This function will get all the data and convert it to the range of [0, 100]
  */
 void A2D::getData(uint8_t &speedMax, uint8_t &speedCruise,
                   int8_t &speedControl, int8_t &steerControl,
