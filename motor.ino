@@ -33,7 +33,6 @@ MOTOR::MOTOR(uint8_t pin, uint8_t dirPin, uint32_t freq, uint8_t resolution, uin
  */
 bool MOTOR::setSpeed(int8_t speed)
 {
-    // assert(speed >= 0), assert(speed <= 100);
     speed = constrain(speed, -100, 100);
     digitalWrite(dirPin, (speed < 0) ^ dir);
     return ledcWriteChannel(channel, map(abs(speed), 0, 100, 0, pow(2, resolution)));

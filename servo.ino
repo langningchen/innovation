@@ -29,13 +29,9 @@ SERVO::SERVO(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel,
              uint8_t aglRng, uint8_t minDuty, uint8_t maxDuty)
     : PWM(pin, freq, resolution, channel)
 {
-    // assert(aglRng >= 1), assert(aglRng <= 180);
-    this->aglRng = aglRng;
-    // assert(minDuty >= 0), assert(minDuty <= 100);
-    // assert(maxDuty >= 0), assert(maxDuty <= 100);
-    // assert(minDuty < maxDuty);
-    this->minDuty = minDuty;
-    this->maxDuty = maxDuty;
+    this->aglRng = constrain(aglRng, 1, 180);
+    this->minDuty = constrain(minDuty, 0, 100);
+    this->maxDuty = constrain(maxDuty, 0, 100);
 }
 
 /**
@@ -45,7 +41,6 @@ SERVO::SERVO(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel,
  */
 bool SERVO::setAngle(int8_t angle)
 {
-    // assert(angle >= -aglRng), assert(angle <= aglRng);
     angle = constrain(angle, -aglRng, aglRng);
     static int8_t lastAngle = 0;
     if (lastAngle != angle)

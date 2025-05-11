@@ -25,7 +25,7 @@
  */
 inline uint32_t PWM::ratio2Duty(uint8_t ratio)
 {
-    // assert(ratio >= 0), assert(ratio <= 100);
+    ratio = constrain(ratio, 0, 100);
     return ratio * pow(2, resolution) / 100;
 }
 
