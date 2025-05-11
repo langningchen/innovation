@@ -29,11 +29,11 @@ SERVO::SERVO(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel,
              uint8_t aglRng, uint8_t minDuty, uint8_t maxDuty)
     : PWM(pin, freq, resolution, channel)
 {
-    assert(aglRng >= 1), assert(aglRng <= 360);
+    // assert(aglRng >= 1), assert(aglRng <= 360);
     this->aglRng = aglRng;
-    assert(minDuty >= 0), assert(minDuty <= 100);
-    assert(maxDuty >= 0), assert(maxDuty <= 100);
-    assert(minDuty < maxDuty);
+    // assert(minDuty >= 0), assert(minDuty <= 100);
+    // assert(maxDuty >= 0), assert(maxDuty <= 100);
+    // assert(minDuty < maxDuty);
     this->minDuty = minDuty;
     this->maxDuty = maxDuty;
 }
@@ -45,7 +45,15 @@ SERVO::SERVO(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel,
  */
 bool SERVO::setAngle(uint8_t angle)
 {
-    assert(angle >= 0), assert(angle <= aglRng);
-    return ledcWriteChannel(channel, map(angle, 0, aglRng,
-                                         ratio2Duty(minDuty), ratio2Duty(maxDuty)));
+    // assert(angle >= 0), assert(angle <= aglRng);
+    static uint8_t lastAngle = 0;
+    if (lastAngle != angle)
+    {
+        Serial.print("angle changed to ");
+        Serial.print(angle);
+        lastAngle = angle;
+        return ledcWriteChannel(channel, map(angle, 0, aglRng,
+                                             ratio2Duty(minDuty), ratio2Duty(maxDuty)));
+    }
+    return false;
 }

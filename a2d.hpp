@@ -23,10 +23,12 @@ private:
     const uint8_t ADC_RESOLUTION = 12; // ADC resolution in bits
     const float_t speedMaxFilterCoef = 0.08;
     const float_t speedCruiseFilterCoef = 0.05;
-    const float_t speedControlFilterCoef = 0.05;
-    const float_t steerControlFilterCoef = 0.08;
+    const float_t speedControlFilterCoef = 1;
+    const float_t steerControlFilterCoef = 1;
 
-    uint8_t speedControlBasis, steerControlBasis;
+    uint16_t speedMaxMax, speedCruiseMax, speedControlMax, steerControlMax;
+    uint16_t speedControlBasis, steerControlBasis;
+    uint16_t speedMaxMin, speedCruiseMin, speedControlMin, steerControlMin;
 
     uint8_t speedMaxPin, speedCruisePin;
     uint8_t speedControlPin, steerControlPin;
@@ -42,8 +44,8 @@ public:
         uint8_t cruiseControlPin, uint8_t controlLockPin);
     bool begin();
     void collaborate();
-    void process();
-    bool getData(uint16_t &speedMax, uint16_t &speedCruise,
-                 uint16_t &speedControl, uint16_t &steerControl,
+    void process(bool collaborate = false);
+    void getData(uint8_t &speedMax, uint8_t &speedCruise,
+                 int8_t &speedControl, int8_t &steerControl,
                  bool &cruiseControl, bool &controlLock);
 };

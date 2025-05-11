@@ -45,6 +45,8 @@ bool A2D::begin()
 
     analogReadResolution(ADC_RESOLUTION);
 
+    speedMaxMin = speedCruiseMin = speedControlMin = steerControlMin = 0;
+    speedMaxMax = speedCruiseMax = speedControlMax = steerControlMax = (1 << ADC_RESOLUTION) - 1;
     speedMax = analogRead(speedMaxPin), speedCruise = analogRead(speedCruisePin);
     speedControl = analogRead(speedControlPin), steerControl = analogRead(steerControlPin);
     cruiseControl = digitalRead(cruiseControlPin), controlLock = digitalRead(controlLockPin);
@@ -57,21 +59,57 @@ bool A2D::begin()
  */
 void A2D::collaborate()
 {
-    for (uint16_t i = 0; i < (1 << 10); i++)
+    Serial.println("Collaborating A2D...");
+    uint32_t startTime;
+
+    Serial.println("Please move the steering wheel and the throttle pedal.");
+    sleep(1);
+    Serial.println("Starting to record the data...");
+    startTime = millis();
+    while (millis() - startTime < 5000)
+        process(true);
+    Serial.println("Stop recording the data...");
+
+    Serial.println("Please do not move the steering wheel or the throttle pedal.");
+    sleep(1);
+    Serial.println("Starting to record the data...");
+    startTime = millis();
+    while (millis() - startTime < 5000)
         process();
-    speedControlBasis = speedControl, steerControlBasis = steerControl;
+    speedControlBasis = speedControl;
+    steerControlBasis = steerControl;
+    Serial.println("Stop recording the data...");
+
+    Serial.println("A2D collaboration completed");
+    Serial.print("speedMax "), Serial.print(speedMaxMin), Serial.print("~"), Serial.println(speedMaxMax);
+    Serial.print("speedCruise "), Serial.print(speedCruiseMin), Serial.print("~"), Serial.println(speedCruiseMax);
+    Serial.print("speedControl "), Serial.print(speedControlMin), Serial.print("~"), Serial.print(speedControlMax), Serial.print(" "), Serial.println(speedControlBasis);
+    Serial.print("steerControl "), Serial.print(steerControlMin), Serial.print("~"), Serial.print(steerControlMax), Serial.print(" "), Serial.println(steerControlBasis);
+    Serial.println("");
 }
 
 /**
  * @brief Record a new data
  */
-void A2D::process()
+void A2D::process(bool collaborate)
 {
-    speedMax = speedMax * (1 - speedMaxFilterCoef) + analogRead(speedMaxPin) * speedMaxFilterCoef;
-    speedCruise = speedCruise * (1 - speedCruiseFilterCoef) + analogRead(speedCruisePin) * speedCruiseFilterCoef;
-    speedControl = speedControl * (1 - speedControlFilterCoef) + analogRead(speedControlPin) * speedControlFilterCoef;
-    steerControl = steerControl * (1 - steerControlFilterCoef) + analogRead(steerControlPin) * steerControlFilterCoef;
+    uint16_t newSpeedMaxData = analogRead(speedMaxPin);
+    uint16_t newSpeedCruiseData = analogRead(speedCruisePin);
+    uint16_t newSpeedControlData = analogRead(speedControlPin);
+    uint16_t newSteerControlData = analogRead(steerControlPin);
+    speedMax = speedMax * (1 - speedMaxFilterCoef) + newSpeedMaxData * speedMaxFilterCoef;
+    speedCruise = speedCruise * (1 - speedCruiseFilterCoef) + newSpeedCruiseData * speedCruiseFilterCoef;
+    speedControl = speedControl * (1 - speedControlFilterCoef) + newSpeedControlData * speedControlFilterCoef;
+    steerControl = steerControl * (1 - steerControlFilterCoef) + newSteerControlData * steerControlFilterCoef;
     cruiseControl = digitalRead(cruiseControlPin), controlLock = digitalRead(controlLockPin);
+
+    if (collaborate)
+    {
+        speedMaxMax = max(speedMaxMax, speedMax), speedMaxMin = min(speedMaxMin, speedMax);
+        speedCruiseMax = max(speedCruiseMax, speedCruise), speedCruiseMin = min(speedCruiseMin, speedCruise);
+        speedControlMax = max(speedControlMax, speedControl), speedControlMin = min(speedControlMin, speedControl);
+        steerControlMax = max(steerControlMax, steerControl), steerControlMin = min(steerControlMin, steerControl);
+    }
 }
 
 /**
@@ -84,12 +122,23 @@ void A2D::process()
  * @param controlLock output control lock
  * @return
  */
-bool A2D::getData(uint16_t &speedMax, uint16_t &speedCruise,
-                  uint16_t &speedControl, uint16_t &steerControl,
+void A2D::getData(uint8_t &speedMax, uint8_t &speedCruise,
+                  int8_t &speedControl, int8_t &steerControl,
                   bool &cruiseControl, bool &controlLock)
 {
-    speedMax = this->speedMax, speedCruise = this->speedCruise;
-    speedControl = this->speedControl - speedControlBasis, steerControl = this->steerControl - steerControlBasis;
+    uint16_t constrainedSpeedMax = constrain(this->speedMax, speedMaxMin, speedMaxMax);
+    uint16_t constrainedSpeedCruise = constrain(this->speedCruise, speedCruiseMin, speedCruiseMax);
+    uint16_t constrainedSpeedControl = constrain(this->speedControl, speedControlMin, speedControlMax);
+    uint16_t constrainedSteerControl = constrain(this->steerControl, steerControlMin, steerControlMax);
+    speedMax = map(constrainedSpeedMax, speedMaxMin, speedMaxMax, 0, 100);
+    speedCruise = map(constrainedSpeedCruise, speedCruiseMin, speedCruiseMax, 0, 100);
+    if (constrainedSpeedControl >= speedControlBasis)
+        speedControl = map(constrainedSpeedControl, speedControlBasis, speedControlMax, 0, 100);
+    else
+        speedControl = map(constrainedSpeedControl, speedControlMin, speedControlBasis, -100, 0);
+    if (constrainedSteerControl >= steerControlBasis)
+        steerControl = map(constrainedSteerControl, steerControlBasis, steerControlMax, 0, 100);
+    else
+        steerControl = map(constrainedSteerControl, steerControlMin, steerControlBasis, -100, 0);
     cruiseControl = this->cruiseControl, controlLock = this->controlLock;
-    return true;
 }

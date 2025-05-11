@@ -30,8 +30,10 @@
 // any channel to 0 will cause
 // the configuration of first PWM channel
 // overwritten by the second one
-SERVO servo(PIN_PWM0, 100, 12, 1, 180, 5, 25);
-MOTOR motor(PIN_PWM1, 5000, 8, 2);
+SERVO servo0(PIN_PWM0, 100, 12, 1, 180, 5, 25);
+SERVO servo1(PIN_PWM2, 100, 12, 1, 180, 5, 25);
+MOTOR motor0(PIN_PWM1, 5000, 8, 2);
+MOTOR motor1(PIN_PWM3, 5000, 8, 2);
 BATTERY battery(PIN_ADC,
                 14.0 / (270 + 40) * 40,  // 1.8064516129
                 14.8 / (270 + 40) * 40); // 1.9096774194
@@ -60,8 +62,10 @@ void setup()
     if (!network.setServer(
             [&](CONTROL_MSG controlMsg) -> BOAT_MSG
             {
-                servo.setAngle(controlMsg.servoDegree);
-                motor.setSpeed(controlMsg.motorSpeed);
+                servo1.setAngle(controlMsg.servoDegree);
+                servo0.setAngle(controlMsg.servoDegree);
+                motor0.setSpeed(abs(controlMsg.motorSpeed));
+                motor1.setSpeed(abs(controlMsg.motorSpeed));
                 BOAT_MSG boatMsg;
                 boatMsg.result = 0;
                 boatMsg.batteryVoltage = battery.getVoltage();
@@ -83,14 +87,28 @@ void setup()
             ;
     }
 
-    if (!servo.begin())
+    if (!servo0.begin())
     {
         Serial.println("Servo initialization failed");
         while (1)
             ;
     }
 
-    if (!motor.begin())
+    if (!motor0.begin())
+    {
+        Serial.println("Motor initialization failed");
+        while (1)
+            ;
+    }
+
+    if (!servo1.begin())
+    {
+        Serial.println("Servo initialization failed");
+        while (1)
+            ;
+    }
+
+    if (!motor1.begin())
     {
         Serial.println("Motor initialization failed");
         while (1)

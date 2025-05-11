@@ -22,14 +22,23 @@
 #include <network.hpp>
 #include <messages.hpp>
 #include <a2d.hpp>
+#include <oled.hpp>
 
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_IRQ, PIN_RESET, PIN_BUSY);
 A2D a2d(PIN_SPEED_MAX, PIN_SPEED_CRUISE, PIN_SPEED_CONTROL, PIN_STEER_CONTROL, PIN_CRUISE_CONTROL, PIN_CONTROL_LOCK);
+OLED oled(OLED_ADDRESS, OLED_WIDTH, OLED_HEIGHT);
 
 void setup()
 {
     Serial.begin(115200);
     SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
+
+    if (!Wire.begin(PIN_OLED_SDA, PIN_OLED_SCL))
+    {
+        Serial.println("I2C initialization failed");
+        while (1)
+            ;
+    }
 
     if (!network.begin())
     {
@@ -38,6 +47,13 @@ void setup()
             ;
     }
     network.setClient();
+
+    if (!oled.begin())
+    {
+        Serial.println("OLED initialization failed");
+        while (1)
+            ;
+    }
 
     if (!a2d.begin())
     {
@@ -50,24 +66,19 @@ void setup()
     Serial.println("Control initialization completed");
 }
 
+uint32_t lastMsg = 0;
+
 void loop()
 {
     a2d.process();
-    uint16_t speedMax, speedCruise, speedControl, steerControl;
-    bool cruiseControl, controlLock;
-    a2d.getData(speedMax, speedCruise, speedControl, steerControl, cruiseControl, controlLock);
-    Serial.print("\tspeedControl\t"), Serial.print(speedControl);
-    Serial.print("\tsteerControl\t"), Serial.print(steerControl);
-    Serial.print("\tspeedMax\t"), Serial.print(speedMax);
-    Serial.print("\tspeedCruise\t"), Serial.print(speedCruise);
-    Serial.print("\tcruiseControl\t"), Serial.print(cruiseControl);
-    Serial.print("\tcontrolLock\t"), Serial.print(controlLock);
-    Serial.println();
-    if (Serial.available())
+    if (lastMsg == 0 || millis() - lastMsg > MSG_INTERVAL)
     {
-        uint8_t servoDegree = Serial.readStringUntil(' ').toInt();
-        uint8_t motorSpeed = Serial.readStringUntil('\n').toInt();
-        CONTROL_MSG controlMsg = {servoDegree, motorSpeed};
+        lastMsg += MSG_INTERVAL;
+        uint8_t speedMax, speedCruise;
+        int8_t speedControl, steerControl;
+        bool cruiseControl, controlLock;
+        a2d.getData(speedMax, speedCruise, speedControl, steerControl, cruiseControl, controlLock);
+        CONTROL_MSG controlMsg = {(steerControl + 100) * 0.9, speedControl};
         BOAT_MSG boatMsg = {0, 0, 0};
         if (network.proceedClient(controlMsg, boatMsg))
         {
@@ -82,7 +93,7 @@ void loop()
             Serial.println("%");
         }
         else
-            Serial.print("Network error");
+            Serial.println("Network error");
     }
 }
 

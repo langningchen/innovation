@@ -1,4 +1,4 @@
-// Copyright (C) 2025 langningchen
+// Copyright (C) 2025 Langning Chen
 //
 // This file is part of innovation.
 //
@@ -17,23 +17,16 @@
 
 #pragma once
 
-/**
- * @brief Message structure for the control
- * @details This structure is used for the control to send messages to the boat
- */
-struct CONTROL_MSG
-{
-    uint8_t servoDegree;
-    int8_t motorSpeed;
-};
+#include <Adafruit_SSD1306.h>
 
-/**
- * @brief Message structure for the boat
- * @details This structure is used for the boat to send messages to the control
- */
-struct BOAT_MSG
+class OLED
 {
-    uint8_t result;
-    float_t batteryVoltage;
-    uint8_t batteryPercentage;
+private:
+    uint8_t address;
+    uint8_t width, height;
+    Adafruit_SSD1306 display;
+
+public:
+    OLED(uint8_t address, uint8_t width, uint8_t height);
+    bool begin();
 };

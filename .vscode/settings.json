@@ -5,6 +5,7 @@
         "Langning",
         "MISO",
         "MOSI",
+        "OLED",
         "RADIOLIB"
     ]
 }

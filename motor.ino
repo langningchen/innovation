@@ -31,6 +31,6 @@ MOTOR::MOTOR(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel)
  */
 bool MOTOR::setSpeed(uint8_t speed)
 {
-    assert(speed >= 0), assert(speed <= 100);
+    // assert(speed >= 0), assert(speed <= 100);
     return ledcWriteChannel(channel, map(speed, 0, 100, 0, pow(2, resolution)));
 }
