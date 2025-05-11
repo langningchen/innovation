@@ -32,20 +32,20 @@ private:
 
     uint8_t speedMaxPin, speedCruisePin;
     uint8_t speedControlPin, steerControlPin;
-    uint8_t cruiseControlPin, controlLockPin;
+    uint8_t enableCruisePin, enableLockPin;
 
     uint16_t speedMax, speedCruise;
     uint16_t speedControl, steerControl;
-    bool cruiseControl, controlLock;
+    bool enableCruise, enableLock;
 
 public:
     A2D(uint8_t speedMaxPin, uint8_t speedCruisePin,
         uint8_t speedControlPin, uint8_t steerControlPin,
-        uint8_t cruiseControlPin, uint8_t controlLockPin);
+        uint8_t enableCruisePin, uint8_t enableLockPin);
     bool begin();
     void collaborate();
     void process(bool collaborate = false);
     void getData(uint8_t &speedMax, uint8_t &speedCruise,
                  int8_t &speedControl, int8_t &steerControl,
-                 bool &cruiseControl, bool &controlLock);
+                 bool &enableCruise, bool &enableLock);
 };

@@ -30,10 +30,10 @@
 // any channel to 0 will cause
 // the configuration of first PWM channel
 // overwritten by the second one
-SERVO servo0(PIN_PWM0, 100, 12, 1, 180, 5, 25);
-SERVO servo1(PIN_PWM2, 100, 12, 1, 180, 5, 25);
-MOTOR motor0(PIN_PWM1, 5000, 8, 2);
-MOTOR motor1(PIN_PWM3, 5000, 8, 2);
+SERVO servo0(PIN_PWM0, 100, 12, 1, SERVO_RANGE, 5, 25);
+SERVO servo1(PIN_PWM2, 100, 12, 1, SERVO_RANGE, 5, 25);
+MOTOR motor0(PIN_PWM1, PIN_DIR0, 5000, 8, 2, false);
+MOTOR motor1(PIN_PWM3, PIN_DIR1, 5000, 8, 2, true);
 BATTERY battery(PIN_ADC,
                 14.0 / (270 + 40) * 40,  // 1.8064516129
                 14.8 / (270 + 40) * 40); // 1.9096774194
@@ -44,6 +44,8 @@ void setup()
 {
     Serial.begin(115200);
     SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
+    pinMode(PIN_DIR0, OUTPUT);
+    pinMode(PIN_DIR1, OUTPUT);
 
     if (!Wire.begin(PIN_SDA, PIN_SCL))
     {
@@ -62,10 +64,8 @@ void setup()
     if (!network.setServer(
             [&](CONTROL_MSG controlMsg) -> BOAT_MSG
             {
-                servo1.setAngle(controlMsg.servoDegree);
-                servo0.setAngle(controlMsg.servoDegree);
-                motor0.setSpeed(abs(controlMsg.motorSpeed));
-                motor1.setSpeed(abs(controlMsg.motorSpeed));
+                servo0.setAngle(controlMsg.servoDegree), servo1.setAngle(controlMsg.servoDegree);
+                motor0.setSpeed(controlMsg.motorSpeed), motor1.setSpeed(controlMsg.motorSpeed);
                 BOAT_MSG boatMsg;
                 boatMsg.result = 0;
                 boatMsg.batteryVoltage = battery.getVoltage();

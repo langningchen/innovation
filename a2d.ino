@@ -23,15 +23,15 @@
  * @param speedCruisePin speed cruise pin
  * @param speedControlPin speed control pin
  * @param steerControlPin steer control pin
- * @param cruiseControlPin cruise control pin
- * @param controlLockPin control lock pin
+ * @param enableCruisePin cruise control pin
+ * @param enableLockPin control lock pin
  */
 A2D::A2D(uint8_t speedMaxPin, uint8_t speedCruisePin,
          uint8_t speedControlPin, uint8_t steerControlPin,
-         uint8_t cruiseControlPin, uint8_t controlLockPin)
+         uint8_t enableCruisePin, uint8_t enableLockPin)
     : speedMaxPin(speedMaxPin), speedCruisePin(speedCruisePin),
       speedControlPin(speedControlPin), steerControlPin(steerControlPin),
-      cruiseControlPin(cruiseControlPin), controlLockPin(controlLockPin) {}
+      enableCruisePin(enableCruisePin), enableLockPin(enableLockPin) {}
 
 /**
  * @brief Initialize the A2D
@@ -41,7 +41,7 @@ bool A2D::begin()
 {
     pinMode(speedMaxPin, INPUT), pinMode(speedCruisePin, INPUT);
     pinMode(speedControlPin, INPUT), pinMode(steerControlPin, INPUT);
-    pinMode(cruiseControlPin, INPUT), pinMode(controlLockPin, INPUT);
+    pinMode(enableCruisePin, INPUT), pinMode(enableLockPin, INPUT);
 
     analogReadResolution(ADC_RESOLUTION);
 
@@ -49,7 +49,7 @@ bool A2D::begin()
     speedMaxMax = speedCruiseMax = speedControlMax = steerControlMax = (1 << ADC_RESOLUTION) - 1;
     speedMax = analogRead(speedMaxPin), speedCruise = analogRead(speedCruisePin);
     speedControl = analogRead(speedControlPin), steerControl = analogRead(steerControlPin);
-    cruiseControl = digitalRead(cruiseControlPin), controlLock = digitalRead(controlLockPin);
+    enableCruise = digitalRead(enableCruisePin), enableLock = digitalRead(enableLockPin);
     return true;
 }
 
@@ -101,7 +101,7 @@ void A2D::process(bool collaborate)
     speedCruise = speedCruise * (1 - speedCruiseFilterCoef) + newSpeedCruiseData * speedCruiseFilterCoef;
     speedControl = speedControl * (1 - speedControlFilterCoef) + newSpeedControlData * speedControlFilterCoef;
     steerControl = steerControl * (1 - steerControlFilterCoef) + newSteerControlData * steerControlFilterCoef;
-    cruiseControl = digitalRead(cruiseControlPin), controlLock = digitalRead(controlLockPin);
+    enableCruise = !digitalRead(enableCruisePin), enableLock = digitalRead(enableLockPin);
 
     if (collaborate)
     {
@@ -118,20 +118,19 @@ void A2D::process(bool collaborate)
  * @param speedCruise output speed cruise
  * @param speedControl output speed control
  * @param steerControl output steer control
- * @param cruiseControl output cruise control
- * @param controlLock output control lock
- * @return
+ * @param enableCruise output whether cruise control is enabled
+ * @param enableLock output whether control lock is enabled
  */
 void A2D::getData(uint8_t &speedMax, uint8_t &speedCruise,
                   int8_t &speedControl, int8_t &steerControl,
-                  bool &cruiseControl, bool &controlLock)
+                  bool &enableCruise, bool &enableLock)
 {
     uint16_t constrainedSpeedMax = constrain(this->speedMax, speedMaxMin, speedMaxMax);
     uint16_t constrainedSpeedCruise = constrain(this->speedCruise, speedCruiseMin, speedCruiseMax);
     uint16_t constrainedSpeedControl = constrain(this->speedControl, speedControlMin, speedControlMax);
     uint16_t constrainedSteerControl = constrain(this->steerControl, steerControlMin, steerControlMax);
-    speedMax = map(constrainedSpeedMax, speedMaxMin, speedMaxMax, 0, 100);
-    speedCruise = map(constrainedSpeedCruise, speedCruiseMin, speedCruiseMax, 0, 100);
+    speedMax = 100 - map(constrainedSpeedMax, speedMaxMin, speedMaxMax, 0, 100);
+    speedCruise = 100 - map(constrainedSpeedCruise, speedCruiseMin, speedCruiseMax, 0, 100);
     if (constrainedSpeedControl >= speedControlBasis)
         speedControl = map(constrainedSpeedControl, speedControlBasis, speedControlMax, 0, 100);
     else
@@ -140,5 +139,5 @@ void A2D::getData(uint8_t &speedMax, uint8_t &speedCruise,
         steerControl = map(constrainedSteerControl, steerControlBasis, steerControlMax, 0, 100);
     else
         steerControl = map(constrainedSteerControl, steerControlMin, steerControlBasis, -100, 0);
-    cruiseControl = this->cruiseControl, controlLock = this->controlLock;
+    enableCruise = this->enableCruise, enableLock = this->enableLock;
 }

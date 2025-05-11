@@ -23,7 +23,7 @@
  */
 struct CONTROL_MSG
 {
-    uint8_t servoDegree;
+    int8_t servoDegree;
     int8_t motorSpeed;
 };
 

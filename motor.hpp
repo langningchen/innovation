@@ -21,7 +21,11 @@
 
 class MOTOR : public PWM
 {
+private:
+    uint8_t dirPin; // Direction pin
+    bool dir;       // Direction
+
 public:
-    MOTOR(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel);
-    bool setSpeed(uint8_t speed);
+    MOTOR(uint8_t pin, uint8_t dirPin, uint32_t freq, uint8_t resolution, uint8_t channel, bool dir);
+    bool setSpeed(int8_t speed);
 };

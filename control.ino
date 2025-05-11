@@ -28,6 +28,26 @@ NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_IRQ, PIN_RESET, PIN_BUSY);
 A2D a2d(PIN_SPEED_MAX, PIN_SPEED_CRUISE, PIN_SPEED_CONTROL, PIN_STEER_CONTROL, PIN_CRUISE_CONTROL, PIN_CONTROL_LOCK);
 OLED oled(OLED_ADDRESS, OLED_WIDTH, OLED_HEIGHT);
 
+uint32_t lastMsg;
+uint8_t speedMax, speedCruise;
+int8_t speedControl, steerControl;
+bool enableCruise, enableLock;
+
+/**
+ * @brief Update the data from the original data
+ * @param speedMax in
+ * @param speedCruise in
+ * @param speedControl in/out
+ * @param steerControl in/out
+ * @param enableCruise in
+ * @param enableLock in
+ * @details according to the the lock and cruise pin status to update the control speed and steer for network.
+ * limit the speed to MaxSpeed or the cruise speed, etc.
+ */
+void updateData(uint8_t &speedMax, uint8_t &speedCruise,
+                int8_t &speedControl, int8_t &steerControl,
+                bool &enableCruise, bool &enableLock);
+
 void setup()
 {
     Serial.begin(115200);
@@ -64,21 +84,21 @@ void setup()
     a2d.collaborate();
 
     Serial.println("Control initialization completed");
+    lastMsg = millis();
 }
-
-uint32_t lastMsg = 0;
 
 void loop()
 {
     a2d.process();
-    if (lastMsg == 0 || millis() - lastMsg > MSG_INTERVAL)
+
+    if (millis() - lastMsg > MSG_INTERVAL)
     {
         lastMsg += MSG_INTERVAL;
-        uint8_t speedMax, speedCruise;
-        int8_t speedControl, steerControl;
-        bool cruiseControl, controlLock;
-        a2d.getData(speedMax, speedCruise, speedControl, steerControl, cruiseControl, controlLock);
-        CONTROL_MSG controlMsg = {(steerControl + 100) * 0.9, speedControl};
+
+        a2d.getData(speedMax, speedCruise, speedControl, steerControl, enableCruise, enableLock);
+        updateData(speedMax, speedCruise, speedControl, steerControl, enableCruise, enableLock);
+
+        CONTROL_MSG controlMsg = {steerControl, speedControl};
         BOAT_MSG boatMsg = {0, 0, 0};
         if (network.proceedClient(controlMsg, boatMsg))
         {
@@ -95,6 +115,26 @@ void loop()
         else
             Serial.println("Network error");
     }
+}
+
+void updateData(uint8_t &speedMax, uint8_t &speedCruise,
+                int8_t &speedControl, int8_t &steerControl,
+                bool &enableCruise, bool &enableLock)
+{
+    if (enableCruise)
+        speedControl = speedCruise;
+    if (enableLock)
+        speedControl = steerControl = 0;
+
+    if (speedControl < 0)
+        speedControl *= BACKWARD_LIMIT;
+    else
+        speedControl *= speedMax / 100.0;
+
+    steerControl *= 60.0 / SERVO_RANGE;
+    if (speedControl > 0)
+        steerControl *= 1.0 - (speedControl - 30) / 100.0;
+    steerControl = map(steerControl, -100, 100, -SERVO_RANGE, SERVO_RANGE);
 }
 
 #endif
