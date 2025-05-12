@@ -21,6 +21,7 @@
 #define CONTROL_TIMEOUT 5000 // ms
 #define MPU_ADDRESS 0x68
 #define OLED_ADDRESS 0x3C
+#define INA_ADDRESS 0x40
 #define OLED_WIDTH 128     // px
 #define OLED_HEIGHT 64     // px
 #define MSG_INTERVAL 50    // ms

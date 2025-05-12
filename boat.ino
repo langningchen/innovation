@@ -25,6 +25,7 @@
 #include <network.hpp>
 #include <messages.hpp>
 #include <mpu6050.hpp>
+#include <INA226.h>
 
 // CAUTION! It seems that setting
 // any channel to 0 will cause
@@ -38,7 +39,8 @@ BATTERY battery(PIN_ADC,
                 14.0 / (270 + 40) * 40,  // 1.8064516129
                 14.8 / (270 + 40) * 40); // 1.9096774194
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_IRQ, PIN_RESET, PIN_BUSY);
-// MPU6050 mpu6050(MPU_ADDR0ESS, MPU6050_RANGE_2_G, MPU6050_RANGE_250_DEG);
+// MPU6050 mpu6050(MPU_ADDRESS, MPU6050_RANGE_2_G, MPU6050_RANGE_250_DEG);
+INA226 INA(INA_ADDRESS);
 
 void setup()
 {
@@ -68,7 +70,7 @@ void setup()
                 motor0.setSpeed(controlMsg.motorSpeed), motor1.setSpeed(controlMsg.motorSpeed);
                 BOAT_MSG boatMsg;
                 boatMsg.result = 0;
-                boatMsg.batteryVoltage = battery.getVoltage();
+                boatMsg.batteryVoltage = INA.getBusVoltage();
                 boatMsg.batteryPercentage = battery.getPercentage();
                 Serial.print("servo ");
                 Serial.print(controlMsg.servoDegree);
@@ -128,6 +130,13 @@ void setup()
     //     while (1)
     //         ;
     // }
+
+    if (!INA.begin())
+    {
+        Serial.println("INA226 initialization failed");
+        while (1)
+            ;
+    }
 
     Serial.println("Boat initialization completed");
 }
