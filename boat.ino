@@ -18,6 +18,7 @@
 #include <switch.hpp>
 #ifdef BOAT
 
+// #define DEBUG
 #include <define.hpp>
 #include <servo.hpp>
 #include <motor.hpp>
@@ -39,7 +40,7 @@ BATTERY battery(PIN_ADC,
                 14.0 / (270 + 40) * 40,  // 1.8064516129
                 14.8 / (270 + 40) * 40); // 1.9096774194
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_IRQ, PIN_RESET, PIN_BUSY);
-// MPU6050 mpu6050(MPU_ADDRESS, MPU6050_RANGE_2_G, MPU6050_RANGE_250_DEG);
+MPU6050 mpu6050(MPU_ADDRESS, MPU6050_RANGE_2_G, MPU6050_RANGE_250_DEG);
 INA226 INA(INA_ADDRESS);
 
 void setup()
@@ -124,12 +125,12 @@ void setup()
             ;
     }
 
-    // if (!mpu6050.begin())
-    // {
-    //     Serial.println("MPU6050 initialization failed");
-    //     while (1)
-    //         ;
-    // }
+    if (!mpu6050.begin())
+    {
+        Serial.println("MPU6050 initialization failed");
+        while (1)
+            ;
+    }
 
     if (!INA.begin())
     {
@@ -139,6 +140,9 @@ void setup()
     }
 
     Serial.println("Boat initialization completed");
+    
+    #define PIN_DEBUG 4
+    pinMode(PIN_DEBUG, OUTPUT);
 }
 
 clock_t lst_msg = 0;
@@ -159,6 +163,26 @@ void loop()
         Serial.println(lst_msg == 0 ? "No data received" : "Timeout");
         lst_chk = clock();
     }
-}
 
+    float_t ax;  float_t ay; float_t az; float_t gx; float_t gy; float_t gz;
+    mpu6050.readData(ax, ay, az, gx, gy, gz);
+    #ifdef DEBUG
+    Serial.print("ax: ");
+    Serial.print(ax);
+    Serial.print(" ay: ");
+    Serial.print(ay);
+    Serial.print(" az: ");
+    Serial.print(az);
+    Serial.print(" gx: ");
+    Serial.print(gx);
+    Serial.print(" gy: ");
+    Serial.print(gy);
+    Serial.print(" gz: ");
+    Serial.println(gz);
+    #endif
+
+    digitalWrite(PIN_DEBUG, HIGH);
+    ets_delay_us(1);
+    digitalWrite(PIN_DEBUG, LOW);
+}
 #endif
