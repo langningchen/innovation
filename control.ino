@@ -76,6 +76,30 @@ void setup()
     }
 
     a2d.begin();
+    a2d.setOnDirectionEnd(
+        [](DIR dir)
+        {
+            if (oled.getPage() == OLED::PAGE::CONFIG)
+            {
+                switch (dir)
+                {
+                case DIR::UP:
+                    oled.configUp();
+                    break;
+                case DIR::DOWN:
+                    oled.configDown();
+                    break;
+                case DIR::LEFT:
+                    oled.configBack();
+                    break;
+                case DIR::RIGHT:
+                    oled.configEnter();
+                    break;
+                default:
+                    break;
+                }
+            }
+        });
 
     Serial.println("Control initialization completed");
     lastMsg = millis();
@@ -84,14 +108,16 @@ void setup()
 void loop()
 {
     a2d.process();
+    oled.process();
 
     if (millis() - lastMsg > MSG_INTERVAL)
     {
         lastMsg += MSG_INTERVAL;
 
         a2d.getData(speedMax, speedCruise, speedControl, steerControl, enableCruise, enableLock);
-        updateData(speedMax, speedCruise, speedControl, steerControl, enableCruise, enableLock);
+        oled.switchPage(enableLock ? OLED::PAGE::CONFIG : OLED::PAGE::STATUS);
 
+        updateData(speedMax, speedCruise, speedControl, steerControl, enableCruise, enableLock);
         CONTROL_MSG controlMsg = {steerControl, speedControl};
         BOAT_MSG boatMsg = {0, 0, 0};
         if (network.proceedClient(controlMsg, boatMsg))

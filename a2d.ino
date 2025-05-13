@@ -18,6 +18,45 @@
 #include <a2d.hpp>
 
 /**
+ * @brief Get the direction
+ * @details This function will get the direction based on the speed control and steer control
+ * @return The direction of the vehicle
+ */
+DIR A2D::getDirection()
+{
+    int8_t upPercent = (speedControl - speedControlBasis) * 100 / (speedControlMax - speedControlBasis);
+    int8_t downPercent = (speedControlBasis - speedControl) * 100 / (speedControlBasis - speedControlMin);
+    int8_t rightPercent = (steerControl - steerControlBasis) * 100 / (steerControlMax - steerControlBasis);
+    int8_t leftPercent = (steerControlBasis - steerControl) * 100 / (steerControlBasis - steerControlMin);
+    int8_t maxPercent = max(max(upPercent, downPercent), max(leftPercent, rightPercent));
+    if (maxPercent < DIR_THRESHOLD)
+        return NONE;
+    if (upPercent == maxPercent)
+        return UP;
+    if (downPercent == maxPercent)
+        return DOWN;
+    if (rightPercent == maxPercent)
+        return RIGHT;
+    if (leftPercent == maxPercent)
+        return LEFT;
+    return NONE;
+}
+
+/**
+ * @brief Update the direction based on the speed and steer control
+ */
+void A2D::updateDirection()
+{
+    auto currentDirection = getDirection();
+    if (currentDirection != lastDirection)
+    {
+        if (onDirectionEnd)
+            onDirectionEnd(lastDirection);
+        lastDirection = currentDirection;
+    }
+}
+
+/**
  * @brief A2D constructor
  * @param speedMaxPin speed max pin
  * @param speedCruisePin speed cruise pin
@@ -73,7 +112,7 @@ void A2D::setBasis() { speedControlBasis = speedControl, steerControlBasis = ste
  * @details This function will record the new data,
  * if the collaborate parameter is true, it will update the min and max values
  */
-void A2D::process(bool collaborate)
+void A2D::process()
 {
     uint16_t newSpeedMaxData = analogRead(speedMaxPin);
     uint16_t newSpeedCruiseData = analogRead(speedCruisePin);
@@ -84,14 +123,7 @@ void A2D::process(bool collaborate)
     speedControl = speedControl * (1 - speedControlFilterCoef) + newSpeedControlData * speedControlFilterCoef;
     steerControl = steerControl * (1 - steerControlFilterCoef) + newSteerControlData * steerControlFilterCoef;
     enableCruise = !digitalRead(enableCruisePin), enableLock = digitalRead(enableLockPin);
-
-    if (collaborate)
-    {
-        speedMaxMax = max(speedMaxMax, speedMax), speedMaxMin = min(speedMaxMin, speedMax);
-        speedCruiseMax = max(speedCruiseMax, speedCruise), speedCruiseMin = min(speedCruiseMin, speedCruise);
-        speedControlMax = max(speedControlMax, speedControl), speedControlMin = min(speedControlMin, speedControl);
-        steerControlMax = max(steerControlMax, steerControl), steerControlMin = min(steerControlMin, steerControl);
-    }
+    updateDirection();
 }
 
 /**
@@ -124,3 +156,21 @@ void A2D::getData(uint8_t &speedMax, uint8_t &speedCruise,
         steerControl = map(constrainedSteerControl, steerControlMin, steerControlBasis, -100, 0);
     enableCruise = this->enableCruise, enableLock = this->enableLock;
 }
+
+/**
+ * @brief Update the min and max values
+ */
+void A2D::updateMinMax()
+{
+    speedMaxMax = max(speedMaxMax, speedMax), speedMaxMin = min(speedMaxMin, speedMax);
+    speedCruiseMax = max(speedCruiseMax, speedCruise), speedCruiseMin = min(speedCruiseMin, speedCruise);
+    speedControlMax = max(speedControlMax, speedControl), speedControlMin = min(speedControlMin, speedControl);
+    steerControlMax = max(steerControlMax, steerControl), steerControlMin = min(steerControlMin, steerControl);
+}
+
+/**
+ * @brief Set the callback function for direction end
+ * @param callback callback function, it will be called when the direction changes
+ * @details The callback function will be called with the last direction as the parameter
+ */
+void A2D::setOnDirectionEnd(std::function<void(DIR)> callback) { onDirectionEnd = callback; }

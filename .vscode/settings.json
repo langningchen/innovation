@@ -6,6 +6,9 @@
         "MISO",
         "MOSI",
         "OLED",
-        "RADIOLIB"
+        "RADIOLIB",
+        "startscrolldiagleft",
+        "stopscroll",
+        "SWITCHCAPVCC"
     ]
 }

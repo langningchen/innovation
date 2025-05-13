@@ -17,6 +17,9 @@
 
 #pragma once
 
+#include <define.hpp>
+#include <functional>
+
 class A2D
 {
 private:
@@ -38,6 +41,12 @@ private:
     uint16_t speedControl, steerControl;
     bool enableCruise, enableLock;
 
+    DIR lastDirection = NONE;
+    std::function<void(DIR)> onDirectionEnd = nullptr;
+
+    DIR getDirection();
+    void updateDirection();
+
 public:
     A2D(uint8_t speedMaxPin, uint8_t speedCruisePin,
         uint8_t speedControlPin, uint8_t steerControlPin,
@@ -45,8 +54,10 @@ public:
     void begin();
     void reset();
     void setBasis();
-    void process(bool collaborate = false);
+    void process();
     void getData(uint8_t &speedMax, uint8_t &speedCruise,
                  int8_t &speedControl, int8_t &steerControl,
                  bool &enableCruise, bool &enableLock);
+    void updateMinMax();
+    void setOnDirectionEnd(std::function<void(DIR)> callback);
 };
