@@ -23,8 +23,8 @@
  * @param minVoltage Minimum voltage of the battery
  * @param maxVoltage Maximum voltage of the battery
  */
-BATTERY::BATTERY(uint8_t pin, float_t minVoltage, float_t maxVoltage)
-    : pin(pin), minVoltage(minVoltage), maxVoltage(maxVoltage) {}
+BATTERY::BATTERY(uint8_t address, float_t minVoltage, float_t maxVoltage)
+    : address(address), minVoltage(minVoltage), maxVoltage(maxVoltage) {}
 
 /**
  * @brief Initialize the battery monitor
@@ -33,28 +33,15 @@ BATTERY::BATTERY(uint8_t pin, float_t minVoltage, float_t maxVoltage)
  */
 bool BATTERY::begin()
 {
-    pinMode(pin, INPUT);
-    analogReadResolution(ADC_RESOLUTION);
-    return true;
+    ina226 = new INA226(address);
+    return ina226->begin();
 }
 
 /**
  * @brief Get the battery voltage
  * @return Battery voltage in volts
- * @note The voltage is calculated using a linear equation based on the ADC reading.
- *       The equation is derived from the file /docs/Battery.xlsx
  */
-float_t BATTERY::getVoltage()
-{
-    float_t analogData = 0;
-    for (int i = 0; i < 10; i++)
-    {
-        analogData += analogRead(pin);
-        delay(0);
-    }
-    analogData /= 10;
-    return (86.954 * analogData + 1539.4) / 100000;
-}
+float_t BATTERY::getVoltage() { return ina226->getBusVoltage(); }
 
 /**
  * @brief Get the battery percentage

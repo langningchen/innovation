@@ -17,16 +17,18 @@
 
 #pragma once
 
+#include <INA226.h>
+
 class BATTERY
 {
 private:
-    const uint8_t ADC_RESOLUTION = 12; // ADC resolution in bits
-    uint8_t pin;
+    uint8_t address;
     float_t minVoltage;
     float_t maxVoltage;
+    INA226 *ina226;
 
 public:
-    BATTERY(uint8_t pin, float_t minVoltage, float_t maxVoltage);
+    BATTERY(uint8_t address, float_t minVoltage, float_t maxVoltage);
     bool begin();
     float_t getVoltage();
     uint8_t getPercentage();

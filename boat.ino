@@ -26,7 +26,6 @@
 #include <network.hpp>
 #include <messages.hpp>
 #include <mpu6050.hpp>
-#include <INA226.h>
 
 // CAUTION! It seems that setting
 // any channel to 0 will cause
@@ -36,12 +35,11 @@ SERVO servo0(PIN_PWM0, 100, 12, 1, SERVO_RANGE, 5, 25);
 SERVO servo1(PIN_PWM2, 100, 12, 1, SERVO_RANGE, 5, 25);
 MOTOR motor0(PIN_PWM1, PIN_DIR0, 5000, 8, 2, false);
 MOTOR motor1(PIN_PWM3, PIN_DIR1, 5000, 8, 2, true);
-BATTERY battery(PIN_ADC,
-                14.0 / (270 + 40) * 40,  // 1.8064516129
-                14.8 / (270 + 40) * 40); // 1.9096774194
+BATTERY battery(INA_ADDRESS,
+                14.8 / (270 + 40) * 40,
+                16.8 / (270 + 40) * 40);
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_IRQ, PIN_RESET, PIN_BUSY);
 MPU6050 mpu6050(MPU_ADDRESS, MPU6050_RANGE_2_G, MPU6050_RANGE_250_DEG);
-INA226 INA(INA_ADDRESS);
 
 void setup()
 {
@@ -71,7 +69,7 @@ void setup()
                 motor0.setSpeed(controlMsg.motorSpeed), motor1.setSpeed(controlMsg.motorSpeed);
                 BOAT_MSG boatMsg;
                 boatMsg.result = 0;
-                boatMsg.batteryVoltage = INA.getBusVoltage();
+                boatMsg.batteryVoltage = battery.getVoltage();
                 boatMsg.batteryPercentage = battery.getPercentage();
                 Serial.print("servo ");
                 Serial.print(controlMsg.servoDegree);
@@ -132,16 +130,16 @@ void setup()
             ;
     }
 
-    if (!INA.begin())
+    if (!battery.begin())
     {
-        Serial.println("INA226 initialization failed");
+        Serial.println("Battery initialization failed");
         while (1)
             ;
     }
 
     Serial.println("Boat initialization completed");
-    
-    #define PIN_DEBUG 4
+
+#define PIN_DEBUG 4
     pinMode(PIN_DEBUG, OUTPUT);
 }
 
@@ -164,9 +162,14 @@ void loop()
         lst_chk = clock();
     }
 
-    float_t ax;  float_t ay; float_t az; float_t gx; float_t gy; float_t gz;
+    float_t ax;
+    float_t ay;
+    float_t az;
+    float_t gx;
+    float_t gy;
+    float_t gz;
     mpu6050.readData(ax, ay, az, gx, gy, gz);
-    #ifdef DEBUG
+#ifdef DEBUG
     Serial.print("ax: ");
     Serial.print(ax);
     Serial.print(" ay: ");
@@ -179,7 +182,7 @@ void loop()
     Serial.print(gy);
     Serial.print(" gz: ");
     Serial.println(gz);
-    #endif
+#endif
 
     digitalWrite(PIN_DEBUG, HIGH);
     ets_delay_us(1);
