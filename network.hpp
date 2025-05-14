@@ -35,6 +35,6 @@ public:
     bool begin();
     bool setServer(std::function<SERVER_MSG(CLIENT_MSG)> serverCallback);
     void setClient();
-    bool proceedServer(bool &hasData);
-    bool proceedClient(CLIENT_MSG clientMsg, SERVER_MSG &serverMsg);
+    int16_t proceedServer(bool &hasData);
+    int16_t proceedClient(CLIENT_MSG clientMsg, SERVER_MSG &serverMsg);
 };

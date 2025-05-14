@@ -130,13 +130,6 @@ void setup()
             ;
     }
 
-    if (!battery.begin())
-    {
-        Serial.println("Battery initialization failed");
-        while (1)
-            ;
-    }
-
     Serial.println("Boat initialization completed");
 
 #define PIN_DEBUG 4
@@ -149,10 +142,11 @@ clock_t lst_chk = 0;
 void loop()
 {
     bool hasData = false;
-    if (!network.proceedServer(hasData))
+    int16_t status = network.proceedServer(hasData);
+    if (status != RADIOLIB_ERR_NONE)
     {
-        Serial.println("Network error");
-        return;
+        Serial.print("Network error: ");
+        Serial.println(status);
     }
     if (hasData)
         lst_msg = clock();

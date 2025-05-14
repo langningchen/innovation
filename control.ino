@@ -120,7 +120,9 @@ void loop()
         updateData(speedMax, speedCruise, speedControl, steerControl, enableCruise, enableLock);
         CONTROL_MSG controlMsg = {steerControl, speedControl};
         BOAT_MSG boatMsg = {0, 0, 0};
-        if (network.proceedClient(controlMsg, boatMsg))
+
+        int16_t status = network.proceedClient(controlMsg, boatMsg);
+        if (status == RADIOLIB_ERR_NONE)
         {
             Serial.print("servo ");
             Serial.print(controlMsg.servoDegree);
@@ -133,7 +135,7 @@ void loop()
             Serial.println("%");
         }
         else
-            Serial.println("Network error");
+            Serial.println(status);
     }
 }
 
