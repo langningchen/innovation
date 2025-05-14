@@ -5,9 +5,13 @@
  * @brief MENU constructor
  * @param name  Name of the menu
  */
-OLED::MENU::MENU(Adafruit_SSD1306 *display, String name)
-    : display(display), name(name), index(0),
-      parent(nullptr), next(nullptr), prev(nullptr) {}
+OLED::MENU::MENU(String name, std::initializer_list<MENU *> subMenu, Adafruit_SSD1306 *display)
+    : index(0), parent(nullptr), next(nullptr), prev(nullptr),
+      name(name), display(display)
+{
+    for (MENU *item : subMenu)
+        addSubMenu(item);
+}
 
 /**
  * @brief MENU destructor
@@ -30,7 +34,7 @@ void OLED::MENU::addSubMenu(MENU *menu)
         subMenu.back()->next = menu;
         menu->prev = subMenu.back();
     }
-    menu->parent = this;
+    menu->parent = this, menu->display = display;
     subMenu.push_back(menu);
 }
 
@@ -108,21 +112,25 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height)
     : address(address), width(width), height(height),
       needUpdate(true), display(width, height, &Wire, -1)
 {
-    currentMenu = menu = new MENU(&display, "Main Menu");
-    menu->addSubMenu(new MENU(&display, "Menu"));
-    menu->addSubMenu(new MENU(&display, "Very long long long Menu"));
-    MENU *subMenu = new MENU(&display, "Sub Menu");
-    subMenu->addSubMenu(new MENU(&display, "Sub Menu 1"));
-    subMenu->addSubMenu(new MENU(&display, "Sub Menu 2"));
-    subMenu->addSubMenu(new MENU(&display, "Sub Menu 3"));
-    subMenu->addSubMenu(new MENU(&display, "Sub Menu 4"));
-    subMenu->addSubMenu(new MENU(&display, "Sub Menu 5"));
-    subMenu->addSubMenu(new MENU(&display, "Sub Menu 6"));
-    subMenu->addSubMenu(new MENU(&display, "Sub Menu 7"));
-    subMenu->addSubMenu(new MENU(&display, "Sub Menu 8"));
-    subMenu->addSubMenu(new MENU(&display, "Sub Menu 9"));
-    subMenu->addSubMenu(new MENU(&display, "Sub Menu 10"));
-    menu->addSubMenu(subMenu);
+    currentMenu = menu =
+        new MENU("Main Menu",
+                 {
+                     new MENU("Menu"),
+                     new MENU("Very long long long Menu"),
+                     new MENU("Sub Menu", {
+                                              new MENU("Sub Menu 1"),
+                                              new MENU("Sub Menu 2"),
+                                              new MENU("Sub Menu 3"),
+                                              new MENU("Sub Menu 4"),
+                                              new MENU("Sub Menu 5"),
+                                              new MENU("Sub Menu 6"),
+                                              new MENU("Sub Menu 7"),
+                                              new MENU("Sub Menu 8"),
+                                              new MENU("Sub Menu 9"),
+                                              new MENU("Sub Menu 10"),
+                                          }),
+                 },
+                 &display);
 }
 
 /**

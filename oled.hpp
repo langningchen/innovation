@@ -41,7 +41,7 @@ public:
         std::vector<MENU *> subMenu;
 
     public:
-        MENU(Adafruit_SSD1306 *display, String name);
+        MENU(String name, std::initializer_list<MENU *> subMenu = {}, Adafruit_SSD1306 *display = nullptr);
         ~MENU();
         void addSubMenu(MENU *menu);
         void render();
