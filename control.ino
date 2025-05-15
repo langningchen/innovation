@@ -91,9 +91,14 @@ void loop()
     {
         lastMsg += MSG_INTERVAL;
 
+        static uint8_t lastSpeedMax = 0;
         a2d.getData(speedMax, speedCruise, speedControl, steerControl, enableCruise, enableLock);
         oled.switchPage(enableLock ? OLED::PAGE::CONFIG : OLED::PAGE::STATUS);
-        oled.knobInput(speedMax);
+        if (lastSpeedMax != speedMax)
+        {
+            oled.knobInput(speedMax);
+            lastSpeedMax = speedMax;
+        }
 
         updateData(speedMax, speedCruise, speedControl, steerControl, enableCruise, enableLock);
         CONTROL_MSG controlMsg = {steerControl, speedControl};

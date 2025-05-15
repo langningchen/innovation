@@ -86,15 +86,7 @@ OLED::MENU::~MENU()
  */
 void OLED::MENU::render()
 {
-    if (!display)
-    {
-        MENU *pointer = this;
-        while (pointer && pointer->display == nullptr)
-            pointer = pointer->parent;
-        if (pointer)
-            display = pointer->display;
-    }
-
+    updateDisplay();
     display->setCursor(0, 0);
     display->setTextSize(1);
     uint8_t page = folder.index / OLED_LINE_CNT;
@@ -107,10 +99,33 @@ void OLED::MENU::render()
             display->setTextColor(BLACK, WHITE);
         else
             display->setTextColor(WHITE, BLACK);
-        if (item->name.length() > display->width() / OLED_CHAR_WIDTH)
-            display->println(item->name.substring(0, display->width() / OLED_CHAR_WIDTH - 3) + "...");
+        String leftText = item->name;
+        String rightText = "";
+        const int16_t width = display->width() / OLED_CHAR_WIDTH;
+        if (item->type == TYPE::CONFIG)
+            rightText = " " + String(item->config.value);
+        if (leftText.length() + rightText.length() > width)
+            display->print(leftText.substring(0, width - rightText.length() - 3) + "...");
         else
-            display->println(item->name);
+            display->print(leftText);
+        for (int16_t i = leftText.length() + rightText.length(); i < width; i++)
+            display->print(' ');
+        display->println(rightText);
+    }
+}
+
+/**
+ * @brief Update the display object
+ */
+void OLED::MENU::updateDisplay()
+{
+    if (!display)
+    {
+        MENU *pointer = this;
+        while (pointer && pointer->display == nullptr)
+            pointer = pointer->parent;
+        if (pointer)
+            display = pointer->display;
     }
 }
 
@@ -190,7 +205,14 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height)
                                                  }),
                                          }),
                      new MENU("Button", [](MENU *instance)
-                              { Serial.println("onClick"); }),
+                              {
+                                  instance->updateDisplay();
+                                  instance->display->clearDisplay();
+                                  instance->display->setCursor(0,0);
+                                  instance->display->setTextSize(2);
+                                  instance->display->println("Clicked"); 
+                                  instance->display->display();
+                                  delay(1000); }),
                      new MENU("Sub Menu", {
                                               new MENU("Sub Menu 1"),
                                               new MENU("Sub Menu 2"),
@@ -330,4 +352,5 @@ void OLED::knobInput(uint8_t value)
     if (modifingMenu->type != MENU::TYPE::CONFIG)
         return;
     modifingMenu->config.value = map(value, 0, 100, modifingMenu->config.minValue, modifingMenu->config.maxValue);
+    needUpdate = true;
 }

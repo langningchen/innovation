@@ -75,6 +75,7 @@ public:
         MENU(String name, std::function<void(MENU *)> onClick);
         ~MENU();
         void render();
+        void updateDisplay();
         void setDisplay(Adafruit_SSD1306 *display);
 
         friend class OLED;
