@@ -27,7 +27,7 @@ BATTERY::BATTERY(uint8_t address, float_t minVoltage, float_t maxVoltage)
     : address(address), minVoltage(minVoltage), maxVoltage(maxVoltage) {}
 
 /**
- * @brief Initialize the battery monitor
+ * @brief Initialize the BATTERY
  * @return true if successful, false otherwise
  * @note This function must be called before using any other functions in this class
  */

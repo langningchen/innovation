@@ -3,6 +3,7 @@
         "Adafruit",
         "Coef",
         "Langning",
+        "ledc",
         "MISO",
         "MOSI",
         "OLED",

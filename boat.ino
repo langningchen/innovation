@@ -31,10 +31,10 @@
 // any channel to 0 will cause
 // the configuration of first PWM channel
 // overwritten by the second one
-SERVO servo0(PIN_PWM0, 100, 12, 1, SERVO_RANGE, 5, 25);
-SERVO servo1(PIN_PWM2, 100, 12, 1, SERVO_RANGE, 5, 25);
-MOTOR motor0(PIN_PWM1, PIN_DIR0, 5000, 8, 2, false);
-MOTOR motor1(PIN_PWM3, PIN_DIR1, 5000, 8, 2, true);
+SERVO servo0(PIN_SERVO0, 100, SERVO_RANGE, 5, 25);
+SERVO servo1(PIN_SERVO1, 100, SERVO_RANGE, 5, 25);
+MOTOR motor0(PIN_MOTOR0, PIN_DIR0, 5000, 8, 2, false);
+MOTOR motor1(PIN_MOTOR1, PIN_DIR1, 5000, 8, 2, true);
 BATTERY battery(INA_ADDRESS,
                 14.8 / (270 + 40) * 40,
                 16.8 / (270 + 40) * 40);
@@ -88,23 +88,12 @@ void setup()
             ;
     }
 
-    if (!servo0.begin())
-    {
-        Serial.println("Servo initialization failed");
-        while (1)
-            ;
-    }
+    servo0.begin();
+    servo1.begin();
 
     if (!motor0.begin())
     {
         Serial.println("Motor initialization failed");
-        while (1)
-            ;
-    }
-
-    if (!servo1.begin())
-    {
-        Serial.println("Servo initialization failed");
         while (1)
             ;
     }
@@ -141,6 +130,11 @@ clock_t lst_chk = 0;
 
 void loop()
 {
+    servo0.setAngle(-SERVO_RANGE);
+    delay(1000);
+    servo0.setAngle(SERVO_RANGE);
+    delay(1000);
+    return;
     bool hasData = false;
     int16_t status = network.proceedServer(hasData);
     if (status != RADIOLIB_ERR_NONE)

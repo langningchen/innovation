@@ -29,12 +29,12 @@
 #define PIN_OLED_SDA 7 // OLED SDA
 #define PIN_OLED_SCL 8 // OLED SCL
 
-#define PIN_PWM0 40 // Servo 0
-#define PIN_PWM1 41 // Motor 0
-#define PIN_PWM2 37 // Servo 1
-#define PIN_PWM3 38 // Motor 1
-#define PIN_DIR0 42 // Motor 0 direction
-#define PIN_DIR1 39 // Motor 1 direction
+#define PIN_SERVO0 40 // Servo 0
+#define PIN_MOTOR0 41 // Motor 0
+#define PIN_SERVO1 37 // Servo 1
+#define PIN_MOTOR1 38 // Motor 1
+#define PIN_DIR0 42   // Motor 0 direction
+#define PIN_DIR1 39   // Motor 1 direction
 
 #define PIN_ADC 15 // Battery monitor
 

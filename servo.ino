@@ -25,9 +25,9 @@
  * @note The angle range is from -aglRng to aglRng, and minDuty must be less than maxDuty
  * @see PWM::PWM()
  */
-SERVO::SERVO(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel,
+SERVO::SERVO(uint8_t pin, uint32_t freq,
              uint8_t aglRng, uint8_t minDuty, uint8_t maxDuty)
-    : PWM(pin, freq, resolution, channel)
+    : pin(pin), freq(freq)
 {
     this->aglRng = constrain(aglRng, 1, 180);
     this->minDuty = constrain(minDuty, 0, 100);
@@ -35,21 +35,27 @@ SERVO::SERVO(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel,
 }
 
 /**
+ * @brief Initialize the SERVO
+ * @note This function must be called before using any other functions in this class
+ */
+void SERVO::begin() { pinMode(pin, OUTPUT), digitalWrite(pin, LOW); }
+
+/**
  * @brief Set the angle of the servo
  * @param angle Angle in degrees (°), range is [-aglRng, aglRng]
  * @return true if successful, false otherwise
  */
-bool SERVO::setAngle(int8_t angle)
+bool SERVO::setAngle(int16_t angle)
 {
     angle = constrain(angle, -aglRng, aglRng);
-    static int8_t lastAngle = 0;
+    static int16_t lastAngle = 0;
     if (lastAngle != angle)
     {
-        Serial.print("angle changed to ");
-        Serial.print(angle);
         lastAngle = angle;
-        return ledcWriteChannel(channel, map(angle, -aglRng, aglRng,
-                                             ratio2Duty(minDuty), ratio2Duty(maxDuty)));
+        uint32_t delayTime = uint32_t(map(angle, -aglRng, aglRng, minDuty, maxDuty)) * 10000 / freq;
+        digitalWrite(pin, HIGH);
+        delayMicroseconds(delayTime);
+        digitalWrite(pin, LOW);
     }
     return false;
 }

@@ -24,7 +24,14 @@
  * @see PWM::PWM()
  */
 MOTOR::MOTOR(uint8_t pin, uint8_t dirPin, uint32_t freq, uint8_t resolution, uint8_t channel, bool dir)
-    : PWM(pin, freq, resolution, channel), dirPin(dirPin), dir(dir) {}
+    : pin(pin), freq(freq), resolution(resolution), channel(channel), dirPin(dirPin), dir(dir) {}
+
+/**
+ * @brief Initialize the MOTOR
+ * @return true if successful, false otherwise
+ * @note This function must be called before using any other functions in this class
+ */
+bool MOTOR::begin() { return ledcAttachChannel(pin, freq, resolution, channel); }
 
 /**
  * @brief Set the speed of the motor
