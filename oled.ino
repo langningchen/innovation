@@ -2,40 +2,83 @@
 #include <define.hpp>
 
 /**
- * @brief MENU constructor
- * @param name  Name of the menu
+ * @brief The menu is focused
  */
-OLED::MENU::MENU(String name, std::initializer_list<MENU *> subMenu, Adafruit_SSD1306 *display)
-    : index(0), parent(nullptr), next(nullptr), prev(nullptr),
-      name(name), display(display)
+void OLED::MENU::focus()
 {
-    for (MENU *item : subMenu)
-        addSubMenu(item);
+    if (onFocus)
+        onFocus(this);
 }
+
+/**
+ * @brief The menu is blurred
+ */
+void OLED::MENU::blur()
+{
+    if (onBlur)
+        onBlur(this);
+}
+
+/**
+ * @brief The menu is clicked
+ */
+void OLED::MENU::click()
+{
+    if (onClick)
+        onClick(this);
+}
+
+/**
+ * @brief MENU (text) constructor
+ * @param name Name of the menu
+ */
+OLED::MENU::MENU(String name) : type(TYPE::TEXT), name(name) {}
+
+/**
+ * @brief MENU (folder) constructor
+ * @param name Name of the menu
+ * @param subMenu The menu items
+ */
+OLED::MENU::MENU(String name, std::initializer_list<MENU *> subMenu) : type(TYPE::FOLDER), name(name)
+{
+    for (MENU *menu : subMenu)
+    {
+        if (type != TYPE::FOLDER)
+            return;
+        if (folder.subMenu.size() > 0)
+        {
+            folder.subMenu.back()->next = menu;
+            menu->prev = folder.subMenu.back();
+        }
+        menu->parent = this;
+        folder.subMenu.push_back(menu);
+    }
+}
+
+/**
+ * @brief MENU (config) constructor
+ * @param name Name of the menu
+ * @param onFocus callback function, it will be called when the item is showed
+ * @param onBlur callback function, it will be called when the item is blurred
+ */
+OLED::MENU::MENU(String name, std::function<void(MENU *)> onFocus, std::function<void(MENU *)> onBlur)
+    : type(TYPE::CONFIG), name(name), onFocus(onFocus), onBlur(onBlur) {}
+
+/**
+ * @brief MENU (button) constructor
+ * @param name Name of the menu
+ */
+OLED::MENU::MENU(String name, std::function<void(MENU *)> onClick)
+    : type(TYPE::BUTTON), name(name), onClick(onClick) {}
 
 /**
  * @brief MENU destructor
  */
 OLED::MENU::~MENU()
 {
-    for (MENU *item : subMenu)
-        delete item;
-    subMenu.clear();
-}
-
-/**
- * @brief Add a sub-menu to the menu
- * @param menu Sub-menu to add
- */
-void OLED::MENU::addSubMenu(MENU *menu)
-{
-    if (subMenu.size() > 0)
-    {
-        subMenu.back()->next = menu;
-        menu->prev = subMenu.back();
-    }
-    menu->parent = this, menu->display = display;
-    subMenu.push_back(menu);
+    if (type == TYPE::FOLDER)
+        for (MENU *item : folder.subMenu)
+            delete item;
 }
 
 /**
@@ -43,32 +86,39 @@ void OLED::MENU::addSubMenu(MENU *menu)
  */
 void OLED::MENU::render()
 {
+    if (!display)
+    {
+        MENU *pointer = this;
+        while (pointer && pointer->display == nullptr)
+            pointer = pointer->parent;
+        if (pointer)
+            display = pointer->display;
+    }
+
     display->setCursor(0, 0);
     display->setTextSize(1);
-    uint8_t page = index / OLED_LINE_CNT;
+    uint8_t page = folder.index / OLED_LINE_CNT;
     for (uint8_t i = OLED_LINE_CNT * page;
-         i < OLED_LINE_CNT * (page + 1) && i < subMenu.size();
+         i < OLED_LINE_CNT * (page + 1) && i < folder.subMenu.size();
          i++)
     {
-        MENU *item = subMenu[i];
-        if (i == index)
+        MENU *item = folder.subMenu[i];
+        if (i == folder.index)
             display->setTextColor(BLACK, WHITE);
         else
             display->setTextColor(WHITE, BLACK);
         if (item->name.length() > display->width() / OLED_CHAR_WIDTH)
-        {
             display->println(item->name.substring(0, display->width() / OLED_CHAR_WIDTH - 3) + "...");
-            // if (i == index)
-            // {
-            //     display->startscrolldiagleft(i * OLED_CHAR_HEIGHT, (i + 1) * OLED_CHAR_HEIGHT - 1);
-            //     Serial.println(i * OLED_CHAR_HEIGHT);
-            //     Serial.println((i + 1) * OLED_CHAR_HEIGHT - 1);
-            // }
-        }
         else
             display->println(item->name);
     }
 }
+
+/**
+ * @brief Set the display object
+ * @param display The SSD1306 display object
+ */
+void OLED::MENU::setDisplay(Adafruit_SSD1306 *display) { this->display = display; }
 
 /**
  * @brief Render the initialization page
@@ -117,6 +167,30 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height)
                  {
                      new MENU("Menu"),
                      new MENU("Very long long long Menu"),
+                     new MENU("Configs", {
+                                             new MENU(
+                                                 "Config 1",
+                                                 [](MENU *instance)
+                                                 {
+                                                     Serial.println("onFocus1");
+                                                 },
+                                                 [](MENU *instance)
+                                                 {
+                                                     Serial.println("onBlur1");
+                                                 }),
+                                             new MENU(
+                                                 "Config 2",
+                                                 [](MENU *instance)
+                                                 {
+                                                     Serial.println("onFocus2");
+                                                 },
+                                                 [](MENU *instance)
+                                                 {
+                                                     Serial.println("onBlur2");
+                                                 }),
+                                         }),
+                     new MENU("Button", [](MENU *instance)
+                              { Serial.println("onClick"); }),
                      new MENU("Sub Menu", {
                                               new MENU("Sub Menu 1"),
                                               new MENU("Sub Menu 2"),
@@ -129,8 +203,8 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height)
                                               new MENU("Sub Menu 9"),
                                               new MENU("Sub Menu 10"),
                                           }),
-                 },
-                 &display);
+                 });
+    menu->setDisplay(&display);
 }
 
 /**
@@ -166,7 +240,6 @@ void OLED::process()
     if (!needUpdate)
         return;
     display.clearDisplay();
-    // display.stopscroll();
     switch (page)
     {
     case INIT:
@@ -204,59 +277,57 @@ void OLED::switchPage(PAGE page)
 }
 
 /**
- * @brief Move up in the configuration menu
+ * @brief Handle direction input
+ * @param dir The direction input
  */
-void OLED::configUp()
+void OLED::dirInput(DIR dir)
 {
-    if (currentMenu->index > 0)
+    if (page != PAGE::CONFIG)
+        return;
+    uint8_t &index = currentMenu->folder.index;
+    std::vector<OLED::MENU *> &subMenu = currentMenu->folder.subMenu;
+    MENU *oldMenu = currentMenu;
+    switch (dir)
     {
-        currentMenu->index--;
-        needUpdate = true;
-    }
-    else if (currentMenu->subMenu.size() > 0)
-    {
-        currentMenu->index = currentMenu->subMenu.size() - 1;
-        needUpdate = true;
+    case DIR::UP:
+        if (needUpdate = subMenu.size())
+            subMenu[index]->blur(), index = (index + subMenu.size() - 1) % subMenu.size(), subMenu[index]->focus();
+        break;
+    case DIR::DOWN:
+        if (needUpdate = subMenu.size())
+            subMenu[index]->blur(), index = (index + 1) % subMenu.size(), subMenu[index]->focus();
+        break;
+    case DIR::LEFT:
+        if (needUpdate = currentMenu->parent)
+            currentMenu->blur(), currentMenu = currentMenu->parent, currentMenu->focus();
+        break;
+    case DIR::RIGHT:
+        if (needUpdate = (subMenu.size() && subMenu[index]->type == MENU::TYPE::FOLDER))
+        {
+            currentMenu->blur();
+            currentMenu = subMenu[index];
+            currentMenu->focus();
+        }
+        else if (needUpdate = subMenu.size() && subMenu[index]->type == MENU::TYPE::BUTTON)
+            subMenu[index]->click();
+        break;
+    default:
+        break;
     }
 }
 
 /**
- * @brief Move down in the configuration menu
+ * @brief Handle knob input
  */
-void OLED::configDown()
+void OLED::knobInput(uint8_t value)
 {
-    if (currentMenu->index < currentMenu->subMenu.size() - 1)
-    {
-        currentMenu->index++;
-        needUpdate = true;
-    }
-    else if (currentMenu->subMenu.size() > 0)
-    {
-        currentMenu->index = 0;
-        needUpdate = true;
-    }
-}
-
-/**
- * @brief Go back in the configuration menu
- */
-void OLED::configBack()
-{
-    if (currentMenu->parent)
-    {
-        currentMenu = currentMenu->parent;
-        needUpdate = true;
-    }
-}
-
-/**
- * @brief Enter the configuration menu
- */
-void OLED::configEnter()
-{
-    if (currentMenu->subMenu.size() > 0)
-    {
-        currentMenu = currentMenu->subMenu[currentMenu->index];
-        needUpdate = true;
-    }
+    value = constrain(value, 0, 100);
+    if (page != PAGE::CONFIG)
+        return;
+    if (!currentMenu->folder.subMenu.size())
+        return;
+    MENU *modifingMenu = currentMenu->folder.subMenu[currentMenu->folder.index];
+    if (modifingMenu->type != MENU::TYPE::CONFIG)
+        return;
+    modifingMenu->config.value = map(value, 0, 100, modifingMenu->config.minValue, modifingMenu->config.maxValue);
 }

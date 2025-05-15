@@ -34,17 +34,48 @@ public:
     class MENU
     {
     private:
-        Adafruit_SSD1306 *display;
+        enum TYPE
+        {
+            TEXT,
+            CONFIG,
+            FOLDER,
+            BUTTON,
+        };
+        struct CONFIG_DATA
+        {
+            uint8_t value = 0;
+            uint8_t minValue = 0;
+            uint8_t maxValue = 100;
+            uint8_t defaultValue = 0;
+        };
+        struct FOLDER_DATA
+        {
+            uint8_t index = 0;
+            std::vector<MENU *> subMenu;
+        };
+
+        Adafruit_SSD1306 *display = nullptr;
         String name;
-        uint8_t index;
-        MENU *parent, *next, *prev;
-        std::vector<MENU *> subMenu;
+        MENU *parent = nullptr, *next = nullptr, *prev = nullptr;
+        std::function<void(MENU *)> onFocus;
+        std::function<void(MENU *)> onBlur;
+        std::function<void(MENU *)> onClick;
+        TYPE type;
+        CONFIG_DATA config;
+        FOLDER_DATA folder;
+
+        void focus();
+        void blur();
+        void click();
 
     public:
-        MENU(String name, std::initializer_list<MENU *> subMenu = {}, Adafruit_SSD1306 *display = nullptr);
+        MENU(String name);
+        MENU(String name, std::initializer_list<MENU *> subMenu);
+        MENU(String name, std::function<void(MENU *)> onFocus, std::function<void(MENU *)> onBlur);
+        MENU(String name, std::function<void(MENU *)> onClick);
         ~MENU();
-        void addSubMenu(MENU *menu);
         void render();
+        void setDisplay(Adafruit_SSD1306 *display);
 
         friend class OLED;
     };
@@ -68,8 +99,6 @@ public:
     PAGE getPage();
     void switchPage(PAGE page);
 
-    void configUp();
-    void configDown();
-    void configBack();
-    void configEnter();
+    void dirInput(DIR dir);
+    void knobInput(uint8_t value);
 };
