@@ -130,11 +130,6 @@ clock_t lst_chk = 0;
 
 void loop()
 {
-    servo0.setAngle(-SERVO_RANGE);
-    delay(1000);
-    servo0.setAngle(SERVO_RANGE);
-    delay(1000);
-    return;
     bool hasData = false;
     int16_t status = network.proceedServer(hasData);
     if (status != RADIOLIB_ERR_NONE)
