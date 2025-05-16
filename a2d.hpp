@@ -24,7 +24,7 @@ class A2D
 {
 private:
     const uint8_t ADC_RESOLUTION = 12; // ADC resolution in bits
-    const float_t speedMaxFilterCoef = 0.2;
+    const float_t speedMaxFilterCoef = 0.8;
     const float_t speedCruiseFilterCoef = 0.05;
     const float_t speedControlFilterCoef = 0.8;
     const float_t steerControlFilterCoef = 0.8;
