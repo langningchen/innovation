@@ -21,6 +21,7 @@ class SERVO
 {
     uint8_t pin, freq, resolution;
     uint8_t aglRng, minDuty, maxDuty;
+    int16_t lastAngle = 0;
 
 public:
     SERVO(uint8_t pin, uint32_t freq, uint8_t aglRng, uint8_t minDuty, uint8_t maxDuty);

@@ -48,11 +48,10 @@ void SERVO::begin() { pinMode(pin, OUTPUT), digitalWrite(pin, LOW); }
 bool SERVO::setAngle(int16_t angle)
 {
     angle = constrain(angle, -aglRng, aglRng);
-    static int16_t lastAngle = 0;
     if (lastAngle != angle)
     {
         lastAngle = angle;
-        uint32_t delayTime = uint32_t(map(angle, -aglRng, aglRng, minDuty, maxDuty)) * 10000 / freq;
+        uint32_t delayTime = ((angle + aglRng) * 1.0 / (2 * aglRng) * (maxDuty - minDuty) + minDuty) * 10000 / freq;
         digitalWrite(pin, HIGH);
         delayMicroseconds(delayTime);
         digitalWrite(pin, LOW);
