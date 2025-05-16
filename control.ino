@@ -91,9 +91,10 @@ void loop()
     {
         lastMsg += MSG_INTERVAL;
 
+        OLED::STATUS status;
         static uint8_t lastSpeedMax = 0;
         a2d.getData(speedMax, speedCruise, speedControl, steerControl, enableCruise, enableLock);
-        oled.switchPage(enableLock ? OLED::PAGE::CONFIG : OLED::PAGE::STATUS);
+        oled.switchPage(enableLock ? OLED::PAGE::PAGE_CONFIG : OLED::PAGE::PAGE_STATUS);
         if (lastSpeedMax != speedMax)
         {
             oled.knobInput(speedMax);
@@ -101,24 +102,17 @@ void loop()
         }
 
         updateData(speedMax, speedCruise, speedControl, steerControl, enableCruise, enableLock);
+        status.servoDegree = steerControl, status.motorSpeed = speedControl;
         CONTROL_MSG controlMsg = {steerControl, speedControl};
         BOAT_MSG boatMsg = {0, 0, 0};
 
-        int16_t status = network.proceedClient(controlMsg, boatMsg);
-        if (status == RADIOLIB_ERR_NONE)
+        status.networkStatus = network.proceedClient(controlMsg, boatMsg);
+        if (status.networkStatus == RADIOLIB_ERR_NONE)
         {
-            Serial.print("servo ");
-            Serial.print(controlMsg.servoDegree);
-            Serial.print("°  motor ");
-            Serial.print(controlMsg.motorSpeed);
-            Serial.print("%  battery ");
-            Serial.print(boatMsg.batteryVoltage);
-            Serial.print("V ");
-            Serial.print(boatMsg.batteryPercentage);
-            Serial.println("%");
+            status.batteryVoltage = boatMsg.batteryVoltage;
+            status.batteryPercentage = boatMsg.batteryPercentage;
         }
-        else
-            Serial.println(status);
+        oled.updateStatus(status);
     }
 }
 

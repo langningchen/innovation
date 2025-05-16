@@ -26,10 +26,19 @@ class OLED
 public:
     enum PAGE
     {
-        INIT,
-        CONFIG,
-        STATUS,
+        PAGE_INIT,
+        PAGE_CONFIG,
+        PAGE_STATUS,
     } page;
+
+    struct STATUS
+    {
+        float_t batteryVoltage;
+        uint8_t batteryPercentage;
+        int16_t servoDegree;
+        int8_t motorSpeed;
+        int16_t networkStatus;
+    };
 
     class MENU
     {
@@ -86,6 +95,7 @@ private:
     uint8_t address;
     uint8_t width, height;
     Adafruit_SSD1306 display;
+    STATUS status;
     MENU *menu, *currentMenu;
     bool needUpdate;
 
@@ -103,4 +113,5 @@ public:
 
     void dirInput(DIR dir);
     void knobInput(uint8_t value);
+    void updateStatus(STATUS status);
 };

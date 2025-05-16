@@ -166,7 +166,15 @@ void OLED::renderStatus()
     display.setCursor(0, 0);
     display.setTextSize(1);
     display.setTextColor(WHITE, BLACK);
-    display.println("To be implemented");
+    display.drawRoundRect(0, 0, width, height, 5, WHITE);
+    display.setCursor(4, 4), display.print("OK");
+    display.setCursor(width - 4 - 10 * OLED_CHAR_WIDTH, 4), display.print(String(status.batteryVoltage) + "V");
+    display.setCursor(width - 4 - 4 * OLED_CHAR_WIDTH, 4), display.print(String(status.batteryPercentage) + "%");
+    display.drawFastHLine(1, 2 + OLED_CHAR_HEIGHT, width - 2, WHITE);
+
+    display.setCursor(5, 5 + OLED_CHAR_HEIGHT);
+    display.setCursor(5, 5 + OLED_CHAR_HEIGHT), display.print(String(status.servoDegree) + "deg");
+    display.setCursor(OLED_WIDTH / 2, 5 + OLED_CHAR_HEIGHT), display.print(String(status.motorSpeed) + "%");
 }
 
 /**
@@ -266,13 +274,13 @@ void OLED::process()
     display.clearDisplay();
     switch (page)
     {
-    case INIT:
+    case PAGE_INIT:
         renderInit();
         break;
-    case CONFIG:
+    case PAGE_CONFIG:
         renderConfig();
         break;
-    case STATUS:
+    case PAGE_STATUS:
         renderStatus();
         break;
     default:
@@ -306,7 +314,7 @@ void OLED::switchPage(PAGE page)
  */
 void OLED::dirInput(DIR dir)
 {
-    if (page != PAGE::CONFIG)
+    if (page != PAGE::PAGE_CONFIG)
         return;
     uint8_t &index = currentMenu->folder.index;
     std::vector<OLED::MENU *> &subMenu = currentMenu->folder.subMenu;
@@ -347,7 +355,7 @@ void OLED::dirInput(DIR dir)
 void OLED::knobInput(uint8_t value)
 {
     value = constrain(value, 0, 100);
-    if (page != PAGE::CONFIG)
+    if (page != PAGE::PAGE_CONFIG)
         return;
     if (!currentMenu->folder.subMenu.size())
         return;
@@ -357,3 +365,9 @@ void OLED::knobInput(uint8_t value)
     modifingMenu->config.value = map(value, 0, 100, modifingMenu->config.minValue, modifingMenu->config.maxValue);
     needUpdate = true;
 }
+
+/**
+ * @brief Update the status
+ * @param status The status to update
+ */
+void OLED::updateStatus(STATUS status) { this->status = status, needUpdate = true; }
