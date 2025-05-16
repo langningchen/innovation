@@ -69,15 +69,9 @@ void setup()
                 boatMsg.result = 0;
                 boatMsg.batteryVoltage = battery.getVoltage();
                 boatMsg.batteryPercentage = battery.getPercentage();
-                Serial.print("servo ");
-                Serial.print(controlMsg.servoDegree);
-                Serial.print("°  motor ");
-                Serial.print(controlMsg.motorSpeed);
-                Serial.print("%  battery ");
-                Serial.print(boatMsg.batteryVoltage);
-                Serial.print("V ");
-                Serial.print(boatMsg.batteryPercentage);
-                Serial.println("%");
+                float_t ax, ay, az, gx, gy, gz;
+                mpu6050.readData(ax, ay, az, gx, gy, gz);
+                boatMsg.mpuX = ax, boatMsg.mpuY = ay, boatMsg.mpuZ = az;
                 return boatMsg;
             }))
     {
@@ -118,9 +112,6 @@ void setup()
     }
 
     Serial.println("Boat initialization completed");
-
-#define PIN_DEBUG 4
-    pinMode(PIN_DEBUG, OUTPUT);
 }
 
 clock_t lst_msg = 0;
@@ -142,31 +133,5 @@ void loop()
         Serial.println(lst_msg == 0 ? "No data received" : "Timeout");
         lst_chk = clock();
     }
-
-    float_t ax;
-    float_t ay;
-    float_t az;
-    float_t gx;
-    float_t gy;
-    float_t gz;
-    mpu6050.readData(ax, ay, az, gx, gy, gz);
-#ifdef DEBUG
-    Serial.print("ax: ");
-    Serial.print(ax);
-    Serial.print(" ay: ");
-    Serial.print(ay);
-    Serial.print(" az: ");
-    Serial.print(az);
-    Serial.print(" gx: ");
-    Serial.print(gx);
-    Serial.print(" gy: ");
-    Serial.print(gy);
-    Serial.print(" gz: ");
-    Serial.println(gz);
-#endif
-
-    digitalWrite(PIN_DEBUG, HIGH);
-    ets_delay_us(1);
-    digitalWrite(PIN_DEBUG, LOW);
 }
 #endif

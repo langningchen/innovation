@@ -20,6 +20,7 @@
 #include <vector>
 #include <string>
 #include <Adafruit_SSD1306.h>
+#include <storage.hpp>
 
 class OLED
 {
@@ -38,6 +39,8 @@ public:
         int16_t servoDegree;
         int8_t motorSpeed;
         int16_t networkStatus;
+        uint32_t lastMsgTime;
+        float_t mpuX, mpuY, mpuZ;
     };
 
     class MENU
@@ -104,7 +107,7 @@ private:
     void renderStatus();
 
 public:
-    OLED(uint8_t address, uint8_t width, uint8_t height);
+    OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage);
     ~OLED();
     bool begin();
     void process();

@@ -25,11 +25,14 @@ private:
     struct DATA
     {
         uint8_t controlTimeout; // 0.1 s
+        uint8_t maxSpeed;       // 100
     } data;
 
 public:
-    void load();
-    void save();
+    bool begin();
+    bool save();
     uint8_t getControlTimeout();
-    void setControlTimeout(uint8_t controlTimeout);
+    bool setControlTimeout(uint8_t controlTimeout);
+    uint8_t getMaxSpeed();
+    bool setMaxSpeed(uint8_t maxSpeed);
 };

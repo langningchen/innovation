@@ -166,15 +166,19 @@ void OLED::renderStatus()
     display.setCursor(0, 0);
     display.setTextSize(1);
     display.setTextColor(WHITE, BLACK);
-    display.drawRoundRect(0, 0, width, height, 5, WHITE);
-    display.setCursor(4, 4), display.print("OK");
-    display.setCursor(width - 4 - 10 * OLED_CHAR_WIDTH, 4), display.print(String(status.batteryVoltage) + "V");
-    display.setCursor(width - 4 - 4 * OLED_CHAR_WIDTH, 4), display.print(String(status.batteryPercentage) + "%");
-    display.drawFastHLine(1, 2 + OLED_CHAR_HEIGHT, width - 2, WHITE);
+    display.drawRoundRect(0, 0, 128, 64, 5, WHITE);
+    display.setCursor(4, 4), display.print(status.networkStatus ? String(status.networkStatus) : "OK");
+    display.setCursor(64, 4), display.print(millis() - status.lastMsgTime);
 
-    display.setCursor(5, 5 + OLED_CHAR_HEIGHT);
-    display.setCursor(5, 5 + OLED_CHAR_HEIGHT), display.print(String(status.servoDegree) + "deg");
-    display.setCursor(OLED_WIDTH / 2, 5 + OLED_CHAR_HEIGHT), display.print(String(status.motorSpeed) + "%");
+    display.setCursor(4, 4 + OLED_CHAR_HEIGHT), display.print(String(status.servoDegree) + "deg");
+    display.setCursor(64, 4 + OLED_CHAR_HEIGHT), display.print(String(status.motorSpeed) + "%");
+
+    display.setCursor(4, 4 + 2 * OLED_CHAR_HEIGHT), display.print(String(status.batteryVoltage) + "V");
+    display.setCursor(64, 4 + 2 * OLED_CHAR_HEIGHT), display.print(String(status.batteryPercentage) + "%");
+
+    display.setCursor(4, 4 + 3 * OLED_CHAR_HEIGHT), display.print(String(status.mpuX));
+    display.setCursor(44, 4 + 3 * OLED_CHAR_HEIGHT), display.print(String(status.mpuY));
+    display.setCursor(84, 4 + 3 * OLED_CHAR_HEIGHT), display.print(String(status.mpuZ));
 }
 
 /**
@@ -183,58 +187,31 @@ void OLED::renderStatus()
  * @param width Width of the display
  * @param height Height of the display
  */
-OLED::OLED(uint8_t address, uint8_t width, uint8_t height)
+OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage)
     : address(address), width(width), height(height),
       needUpdate(true), display(width, height, &Wire, -1)
 {
     currentMenu = menu =
         new MENU("Main Menu",
                  {
-                     new MENU("Menu"),
-                     new MENU("Very long long long Menu"),
-                     new MENU("Configs", {
-                                             new MENU(
-                                                 "Config 1",
-                                                 [](MENU *instance)
-                                                 {
-                                                     Serial.println("onFocus1");
-                                                 },
-                                                 [](MENU *instance)
-                                                 {
-                                                     Serial.println("onBlur1");
-                                                 }),
-                                             new MENU(
-                                                 "Config 2",
-                                                 [](MENU *instance)
-                                                 {
-                                                     Serial.println("onFocus2");
-                                                 },
-                                                 [](MENU *instance)
-                                                 {
-                                                     Serial.println("onBlur2");
-                                                 }),
-                                         }),
-                     new MENU("Button", [](MENU *instance)
-                              {
-                                  instance->updateDisplay();
-                                  instance->display->clearDisplay();
-                                  instance->display->setCursor(0,0);
-                                  instance->display->setTextSize(2);
-                                  instance->display->println("Clicked"); 
-                                  instance->display->display();
-                                  delay(1000); }),
-                     new MENU("Sub Menu", {
-                                              new MENU("Sub Menu 1"),
-                                              new MENU("Sub Menu 2"),
-                                              new MENU("Sub Menu 3"),
-                                              new MENU("Sub Menu 4"),
-                                              new MENU("Sub Menu 5"),
-                                              new MENU("Sub Menu 6"),
-                                              new MENU("Sub Menu 7"),
-                                              new MENU("Sub Menu 8"),
-                                              new MENU("Sub Menu 9"),
-                                              new MENU("Sub Menu 10"),
-                                          }),
+                     new MENU("Boat", {
+                                          new MENU("Motor", {
+                                                                new MENU("Max speed", [&storage](MENU *menu)
+                                                                         {
+                                                                             Serial.println("max speed get");
+                                                                               menu->config.value = storage.getMaxSpeed(); }, [&storage](MENU *menu)
+                                                                         {
+                                                                             Serial.println("max speed set to " + String(menu->config.value));
+                                                                              Serial.println(storage.setMaxSpeed(menu->config.value)); }),
+                                                            }),
+                                      }),
+                     new MENU("About", {
+                                           new MENU("https://github.com"),
+                                           new MENU("/langningchen"),
+                                           new MENU("/innovation"),
+                                           new MENU(""),
+                                           new MENU("GNU GPLv3"),
+                                       }),
                  });
     menu->setDisplay(&display);
 }

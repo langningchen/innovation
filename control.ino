@@ -23,19 +23,20 @@
 #include <messages.hpp>
 #include <a2d.hpp>
 #include <oled.hpp>
+#include <storage.hpp>
 
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_IRQ, PIN_RESET, PIN_BUSY);
 A2D a2d(PIN_SPEED_MAX, PIN_SPEED_CRUISE, PIN_SPEED_CONTROL, PIN_STEER_CONTROL, PIN_CRUISE_CONTROL, PIN_CONTROL_LOCK);
-OLED oled(OLED_ADDRESS, OLED_WIDTH, OLED_HEIGHT);
+STORAGE storage;
+OLED oled(OLED_ADDRESS, OLED_WIDTH, OLED_HEIGHT, storage);
 
 uint32_t lastMsg;
-uint8_t speedMax, speedCruise;
+uint8_t config, speedCruise;
 int8_t speedControl, steerControl;
 bool enableCruise, enableLock;
 
 /**
  * @brief Update the data from the original data
- * @param speedMax in
  * @param speedCruise in
  * @param speedControl in/out
  * @param steerControl in/out
@@ -44,7 +45,7 @@ bool enableCruise, enableLock;
  * @details according to the the lock and cruise pin status to update the control speed and steer for network.
  * limit the speed to MaxSpeed or the cruise speed, etc.
  */
-void updateData(uint8_t &speedMax, uint8_t &speedCruise,
+void updateData(uint8_t &speedCruise,
                 int8_t &speedControl, int8_t &steerControl,
                 bool &enableCruise, bool &enableLock);
 
@@ -75,12 +76,21 @@ void setup()
             ;
     }
 
+    if (!storage.begin())
+    {
+        Serial.println("Storage initialization failed");
+        while (1)
+            ;
+    }
+
     a2d.begin();
     a2d.setOnDirectionEnd([](DIR dir)
                           { oled.dirInput(dir); });
     Serial.println("Control initialization completed");
     lastMsg = millis();
 }
+
+OLED::STATUS status;
 
 void loop()
 {
@@ -91,17 +101,16 @@ void loop()
     {
         lastMsg += MSG_INTERVAL;
 
-        OLED::STATUS status;
-        static uint8_t lastSpeedMax = 0;
-        a2d.getData(speedMax, speedCruise, speedControl, steerControl, enableCruise, enableLock);
+        static uint8_t lastConfig = 0;
+        a2d.getData(config, speedCruise, speedControl, steerControl, enableCruise, enableLock);
         oled.switchPage(enableLock ? OLED::PAGE::PAGE_CONFIG : OLED::PAGE::PAGE_STATUS);
-        if (lastSpeedMax != speedMax)
+        if (lastConfig != config)
         {
-            oled.knobInput(speedMax);
-            lastSpeedMax = speedMax;
+            oled.knobInput(config);
+            lastConfig = config;
         }
 
-        updateData(speedMax, speedCruise, speedControl, steerControl, enableCruise, enableLock);
+        updateData(speedCruise, speedControl, steerControl, enableCruise, enableLock);
         status.servoDegree = steerControl, status.motorSpeed = speedControl;
         CONTROL_MSG controlMsg = {steerControl, speedControl};
         BOAT_MSG boatMsg = {0, 0, 0};
@@ -111,12 +120,14 @@ void loop()
         {
             status.batteryVoltage = boatMsg.batteryVoltage;
             status.batteryPercentage = boatMsg.batteryPercentage;
+            status.lastMsgTime = millis();
+            status.mpuX = boatMsg.mpuX, status.mpuY = boatMsg.mpuY, status.mpuZ = boatMsg.mpuZ;
         }
         oled.updateStatus(status);
     }
 }
 
-void updateData(uint8_t &speedMax, uint8_t &speedCruise,
+void updateData(uint8_t &speedCruise,
                 int8_t &speedControl, int8_t &steerControl,
                 bool &enableCruise, bool &enableLock)
 {
@@ -128,7 +139,7 @@ void updateData(uint8_t &speedMax, uint8_t &speedCruise,
     if (speedControl < 0)
         speedControl *= BACKWARD_LIMIT;
     else
-        speedControl *= speedMax / 100.0;
+        speedControl *= storage.getMaxSpeed() / 100.0;
 
     steerControl *= 60.0 / SERVO_RANGE;
     if (speedControl > 0)
