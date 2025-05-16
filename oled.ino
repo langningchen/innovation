@@ -95,7 +95,7 @@ void OLED::MENU::render()
          i++)
     {
         MENU *item = folder.subMenu[i];
-        if (i == folder.index)
+        if (i == folder.index && !isConfigActive)
             display->setTextColor(BLACK, WHITE);
         else
             display->setTextColor(WHITE, BLACK);
@@ -103,13 +103,15 @@ void OLED::MENU::render()
         String rightText = "";
         const int16_t width = display->width() / OLED_CHAR_WIDTH;
         if (item->type == TYPE::CONFIG)
-            rightText = " " + String(item->config.value);
+            rightText = item->config.value;
         if (leftText.length() + rightText.length() > width)
             display->print(leftText.substring(0, width - rightText.length() - 3) + "...");
         else
             display->print(leftText);
         for (int16_t i = leftText.length() + rightText.length(); i < width; i++)
             display->print(' ');
+        if (i == folder.index && isConfigActive)
+            display->setTextColor(BLACK, WHITE);
         display->println(rightText);
     }
 }
@@ -312,25 +314,26 @@ void OLED::dirInput(DIR dir)
     switch (dir)
     {
     case DIR::UP:
-        if (needUpdate = subMenu.size())
-            subMenu[index]->blur(), index = (index + subMenu.size() - 1) % subMenu.size(), subMenu[index]->focus();
+        if (needUpdate = !currentMenu->isConfigActive)
+            index = (index + subMenu.size() - 1) % subMenu.size();
         break;
     case DIR::DOWN:
-        if (needUpdate = subMenu.size())
-            subMenu[index]->blur(), index = (index + 1) % subMenu.size(), subMenu[index]->focus();
+        if (needUpdate = !currentMenu->isConfigActive)
+            index = (index + 1) % subMenu.size();
         break;
     case DIR::LEFT:
         if (needUpdate = currentMenu->parent)
-            currentMenu->blur(), currentMenu = currentMenu->parent, currentMenu->focus();
+            if (currentMenu->isConfigActive)
+                currentMenu->isConfigActive = false, subMenu[index]->blur();
+            else
+                currentMenu = currentMenu->parent;
         break;
     case DIR::RIGHT:
-        if (needUpdate = (subMenu.size() && subMenu[index]->type == MENU::TYPE::FOLDER))
-        {
-            currentMenu->blur();
+        if (needUpdate = subMenu[index]->type == MENU::TYPE::FOLDER)
             currentMenu = subMenu[index];
-            currentMenu->focus();
-        }
-        else if (needUpdate = subMenu.size() && subMenu[index]->type == MENU::TYPE::BUTTON)
+        else if (needUpdate = subMenu[index]->type == MENU::TYPE::CONFIG && !currentMenu->isConfigActive)
+            currentMenu->isConfigActive = true, subMenu[index]->focus();
+        else if (needUpdate = subMenu[index]->type == MENU::TYPE::BUTTON)
             subMenu[index]->click();
         break;
     default:
@@ -349,7 +352,7 @@ void OLED::knobInput(uint8_t value)
     if (!currentMenu->folder.subMenu.size())
         return;
     MENU *modifingMenu = currentMenu->folder.subMenu[currentMenu->folder.index];
-    if (modifingMenu->type != MENU::TYPE::CONFIG)
+    if (modifingMenu->type != MENU::TYPE::CONFIG || !currentMenu->isConfigActive)
         return;
     modifingMenu->config.value = map(value, 0, 100, modifingMenu->config.minValue, modifingMenu->config.maxValue);
     needUpdate = true;

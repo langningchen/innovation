@@ -57,6 +57,7 @@ public:
         Adafruit_SSD1306 *display = nullptr;
         String name;
         MENU *parent = nullptr, *next = nullptr, *prev = nullptr;
+        bool isConfigActive = false;
         std::function<void(MENU *)> onFocus;
         std::function<void(MENU *)> onBlur;
         std::function<void(MENU *)> onClick;
