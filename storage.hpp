@@ -39,12 +39,17 @@ private:
 public:
     bool begin();
     bool save();
+    bool reset();
+
     uint8_t getControlTimeout();
     bool setControlTimeout(uint8_t controlTimeout);
+
     uint8_t getMaxSpeed();
     bool setMaxSpeed(uint8_t maxSpeed);
+
     int8_t getLeftServoDelta();
     bool setLeftServoDelta(int8_t leftServoDelta);
+
     int8_t getRightServoDelta();
     bool setRightServoDelta(int8_t rightServoDelta);
 };

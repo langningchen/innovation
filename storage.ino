@@ -1,5 +1,9 @@
 #include <storage.hpp>
 
+/**
+ * @brief Initialize the STORAGE
+ * @return true if successful, false otherwise
+ */
 bool STORAGE::begin()
 {
     if (!EEPROM.begin(sizeof(DATA)))
@@ -7,10 +11,23 @@ bool STORAGE::begin()
     EEPROM.get(0, data);
     return true;
 }
+/**
+ * @brief Save the storage
+ * @return true if successful, false otherwise
+ */
 bool STORAGE::save()
 {
     EEPROM.put(0, data);
     return EEPROM.commit();
+}
+/**
+ * @brief Reset the storage to default values
+ * @return true if successful, false otherwise
+ */
+bool STORAGE::reset()
+{
+    data = defaultData;
+    return save();
 }
 
 uint8_t STORAGE::getControlTimeout() { return data.controlTimeout; }

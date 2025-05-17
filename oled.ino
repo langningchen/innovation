@@ -218,6 +218,8 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage)
                                                    { menu->config.value = storage.getRightServoDelta(); }, [&storage](MENU *menu)
                                                    { storage.setRightServoDelta(menu->config.value); }, -30, 30),
                                       }),
+                     new MENU("Reset to default", [&storage](MENU *menu)
+                              { storage.reset(); }),
                      new MENU("About", {
                                            new MENU("https://github.com"),
                                            new MENU("/langningchen"),
