@@ -208,30 +208,56 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage)
         new MENU("Main Menu",
                  {
                      new MENU("Boat", {
-                                          new MENU("Max speed", [&storage](MENU *menu)
+                                          new MENU("Max speed (%)", [&storage](MENU *menu)
                                                    { menu->config.value = storage.getMaxSpeed(); }, [&storage](MENU *menu)
                                                    { storage.setMaxSpeed(menu->config.value); }, 0, 100),
-                                          new MENU("Left servo delta", [&storage](MENU *menu)
+                                          new MENU("L servo delta (d)", [&storage](MENU *menu)
                                                    { menu->config.value = storage.getLeftServoDelta(); }, [&storage](MENU *menu)
                                                    { storage.setLeftServoDelta(menu->config.value); }, -30, 30),
-                                          new MENU("Right servo delta", [&storage](MENU *menu)
+                                          new MENU("R servo delta (d)", [&storage](MENU *menu)
                                                    { menu->config.value = storage.getRightServoDelta(); }, [&storage](MENU *menu)
                                                    { storage.setRightServoDelta(menu->config.value); }, -30, 30),
-                                          new MENU("Left motor delta", [&storage](MENU *menu)
+                                          new MENU("L motor delta (%)", [&storage](MENU *menu)
                                                    { menu->config.value = storage.getLeftMotorDelta(); }, [&storage](MENU *menu)
                                                    { storage.setLeftMotorDelta(menu->config.value); }, -30, 30),
-                                          new MENU("Right motor delta", [&storage](MENU *menu)
+                                          new MENU("R motor delta (%)", [&storage](MENU *menu)
                                                    { menu->config.value = storage.getRightMotorDelta(); }, [&storage](MENU *menu)
                                                    { storage.setRightMotorDelta(menu->config.value); }, -30, 30),
                                       }),
+                     new MENU("Control", {
+                                             new MENU("Backward limit (%)", [&storage](MENU *menu)
+                                                      { menu->config.value = storage.getBackwardLimit(); }, [&storage](MENU *menu)
+                                                      { storage.setBackwardLimit(menu->config.value); }, 0, 100),
+                                             new MENU("Dir threshold (%)", [&storage](MENU *menu)
+                                                      { menu->config.value = storage.getDirThreshold(); }, [&storage](MENU *menu)
+                                                      { storage.setDirThreshold(menu->config.value); }, 20, 90),
+                                             new MENU("Servo limit (d)", [&storage](MENU *menu)
+                                                      { menu->config.value = storage.getServoLimit(); }, [&storage](MENU *menu)
+                                                      { storage.setServoLimit(menu->config.value); }, 30, 100),
+                                         }),
                      new MENU("Reset to default", [&storage](MENU *menu)
                               { storage.reset(); }),
                      new MENU("About", {
-                                           new MENU("https://github.com"),
-                                           new MENU("/langningchen"),
-                                           new MENU("/innovation"),
+                                           new MENU("Innovation"),
                                            new MENU(""),
-                                           new MENU("GNU GPLv3"),
+                                           new MENU("Project URL", {
+                                                                       new MENU("https://github.com"),
+                                                                       new MENU("/langningchen"),
+                                                                       new MENU("/innovation"),
+                                                                   }),
+                                           new MENU("Authors", {
+                                                                   new MENU("langningchen"),
+                                                                   new MENU("lmyzzzz"),
+                                                                   new MENU("zzsqjdhqgb"),
+                                                               }),
+                                           new MENU("Open source license", {
+                                                                               new MENU("GNU General Public"),
+                                                                               new MENU("License Version 3"),
+                                                                           }),
+                                           new MENU("Compile time", {
+                                                                        new MENU(__DATE__),
+                                                                        new MENU(__TIME__),
+                                                                    }),
                                        }),
                  });
     menu->setDisplay(&display);
@@ -292,7 +318,10 @@ void OLED::process()
  * @brief Get the current page
  * @return The current page
  */
-OLED::PAGE OLED::getPage() { return page; }
+OLED::PAGE OLED::getPage()
+{
+    return page;
+}
 
 /**
  * @brief Set the current page
@@ -368,4 +397,7 @@ void OLED::knobInput(uint8_t value)
  * @brief Update the status
  * @param status The status to update
  */
-void OLED::updateStatus(STATUS status) { this->status = status, needUpdate = true; }
+void OLED::updateStatus(STATUS status)
+{
+    this->status = status, needUpdate = true;
+}

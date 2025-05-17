@@ -71,3 +71,24 @@ bool STORAGE::setRightMotorDelta(int8_t rightMotorDelta)
     data.rightMotorDelta = rightMotorDelta;
     return save();
 }
+
+uint8_t STORAGE::getBackwardLimit() { return data.backwardLimit; }
+bool STORAGE::setBackwardLimit(uint8_t backwardLimit)
+{
+    data.backwardLimit = backwardLimit;
+    return save();
+}
+
+uint8_t STORAGE::getDirThreshold() { return data.dirThreshold; }
+bool STORAGE::setDirThreshold(uint8_t dirThreshold)
+{
+    data.dirThreshold = dirThreshold;
+    return save();
+}
+
+uint8_t STORAGE::getServoLimit() { return data.servoLimit; }
+bool STORAGE::setServoLimit(uint8_t servoLimit)
+{
+    data.servoLimit = servoLimit;
+    return save();
+}

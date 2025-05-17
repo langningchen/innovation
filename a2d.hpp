@@ -18,6 +18,7 @@
 #pragma once
 
 #include <define.hpp>
+#include <storage.hpp>
 #include <functional>
 
 class A2D
@@ -44,13 +45,16 @@ private:
     DIR lastDirection = NONE;
     std::function<void(DIR)> onDirectionEnd = nullptr;
 
+    STORAGE &storage;
+
     DIR getDirection();
     void updateDirection();
 
 public:
     A2D(uint8_t configPin, uint8_t speedCruisePin,
         uint8_t speedControlPin, uint8_t steerControlPin,
-        uint8_t enableCruisePin, uint8_t enableLockPin);
+        uint8_t enableCruisePin, uint8_t enableLockPin,
+        STORAGE &storage);
     void begin();
     void reset();
     void setBasis();

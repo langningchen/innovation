@@ -29,7 +29,7 @@ DIR A2D::getDirection()
     int8_t rightPercent = (steerControl - steerControlBasis) * 100 / (steerControlMax - steerControlBasis);
     int8_t leftPercent = (steerControlBasis - steerControl) * 100 / (steerControlBasis - steerControlMin);
     int8_t maxPercent = max(max(upPercent, downPercent), max(leftPercent, rightPercent));
-    if (maxPercent < DIR_THRESHOLD)
+    if (maxPercent < storage.getDirThreshold())
         return NONE;
     if (upPercent == maxPercent)
         return UP;
@@ -67,10 +67,12 @@ void A2D::updateDirection()
  */
 A2D::A2D(uint8_t configPin, uint8_t speedCruisePin,
          uint8_t speedControlPin, uint8_t steerControlPin,
-         uint8_t enableCruisePin, uint8_t enableLockPin)
+         uint8_t enableCruisePin, uint8_t enableLockPin,
+         STORAGE &storage)
     : configPin(configPin), speedCruisePin(speedCruisePin),
       speedControlPin(speedControlPin), steerControlPin(steerControlPin),
-      enableCruisePin(enableCruisePin), enableLockPin(enableLockPin) {}
+      enableCruisePin(enableCruisePin), enableLockPin(enableLockPin),
+      storage(storage) {}
 
 /**
  * @brief Initialize the A2D

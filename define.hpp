@@ -25,9 +25,7 @@
 #define OLED_WIDTH 128      // px
 #define OLED_HEIGHT 64      // px
 #define MSG_INTERVAL 50     // ms
-#define BACKWARD_LIMIT 0.3  // %
 #define SERVO_RANGE 135     // °
-#define DIR_THRESHOLD 30    // %
 #define OLED_LINE_CNT 8     // lines
 #define OLED_CHAR_WIDTH 6   // px
 #define OLED_CHAR_HEIGHT 12 // px

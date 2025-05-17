@@ -28,6 +28,9 @@ private:
         uint8_t maxSpeed;                       // 0 ~ 100 %
         int8_t leftServoDelta, rightServoDelta; // -30 ~ 30 d
         int8_t leftMotorDelta, rightMotorDelta; // -30 ~ 30 %
+        uint8_t backwardLimit;                  // 0 ~ 100 %
+        uint8_t dirThreshold;                   // 20 ~ 90 %
+        uint8_t servoLimit;                     // 30 ~ 100 d
     } data;
     const DATA defaultData = {
         .controlTimeout = 10, // 100
@@ -36,6 +39,9 @@ private:
         .rightServoDelta = 0, // 0
         .leftMotorDelta = 0,  // 0
         .rightMotorDelta = 0, // 0
+        .backwardLimit = 30,  // 30
+        .dirThreshold = 30,   // 30
+        .servoLimit = 60      // 60
     };
 
 public:
@@ -60,4 +66,13 @@ public:
 
     int8_t getRightMotorDelta();
     bool setRightMotorDelta(int8_t rightMotorDelta);
+
+    uint8_t getBackwardLimit();
+    bool setBackwardLimit(uint8_t backwardLimit);
+
+    uint8_t getDirThreshold();
+    bool setDirThreshold(uint8_t dirThreshold);
+
+    uint8_t getServoLimit();
+    bool setServoLimit(uint8_t servoLimit);
 };
