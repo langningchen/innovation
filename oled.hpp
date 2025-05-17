@@ -70,21 +70,21 @@ public:
         String name;
         MENU *parent = nullptr, *next = nullptr, *prev = nullptr;
         bool isConfigActive = false;
-        std::function<void(MENU *)> onFocus;
+        std::function<void(MENU *)> onLoad;
         std::function<void(MENU *)> onBlur;
         std::function<void(MENU *)> onClick;
         TYPE type;
         CONFIG_DATA config;
         FOLDER_DATA folder;
 
-        void focus();
+        void load();
         void blur();
         void click();
 
     public:
         MENU(String name);
         MENU(String name, std::initializer_list<MENU *> subMenu);
-        MENU(String name, std::function<void(MENU *)> onFocus, std::function<void(MENU *)> onBlur);
+        MENU(String name, std::function<void(MENU *)> onLoad, std::function<void(MENU *)> onBlur);
         MENU(String name, std::function<void(MENU *)> onClick);
         ~MENU();
         void render();

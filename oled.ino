@@ -2,12 +2,12 @@
 #include <define.hpp>
 
 /**
- * @brief The menu is focused
+ * @brief The menu is loaded
  */
-void OLED::MENU::focus()
+void OLED::MENU::load()
 {
-    if (onFocus)
-        onFocus(this);
+    if (onLoad)
+        onLoad(this);
 }
 
 /**
@@ -53,16 +53,22 @@ OLED::MENU::MENU(String name, std::initializer_list<MENU *> subMenu) : type(TYPE
         menu->parent = this;
         folder.subMenu.push_back(menu);
     }
+    onLoad = [this](MENU *menu)
+    {
+        for (MENU *item : folder.subMenu)
+            if (item->type == TYPE::CONFIG && item->onLoad)
+                item->onLoad(item);
+    };
 }
 
 /**
  * @brief MENU (config) constructor
  * @param name Name of the menu
- * @param onFocus callback function, it will be called when the item is showed
+ * @param onLoad callback function, it will be called when the item is showed
  * @param onBlur callback function, it will be called when the item is blurred
  */
-OLED::MENU::MENU(String name, std::function<void(MENU *)> onFocus, std::function<void(MENU *)> onBlur)
-    : type(TYPE::CONFIG), name(name), onFocus(onFocus), onBlur(onBlur) {}
+OLED::MENU::MENU(String name, std::function<void(MENU *)> onLoad, std::function<void(MENU *)> onBlur)
+    : type(TYPE::CONFIG), name(name), onLoad(onLoad), onBlur(onBlur) {}
 
 /**
  * @brief MENU (button) constructor
@@ -315,9 +321,9 @@ void OLED::dirInput(DIR dir)
         break;
     case DIR::RIGHT:
         if (needUpdate = subMenu[index]->type == MENU::TYPE::FOLDER)
-            currentMenu = subMenu[index];
+            currentMenu = subMenu[index], currentMenu->load();
         else if (needUpdate = subMenu[index]->type == MENU::TYPE::CONFIG && !currentMenu->isConfigActive)
-            currentMenu->isConfigActive = true, subMenu[index]->focus();
+            currentMenu->isConfigActive = true;
         else if (needUpdate = subMenu[index]->type == MENU::TYPE::BUTTON)
             subMenu[index]->click();
         break;
