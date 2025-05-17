@@ -18,14 +18,14 @@
 #pragma once
 
 #include <pin.hpp>
-#define CONTROL_TIMEOUT 5000 // ms
+#define CONTROL_TIMEOUT 3000 // ms
 #define MPU_ADDRESS 0x68
 #define OLED_ADDRESS 0x3C
 #define INA_ADDRESS 0x40
 #define OLED_WIDTH 128      // px
 #define OLED_HEIGHT 64      // px
 #define MSG_INTERVAL 50     // ms
-#define SERVO_RANGE 135     // °
+#define SERVO_RANGE 135     // d
 #define OLED_LINE_CNT 8     // lines
 #define OLED_CHAR_WIDTH 6   // px
 #define OLED_CHAR_HEIGHT 12 // px

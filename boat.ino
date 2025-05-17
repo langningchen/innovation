@@ -18,7 +18,6 @@
 #include <switch.hpp>
 #ifdef BOAT
 
-// #define DEBUG
 #include <define.hpp>
 #include <servo.hpp>
 #include <motor.hpp>
@@ -137,7 +136,11 @@ void loop()
         lst_msg = clock();
     else if (clock() - lst_msg > CONTROL_TIMEOUT && clock() - lst_chk > 1000)
     {
-        Serial.println(lst_msg == 0 ? "No data received" : "Timeout");
+        if (lst_msg != 0)
+        {
+            servo0.setAngle(0), servo1.setAngle(0);
+            motor0.setSpeed(0), motor1.setSpeed(0);
+        }
         lst_chk = clock();
     }
 }

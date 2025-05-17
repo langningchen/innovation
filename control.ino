@@ -47,6 +47,13 @@ void setup()
             ;
     }
 
+    if (!oled.begin())
+    {
+        Serial.println("OLED initialization failed");
+        while (1)
+            ;
+    }
+
     if (!network.begin())
     {
         Serial.println("Network initialization failed");
@@ -54,13 +61,6 @@ void setup()
             ;
     }
     network.setClient();
-
-    if (!oled.begin())
-    {
-        Serial.println("OLED initialization failed");
-        while (1)
-            ;
-    }
 
     if (!storage.begin())
     {
