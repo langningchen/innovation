@@ -151,19 +151,26 @@ void OLED::MENU::updateDisplay()
 void OLED::MENU::setDisplay(Adafruit_SSD1306 *display) { this->display = display; }
 
 /**
+ * @brief Set the color of the OLED display
+ * @param black If true, set the color to black, otherwise set it to white
+ */
+void OLED::setColor(bool black)
+{
+    if (black)
+        display.setTextColor(BLACK, WHITE);
+    else
+        display.setTextColor(WHITE, BLACK);
+}
+
+/**
  * @brief Render the initialization page
  */
 void OLED::renderInit()
 {
-    display.setCursor(0, 0);
-    display.setTextSize(1);
-    display.setTextColor(BLACK, WHITE);
+    display.setCursor(4, 20);
+    display.setTextSize(2);
+    setColor(true);
     display.println("Innovation");
-    display.setTextColor(WHITE, BLACK);
-    display.println();
-    display.println("Compile time");
-    display.println(__DATE__);
-    display.println(__TIME__);
 }
 
 /**
@@ -176,22 +183,38 @@ void OLED::renderConfig() { currentMenu->render(); }
  */
 void OLED::renderStatus()
 {
+    uint32_t timeDelta = millis() - status.lastMsgTime;
     display.setCursor(0, 0);
     display.setTextSize(1);
-    display.setTextColor(WHITE, BLACK);
     display.drawRoundRect(0, 0, 128, 64, 5, WHITE);
-    display.setCursor(4, 4), display.print(status.networkStatus ? String(status.networkStatus) : "OK");
-    display.setCursor(64, 4), display.print(millis() - status.lastMsgTime);
+    display.setCursor(4, 4),
+        setColor(status.networkStatus),
+        display.print(status.networkStatus);
+    display.setCursor(64, 4),
+        setColor(timeDelta > 1000),
+        display.print(timeDelta);
 
-    display.setCursor(4, 4 + OLED_CHAR_HEIGHT), display.print(String(status.leftServoDegree) + "d " + String(status.leftMotorSpeed) + "%");
-    display.setCursor(64, 4 + OLED_CHAR_HEIGHT), display.print(String(status.rightServoDegree) + "d " + String(status.rightMotorSpeed) + "%");
+    setColor(false);
+    display.setCursor(4, 4 + OLED_CHAR_HEIGHT),
+        display.print(String(status.leftServoDegree) + "d " + String(status.leftMotorSpeed) + "%");
+    display.setCursor(64, 4 + OLED_CHAR_HEIGHT),
+        display.print(String(status.rightServoDegree) + "d " + String(status.rightMotorSpeed) + "%");
 
-    display.setCursor(4, 4 + 2 * OLED_CHAR_HEIGHT), display.print(String(status.batteryVoltage) + "V");
-    display.setCursor(64, 4 + 2 * OLED_CHAR_HEIGHT), display.print(String(status.batteryPercentage) + "%");
+    setColor(status.batteryPercentage < 50);
+    display.setCursor(4, 4 + 2 * OLED_CHAR_HEIGHT),
+        display.print(String(status.batteryVoltage) + "V");
+    display.setCursor(64, 4 + 2 * OLED_CHAR_HEIGHT),
+        display.print(String(status.batteryPercentage) + "%");
 
-    display.setCursor(4, 4 + 3 * OLED_CHAR_HEIGHT), display.print(String(status.mpuX));
-    display.setCursor(44, 4 + 3 * OLED_CHAR_HEIGHT), display.print(String(status.mpuY));
-    display.setCursor(84, 4 + 3 * OLED_CHAR_HEIGHT), display.print(String(status.mpuZ));
+    display.setCursor(4, 4 + 3 * OLED_CHAR_HEIGHT),
+        setColor(status.mpuX > 5),
+        display.print(status.mpuX);
+    display.setCursor(44, 4 + 3 * OLED_CHAR_HEIGHT),
+        setColor(status.mpuY > 5),
+        display.print(status.mpuY);
+    display.setCursor(84, 4 + 3 * OLED_CHAR_HEIGHT),
+        setColor(status.mpuZ < 5),
+        display.print(status.mpuZ);
 }
 
 /**

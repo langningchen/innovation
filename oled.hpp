@@ -103,6 +103,8 @@ private:
     MENU *menu, *currentMenu;
     bool needUpdate;
 
+    void setColor(bool black);
+
     void renderInit();
     void renderConfig();
     void renderStatus();
