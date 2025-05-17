@@ -25,9 +25,9 @@
  * @note The angle range is from -aglRng to aglRng, and minDuty must be less than maxDuty
  * @see PWM::PWM()
  */
-SERVO::SERVO(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel,
+SERVO::SERVO(uint8_t pin, uint32_t freq, uint8_t resolution,
              uint8_t aglRng, uint8_t minDuty, uint8_t maxDuty)
-    : PWM(pin, freq, resolution, channel)
+    : PWM(pin, freq, resolution)
 {
     this->aglRng = constrain(aglRng, 1, 180);
     this->minDuty = constrain(minDuty, 0, 100);
@@ -44,11 +44,9 @@ bool SERVO::setAngle(int16_t angle)
     angle = constrain(angle, -aglRng, aglRng);
     if (lastAngle != angle)
     {
-        Serial.print("angle changed to ");
-        Serial.print(angle);
         lastAngle = angle;
-        return ledcWriteChannel(channel, map(angle, -aglRng, aglRng,
-                                             ratio2Duty(minDuty), ratio2Duty(maxDuty)));
+        return ledcWrite(pin, map(angle, -aglRng, aglRng,
+                                  ratio2Duty(minDuty), ratio2Duty(maxDuty)));
     }
     return false;
 }

@@ -23,8 +23,10 @@
  */
 struct CONTROL_MSG
 {
-    int16_t servoDegree;
-    int8_t motorSpeed;
+    int16_t leftServoDegree;
+    int16_t rightServoDegree;
+    int8_t leftMotorSpeed;
+    int8_t rightMotorSpeed;
 };
 
 /**

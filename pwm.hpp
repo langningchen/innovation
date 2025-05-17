@@ -25,9 +25,8 @@ protected:
     uint8_t pin;
     uint32_t freq;
     uint8_t resolution;
-    uint8_t channel;
 
 public:
-    PWM(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel);
+    PWM(uint8_t pin, uint32_t freq, uint8_t resolution);
     bool begin();
 };

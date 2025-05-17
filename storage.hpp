@@ -24,9 +24,17 @@ class STORAGE
 private:
     struct DATA
     {
-        uint8_t controlTimeout; // 0.1 s
-        uint8_t maxSpeed;       // 100
+        uint8_t controlTimeout; // 0 ~ 3000 ms
+        uint8_t maxSpeed;       // 0 ~ 100 %
+        int8_t leftServoDelta;  // -30 ~ 30 deg
+        int8_t rightServoDelta; // -30 ~ 30 deg
     } data;
+    const DATA defaultData = {
+        .controlTimeout = 10, // 100
+        .maxSpeed = 100,      // 100
+        .leftServoDelta = 0,  // 0
+        .rightServoDelta = 0, // 0
+    };
 
 public:
     bool begin();
@@ -35,4 +43,8 @@ public:
     bool setControlTimeout(uint8_t controlTimeout);
     uint8_t getMaxSpeed();
     bool setMaxSpeed(uint8_t maxSpeed);
+    int8_t getLeftServoDelta();
+    bool setLeftServoDelta(int8_t leftServoDelta);
+    int8_t getRightServoDelta();
+    bool setRightServoDelta(int8_t rightServoDelta);
 };

@@ -34,10 +34,9 @@ inline uint32_t PWM::ratio2Duty(uint8_t ratio)
  * @param pin GPIO pin
  * @param freq Frequency of PWM signal in hertz (Hz)
  * @param resolution Resolution for LEDC pin
- * @param channel LEDC channel to attach to
  */
-PWM::PWM(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel)
-    : pin(pin), freq(freq), resolution(resolution), channel(channel) {}
+PWM::PWM(uint8_t pin, uint32_t freq, uint8_t resolution)
+    : pin(pin), freq(freq), resolution(resolution) {}
 
 /**
  * @brief Initialize the PWM
@@ -46,5 +45,5 @@ PWM::PWM(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel)
  */
 bool PWM::begin()
 {
-    return ledcAttachChannel(pin, freq, resolution, channel);
+    return ledcAttach(pin, freq, resolution);
 }

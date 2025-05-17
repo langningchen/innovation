@@ -36,8 +36,8 @@ public:
     {
         float_t batteryVoltage;
         uint8_t batteryPercentage;
-        int16_t servoDegree;
-        int8_t motorSpeed;
+        int16_t leftServoDegree, rightServoDegree;
+        int8_t leftMotorSpeed, rightMotorSpeed;
         int16_t networkStatus;
         uint32_t lastMsgTime;
         float_t mpuX, mpuY, mpuZ;
@@ -55,10 +55,9 @@ public:
         };
         struct CONFIG_DATA
         {
-            uint8_t value = 0;
-            uint8_t minValue = 0;
-            uint8_t maxValue = 100;
-            uint8_t defaultValue = 0;
+            int32_t value;
+            int32_t minValue;
+            int32_t maxValue;
         };
         struct FOLDER_DATA
         {
@@ -84,7 +83,8 @@ public:
     public:
         MENU(String name);
         MENU(String name, std::initializer_list<MENU *> subMenu);
-        MENU(String name, std::function<void(MENU *)> onLoad, std::function<void(MENU *)> onBlur);
+        MENU(String name, std::function<void(MENU *)> onLoad, std::function<void(MENU *)> onBlur,
+             int32_t minValue, int32_t maxValue);
         MENU(String name, std::function<void(MENU *)> onClick);
         ~MENU();
         void render();

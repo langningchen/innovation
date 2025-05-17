@@ -27,14 +27,10 @@
 #include <messages.hpp>
 #include <mpu6050.hpp>
 
-// CAUTION! It seems that setting
-// any channel to 0 will cause
-// the configuration of first PWM channel
-// overwritten by the second one
-SERVO servo0(PIN_SERVO0, 100, 12, 1, SERVO_RANGE, 5, 25);
-SERVO servo1(PIN_SERVO1, 100, 12, 1, SERVO_RANGE, 5, 25);
-MOTOR motor0(PIN_MOTOR0, PIN_DIR0, 5000, 8, 2, false);
-MOTOR motor1(PIN_MOTOR1, PIN_DIR1, 5000, 8, 2, true);
+SERVO servo0(PIN_SERVO0, 100, 12, SERVO_RANGE, 5, 25);
+SERVO servo1(PIN_SERVO1, 100, 12, SERVO_RANGE, 5, 25);
+MOTOR motor0(PIN_MOTOR0, PIN_DIR0, 5000, 8, false);
+MOTOR motor1(PIN_MOTOR1, PIN_DIR1, 5000, 8, true);
 BATTERY battery(INA_ADDRESS, 14.8, 16.8);
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_IRQ, PIN_RESET, PIN_BUSY);
 MPU6050 mpu6050(MPU_ADDRESS, MPU6050_RANGE_2_G, MPU6050_RANGE_250_DEG);
@@ -63,8 +59,8 @@ void setup()
     if (!network.setServer(
             [&](CONTROL_MSG controlMsg) -> BOAT_MSG
             {
-                servo0.setAngle(controlMsg.servoDegree), servo1.setAngle(controlMsg.servoDegree);
-                motor0.setSpeed(controlMsg.motorSpeed), motor1.setSpeed(controlMsg.motorSpeed);
+                servo0.setAngle(controlMsg.leftServoDegree), servo1.setAngle(controlMsg.rightServoDegree);
+                motor0.setSpeed(controlMsg.leftMotorSpeed), motor1.setSpeed(controlMsg.rightMotorSpeed);
                 BOAT_MSG boatMsg;
                 boatMsg.result = 0;
                 boatMsg.batteryVoltage = battery.getVoltage();
@@ -82,28 +78,28 @@ void setup()
 
     if (!servo0.begin())
     {
-        Serial.println("Servo initialization failed");
+        Serial.println("Servo 1 initialization failed");
         while (1)
             ;
     }
 
     if (!servo1.begin())
     {
-        Serial.println("Servo initialization failed");
+        Serial.println("Servo 2 initialization failed");
         while (1)
             ;
     }
 
     if (!motor0.begin())
     {
-        Serial.println("Motor initialization failed");
+        Serial.println("Motor 1 initialization failed");
         while (1)
             ;
     }
 
     if (!motor1.begin())
     {
-        Serial.println("Motor initialization failed");
+        Serial.println("Motor 2 initialization failed");
         while (1)
             ;
     }

@@ -25,7 +25,7 @@ class SERVO : public PWM
     int16_t lastAngle = 0;
 
 public:
-    SERVO(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel,
+    SERVO(uint8_t pin, uint32_t freq, uint8_t resolution,
           uint8_t aglRng, uint8_t minDuty, uint8_t maxDuty);
     bool setAngle(int16_t angle);
 };

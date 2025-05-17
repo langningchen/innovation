@@ -66,9 +66,16 @@ OLED::MENU::MENU(String name, std::initializer_list<MENU *> subMenu) : type(TYPE
  * @param name Name of the menu
  * @param onLoad callback function, it will be called when the item is showed
  * @param onBlur callback function, it will be called when the item is blurred
+ * @param minValue Minimum value of the configuration
+ * @param maxValue Maximum value of the configuration
  */
-OLED::MENU::MENU(String name, std::function<void(MENU *)> onLoad, std::function<void(MENU *)> onBlur)
-    : type(TYPE::CONFIG), name(name), onLoad(onLoad), onBlur(onBlur) {}
+OLED::MENU::MENU(String name, std::function<void(MENU *)> onLoad, std::function<void(MENU *)> onBlur,
+                 int32_t minValue, int32_t maxValue)
+    : type(TYPE::CONFIG), name(name), onLoad(onLoad), onBlur(onBlur)
+{
+    config.minValue = minValue;
+    config.maxValue = maxValue;
+}
 
 /**
  * @brief MENU (button) constructor
@@ -176,8 +183,8 @@ void OLED::renderStatus()
     display.setCursor(4, 4), display.print(status.networkStatus ? String(status.networkStatus) : "OK");
     display.setCursor(64, 4), display.print(millis() - status.lastMsgTime);
 
-    display.setCursor(4, 4 + OLED_CHAR_HEIGHT), display.print(String(status.servoDegree) + "deg");
-    display.setCursor(64, 4 + OLED_CHAR_HEIGHT), display.print(String(status.motorSpeed) + "%");
+    display.setCursor(4, 4 + OLED_CHAR_HEIGHT), display.print(String(status.leftServoDegree) + "deg " + String(status.leftMotorSpeed) + "%");
+    display.setCursor(64, 4 + OLED_CHAR_HEIGHT), display.print(String(status.rightServoDegree) + "deg " + String(status.rightMotorSpeed) + "%");
 
     display.setCursor(4, 4 + 2 * OLED_CHAR_HEIGHT), display.print(String(status.batteryVoltage) + "V");
     display.setCursor(64, 4 + 2 * OLED_CHAR_HEIGHT), display.print(String(status.batteryPercentage) + "%");
@@ -201,15 +208,15 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage)
         new MENU("Main Menu",
                  {
                      new MENU("Boat", {
-                                          new MENU("Motor", {
-                                                                new MENU("Max speed", [&storage](MENU *menu)
-                                                                         {
-                                                                             Serial.println("max speed get");
-                                                                               menu->config.value = storage.getMaxSpeed(); }, [&storage](MENU *menu)
-                                                                         {
-                                                                             Serial.println("max speed set to " + String(menu->config.value));
-                                                                              Serial.println(storage.setMaxSpeed(menu->config.value)); }),
-                                                            }),
+                                          new MENU("Max speed", [&storage](MENU *menu)
+                                                   { menu->config.value = storage.getMaxSpeed(); }, [&storage](MENU *menu)
+                                                   { storage.setMaxSpeed(menu->config.value); }, 0, 100),
+                                          new MENU("Left servo delta", [&storage](MENU *menu)
+                                                   { menu->config.value = storage.getLeftServoDelta(); }, [&storage](MENU *menu)
+                                                   { storage.setLeftServoDelta(menu->config.value); }, -30, 30),
+                                          new MENU("Right servo delta", [&storage](MENU *menu)
+                                                   { menu->config.value = storage.getRightServoDelta(); }, [&storage](MENU *menu)
+                                                   { storage.setRightServoDelta(menu->config.value); }, -30, 30),
                                       }),
                      new MENU("About", {
                                            new MENU("https://github.com"),

@@ -26,6 +26,6 @@ private:
     bool dir;       // Direction
 
 public:
-    MOTOR(uint8_t pin, uint8_t dirPin, uint32_t freq, uint8_t resolution, uint8_t channel, bool dir);
+    MOTOR(uint8_t pin, uint8_t dirPin, uint32_t freq, uint8_t channel, bool dir);
     bool setSpeed(int8_t speed);
 };

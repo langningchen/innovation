@@ -32,7 +32,7 @@ OLED oled(OLED_ADDRESS, OLED_WIDTH, OLED_HEIGHT, storage);
 
 uint32_t lastMsg;
 uint8_t config, speedCruise;
-int8_t speedControl, steerControl;
+int8_t motorControl, servoControl;
 bool enableCruise, enableLock;
 
 /**
@@ -90,8 +90,6 @@ void setup()
     lastMsg = millis();
 }
 
-OLED::STATUS status;
-
 void loop()
 {
     a2d.process();
@@ -102,7 +100,7 @@ void loop()
         lastMsg += MSG_INTERVAL;
 
         static uint8_t lastConfig = 0;
-        a2d.getData(config, speedCruise, speedControl, steerControl, enableCruise, enableLock);
+        a2d.getData(config, speedCruise, motorControl, servoControl, enableCruise, enableLock);
         oled.switchPage(enableLock ? OLED::PAGE::PAGE_CONFIG : OLED::PAGE::PAGE_STATUS);
         if (lastConfig != config)
         {
@@ -110,12 +108,32 @@ void loop()
             lastConfig = config;
         }
 
-        updateData(speedCruise, speedControl, steerControl, enableCruise, enableLock);
-        status.servoDegree = steerControl, status.motorSpeed = speedControl;
-        CONTROL_MSG controlMsg = {steerControl, speedControl};
+        // updateData(speedCruise, motorControl, servoControl, enableCruise, enableLock);
+        if (enableCruise)
+            motorControl = speedCruise;
+        int8_t motorSpeed = motorControl * (motorControl < 0 ? BACKWARD_LIMIT : storage.getMaxSpeed() / 100.0);
+        servoControl *= 60.0 / SERVO_RANGE;
+        if (motorSpeed > 0)
+            servoControl *= 1.0 - (motorSpeed - 30) / 100.0;
+        int16_t servoDegree = map(servoControl, -100, 100, -SERVO_RANGE, SERVO_RANGE);
+        if (enableLock)
+            motorSpeed = servoDegree = 0;
+
+        int16_t leftServoDegree = servoDegree + storage.getLeftServoDelta(),
+                rightServoDegree = servoDegree + storage.getRightServoDelta();
+        int8_t leftMotorSpeed = motorSpeed,
+               rightMotorSpeed = motorSpeed;
+
+        CONTROL_MSG controlMsg = {.leftServoDegree = leftServoDegree, .rightServoDegree = rightServoDegree, .leftMotorSpeed = leftMotorSpeed, .rightMotorSpeed = rightMotorSpeed};
         BOAT_MSG boatMsg = {0, 0, 0};
 
-        status.networkStatus = network.proceedClient(controlMsg, boatMsg);
+        OLED::STATUS status = {
+            .leftServoDegree = leftServoDegree,
+            .rightServoDegree = rightServoDegree,
+            .leftMotorSpeed = leftMotorSpeed,
+            .rightMotorSpeed = rightMotorSpeed,
+            .networkStatus = network.proceedClient(controlMsg, boatMsg),
+        };
         if (status.networkStatus == RADIOLIB_ERR_NONE)
         {
             status.batteryVoltage = boatMsg.batteryVoltage;

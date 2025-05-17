@@ -23,8 +23,8 @@
  * @param dir Direction, boolean
  * @see PWM::PWM()
  */
-MOTOR::MOTOR(uint8_t pin, uint8_t dirPin, uint32_t freq, uint8_t resolution, uint8_t channel, bool dir)
-    : PWM(pin, freq, resolution, channel), dirPin(dirPin), dir(dir) {}
+MOTOR::MOTOR(uint8_t pin, uint8_t dirPin, uint32_t freq, uint8_t resolution, bool dir)
+    : PWM(pin, freq, resolution), dirPin(dirPin), dir(dir) {}
 
 /**
  * @brief Set the speed of the motor
@@ -35,5 +35,5 @@ bool MOTOR::setSpeed(int8_t speed)
 {
     speed = constrain(speed, -100, 100);
     digitalWrite(dirPin, (speed < 0) ^ dir);
-    return ledcWriteChannel(channel, map(abs(speed), 0, 100, 0, pow(2, resolution)));
+    return ledcWrite(pin, map(abs(speed), 0, 100, 0, pow(2, resolution)));
 }
