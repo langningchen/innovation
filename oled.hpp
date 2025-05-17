@@ -21,6 +21,7 @@
 #include <string>
 #include <Adafruit_SSD1306.h>
 #include <storage.hpp>
+#include <a2d.hpp>
 
 class OLED
 {
@@ -107,7 +108,7 @@ private:
     void renderStatus();
 
 public:
-    OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage);
+    OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D &a2d);
     ~OLED();
     bool begin();
     void process();

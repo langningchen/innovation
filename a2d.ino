@@ -114,7 +114,7 @@ void A2D::setBasis() { speedControlBasis = speedControl, steerControlBasis = ste
  * @details This function will record the new data,
  * if the collaborate parameter is true, it will update the min and max values
  */
-void A2D::process()
+void A2D::process(bool noUpdateDirection)
 {
     uint16_t newConfigData = analogRead(configPin);
     uint16_t newSpeedCruiseData = analogRead(speedCruisePin);
@@ -125,7 +125,8 @@ void A2D::process()
     speedControl = speedControl * (1 - speedControlFilterCoef) + newSpeedControlData * speedControlFilterCoef;
     steerControl = steerControl * (1 - steerControlFilterCoef) + newSteerControlData * steerControlFilterCoef;
     enableCruise = !digitalRead(enableCruisePin), enableLock = digitalRead(enableLockPin);
-    updateDirection();
+    if (!noUpdateDirection)
+        updateDirection();
 }
 
 /**
@@ -176,3 +177,26 @@ void A2D::updateMinMax()
  * @details The callback function will be called with the last direction as the parameter
  */
 void A2D::setOnDirectionEnd(std::function<void(DIR)> callback) { onDirectionEnd = callback; }
+
+/**
+ * @brief Calibrate the A2D
+ * @param a2d the A2D object to calibrate
+ */
+void A2D::calibrate(Adafruit_SSD1306 &display)
+{
+    display.clearDisplay();
+    display.setTextColor(WHITE, BLACK);
+    display.setCursor(0, 0);
+    display.println("Calibrating...");
+    display.println("Please do not touch the joystick");
+    display.display();
+    for (int i = 0; i < display.width(); i++)
+    {
+        process(true);
+        display.drawFastHLine(i, 32, 3, WHITE);
+        display.display();
+        delay(10);
+    }
+    setBasis();
+    display.display();
+}

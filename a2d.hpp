@@ -20,6 +20,7 @@
 #include <define.hpp>
 #include <storage.hpp>
 #include <functional>
+#include <Adafruit_SSD1306.h>
 
 class A2D
 {
@@ -58,10 +59,11 @@ public:
     void begin();
     void reset();
     void setBasis();
-    void process();
+    void process(bool noUpdateDirection);
     void getData(uint8_t &config, uint8_t &speedCruise,
                  int8_t &speedControl, int8_t &steerControl,
                  bool &enableCruise, bool &enableLock);
     void updateMinMax();
     void setOnDirectionEnd(std::function<void(DIR)> callback);
+    void calibrate(Adafruit_SSD1306 &display);
 };

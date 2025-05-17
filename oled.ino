@@ -200,7 +200,7 @@ void OLED::renderStatus()
  * @param width Width of the display
  * @param height Height of the display
  */
-OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage)
+OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D &a2d)
     : address(address), width(width), height(height),
       needUpdate(true), display(width, height, &Wire, -1)
 {
@@ -234,6 +234,8 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage)
                                              new MENU("Servo limit (d)", [&storage](MENU *menu)
                                                       { menu->config.value = storage.getServoLimit(); }, [&storage](MENU *menu)
                                                       { storage.setServoLimit(menu->config.value); }, 30, 100),
+                                             new MENU("Calibrate joystick", [&a2d](MENU *menu)
+                                                      { menu->updateDisplay(), a2d.calibrate(*menu->display); }),
                                          }),
                      new MENU("Reset to default", [&storage](MENU *menu)
                               { storage.reset(); }),

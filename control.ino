@@ -28,7 +28,7 @@
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_IRQ, PIN_RESET, PIN_BUSY);
 STORAGE storage;
 A2D a2d(PIN_SPEED_MAX, PIN_SPEED_CRUISE, PIN_SPEED_CONTROL, PIN_STEER_CONTROL, PIN_CRUISE_CONTROL, PIN_CONTROL_LOCK, storage);
-OLED oled(OLED_ADDRESS, OLED_WIDTH, OLED_HEIGHT, storage);
+OLED oled(OLED_ADDRESS, OLED_WIDTH, OLED_HEIGHT, storage, a2d);
 
 uint32_t lastMsg;
 uint8_t config, speedCruise;
@@ -74,11 +74,13 @@ void setup()
                           { oled.dirInput(dir); });
     Serial.println("Control initialization completed");
     lastMsg = millis();
+
+    storage.reset();
 }
 
 void loop()
 {
-    a2d.process();
+    a2d.process(false);
     oled.process();
 
     if (millis() - lastMsg > MSG_INTERVAL)
@@ -97,7 +99,7 @@ void loop()
         if (enableCruise)
             motorControl = speedCruise;
         int8_t motorSpeed = motorControl * (motorControl < 0 ? storage.getBackwardLimit() : storage.getMaxSpeed()) / 100;
-        servoControl *= storage.getServoLimit() / SERVO_RANGE;
+        servoControl = servoControl * storage.getServoLimit() * 1.0 / SERVO_RANGE;
         if (motorSpeed > 30)
             servoControl *= 1.0 - (motorSpeed - 30) / 100.0;
         int16_t servoDegree = map(servoControl, -100, 100, -SERVO_RANGE, SERVO_RANGE);
