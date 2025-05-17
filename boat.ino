@@ -31,8 +31,8 @@
 // any channel to 0 will cause
 // the configuration of first PWM channel
 // overwritten by the second one
-SERVO servo0(PIN_SERVO0, 100, SERVO_RANGE, 5, 25);
-SERVO servo1(PIN_SERVO1, 100, SERVO_RANGE, 5, 25);
+SERVO servo0(PIN_SERVO0, 100, 12, 1, SERVO_RANGE, 5, 25);
+SERVO servo1(PIN_SERVO1, 100, 12, 1, SERVO_RANGE, 5, 25);
 MOTOR motor0(PIN_MOTOR0, PIN_DIR0, 5000, 8, 2, false);
 MOTOR motor1(PIN_MOTOR1, PIN_DIR1, 5000, 8, 2, true);
 BATTERY battery(INA_ADDRESS, 14.8, 16.8);
@@ -80,8 +80,19 @@ void setup()
             ;
     }
 
-    servo0.begin();
-    servo1.begin();
+    if (!servo0.begin())
+    {
+        Serial.println("Servo initialization failed");
+        while (1)
+            ;
+    }
+
+    if (!servo1.begin())
+    {
+        Serial.println("Servo initialization failed");
+        while (1)
+            ;
+    }
 
     if (!motor0.begin())
     {

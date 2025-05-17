@@ -17,15 +17,17 @@
 
 #pragma once
 
-#include <pwm.hpp>
-
-class SERVO : public PWM
+class PWM
 {
-    uint8_t aglRng, minDuty, maxDuty;
-    int16_t lastAngle = 0;
+protected:
+    inline uint32_t ratio2Duty(uint8_t ratio);
+
+    uint8_t pin;
+    uint32_t freq;
+    uint8_t resolution;
+    uint8_t channel;
 
 public:
-    SERVO(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel,
-          uint8_t aglRng, uint8_t minDuty, uint8_t maxDuty);
-    bool setAngle(int16_t angle);
+    PWM(uint8_t pin, uint32_t freq, uint8_t resolution, uint8_t channel);
+    bool begin();
 };
