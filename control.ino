@@ -35,20 +35,6 @@ uint8_t config, speedCruise;
 int8_t motorControl, servoControl;
 bool enableCruise, enableLock;
 
-/**
- * @brief Update the data from the original data
- * @param speedCruise in
- * @param speedControl in/out
- * @param steerControl in/out
- * @param enableCruise in
- * @param enableLock in
- * @details according to the the lock and cruise pin status to update the control speed and steer for network.
- * limit the speed to MaxSpeed or the cruise speed, etc.
- */
-void updateData(uint8_t &speedCruise,
-                int8_t &speedControl, int8_t &steerControl,
-                bool &enableCruise, bool &enableLock);
-
 void setup()
 {
     Serial.begin(115200);
@@ -108,7 +94,6 @@ void loop()
             lastConfig = config;
         }
 
-        // updateData(speedCruise, motorControl, servoControl, enableCruise, enableLock);
         if (enableCruise)
             motorControl = speedCruise;
         int8_t motorSpeed = motorControl * (motorControl < 0 ? BACKWARD_LIMIT : storage.getMaxSpeed() / 100.0);
@@ -121,8 +106,8 @@ void loop()
 
         int16_t leftServoDegree = servoDegree + storage.getLeftServoDelta(),
                 rightServoDegree = servoDegree + storage.getRightServoDelta();
-        int8_t leftMotorSpeed = motorSpeed,
-               rightMotorSpeed = motorSpeed;
+        int8_t leftMotorSpeed = motorSpeed + storage.getLeftMotorDelta(),
+               rightMotorSpeed = motorSpeed + storage.getRightMotorDelta();
 
         CONTROL_MSG controlMsg = {.leftServoDegree = leftServoDegree, .rightServoDegree = rightServoDegree, .leftMotorSpeed = leftMotorSpeed, .rightMotorSpeed = rightMotorSpeed};
         BOAT_MSG boatMsg = {0, 0, 0};
@@ -143,26 +128,6 @@ void loop()
         }
         oled.updateStatus(status);
     }
-}
-
-void updateData(uint8_t &speedCruise,
-                int8_t &speedControl, int8_t &steerControl,
-                bool &enableCruise, bool &enableLock)
-{
-    if (enableCruise)
-        speedControl = speedCruise;
-    if (enableLock)
-        speedControl = steerControl = 0;
-
-    if (speedControl < 0)
-        speedControl *= BACKWARD_LIMIT;
-    else
-        speedControl *= storage.getMaxSpeed() / 100.0;
-
-    steerControl *= 60.0 / SERVO_RANGE;
-    if (speedControl > 0)
-        steerControl *= 1.0 - (speedControl - 30) / 100.0;
-    steerControl = map(steerControl, -100, 100, -SERVO_RANGE, SERVO_RANGE);
 }
 
 #endif

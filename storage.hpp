@@ -24,16 +24,18 @@ class STORAGE
 private:
     struct DATA
     {
-        uint8_t controlTimeout; // 0 ~ 3000 ms
-        uint8_t maxSpeed;       // 0 ~ 100 %
-        int8_t leftServoDelta;  // -30 ~ 30 d
-        int8_t rightServoDelta; // -30 ~ 30 d
+        uint8_t controlTimeout;                 // 0 ~ 3000 ms
+        uint8_t maxSpeed;                       // 0 ~ 100 %
+        int8_t leftServoDelta, rightServoDelta; // -30 ~ 30 d
+        int8_t leftMotorDelta, rightMotorDelta; // -30 ~ 30 %
     } data;
     const DATA defaultData = {
         .controlTimeout = 10, // 100
         .maxSpeed = 100,      // 100
         .leftServoDelta = 0,  // 0
         .rightServoDelta = 0, // 0
+        .leftMotorDelta = 0,  // 0
+        .rightMotorDelta = 0, // 0
     };
 
 public:
@@ -52,4 +54,10 @@ public:
 
     int8_t getRightServoDelta();
     bool setRightServoDelta(int8_t rightServoDelta);
+
+    int8_t getLeftMotorDelta();
+    bool setLeftMotorDelta(int8_t leftMotorDelta);
+
+    int8_t getRightMotorDelta();
+    bool setRightMotorDelta(int8_t rightMotorDelta);
 };

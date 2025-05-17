@@ -217,6 +217,12 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage)
                                           new MENU("Right servo delta", [&storage](MENU *menu)
                                                    { menu->config.value = storage.getRightServoDelta(); }, [&storage](MENU *menu)
                                                    { storage.setRightServoDelta(menu->config.value); }, -30, 30),
+                                          new MENU("Left motor delta", [&storage](MENU *menu)
+                                                   { menu->config.value = storage.getLeftMotorDelta(); }, [&storage](MENU *menu)
+                                                   { storage.setLeftMotorDelta(menu->config.value); }, -30, 30),
+                                          new MENU("Right motor delta", [&storage](MENU *menu)
+                                                   { menu->config.value = storage.getRightMotorDelta(); }, [&storage](MENU *menu)
+                                                   { storage.setRightMotorDelta(menu->config.value); }, -30, 30),
                                       }),
                      new MENU("Reset to default", [&storage](MENU *menu)
                               { storage.reset(); }),

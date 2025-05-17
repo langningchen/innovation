@@ -57,3 +57,17 @@ bool STORAGE::setRightServoDelta(int8_t rightServoDelta)
     data.rightServoDelta = rightServoDelta;
     return save();
 }
+
+int8_t STORAGE::getLeftMotorDelta() { return data.leftMotorDelta; }
+bool STORAGE::setLeftMotorDelta(int8_t leftMotorDelta)
+{
+    data.leftMotorDelta = leftMotorDelta;
+    return save();
+}
+
+int8_t STORAGE::getRightMotorDelta() { return data.rightMotorDelta; }
+bool STORAGE::setRightMotorDelta(int8_t rightMotorDelta)
+{
+    data.rightMotorDelta = rightMotorDelta;
+    return save();
+}
