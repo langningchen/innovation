@@ -183,8 +183,8 @@ void OLED::renderStatus()
     display.setCursor(4, 4), display.print(status.networkStatus ? String(status.networkStatus) : "OK");
     display.setCursor(64, 4), display.print(millis() - status.lastMsgTime);
 
-    display.setCursor(4, 4 + OLED_CHAR_HEIGHT), display.print(String(status.leftServoDegree) + "deg " + String(status.leftMotorSpeed) + "%");
-    display.setCursor(64, 4 + OLED_CHAR_HEIGHT), display.print(String(status.rightServoDegree) + "deg " + String(status.rightMotorSpeed) + "%");
+    display.setCursor(4, 4 + OLED_CHAR_HEIGHT), display.print(String(status.leftServoDegree) + "d " + String(status.leftMotorSpeed) + "%");
+    display.setCursor(64, 4 + OLED_CHAR_HEIGHT), display.print(String(status.rightServoDegree) + "d " + String(status.rightMotorSpeed) + "%");
 
     display.setCursor(4, 4 + 2 * OLED_CHAR_HEIGHT), display.print(String(status.batteryVoltage) + "V");
     display.setCursor(64, 4 + 2 * OLED_CHAR_HEIGHT), display.print(String(status.batteryPercentage) + "%");

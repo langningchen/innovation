@@ -26,8 +26,8 @@ private:
     {
         uint8_t controlTimeout; // 0 ~ 3000 ms
         uint8_t maxSpeed;       // 0 ~ 100 %
-        int8_t leftServoDelta;  // -30 ~ 30 deg
-        int8_t rightServoDelta; // -30 ~ 30 deg
+        int8_t leftServoDelta;  // -30 ~ 30 d
+        int8_t rightServoDelta; // -30 ~ 30 d
     } data;
     const DATA defaultData = {
         .controlTimeout = 10, // 100
