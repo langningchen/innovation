@@ -191,7 +191,7 @@ void OLED::renderStatus()
         setColor(status.networkStatus),
         display.print(status.networkStatus);
     display.setCursor(64, 4),
-        setColor(timeDelta > 1000),
+        setColor(timeDelta >= storage.getNetworkThreshold()),
         display.print(timeDelta);
 
     setColor(false);
@@ -200,20 +200,20 @@ void OLED::renderStatus()
     display.setCursor(64, 4 + OLED_CHAR_HEIGHT),
         display.print(String(status.rightServoDegree) + "d " + String(status.rightMotorSpeed) + "%");
 
-    setColor(status.batteryPercentage < 50);
+    setColor(status.batteryPercentage <= storage.getBatteryThreshold());
     display.setCursor(4, 4 + 2 * OLED_CHAR_HEIGHT),
         display.print(String(status.batteryVoltage) + "V");
     display.setCursor(64, 4 + 2 * OLED_CHAR_HEIGHT),
         display.print(String(status.batteryPercentage) + "%");
 
     display.setCursor(4, 4 + 3 * OLED_CHAR_HEIGHT),
-        setColor(status.mpuX > 5),
+        setColor(abs(status.mpuX) >= storage.getMpuXThreshold()),
         display.print(status.mpuX);
     display.setCursor(44, 4 + 3 * OLED_CHAR_HEIGHT),
-        setColor(status.mpuY > 5),
+        setColor(abs(status.mpuY) >= storage.getMpuYThreshold()),
         display.print(status.mpuY);
     display.setCursor(84, 4 + 3 * OLED_CHAR_HEIGHT),
-        setColor(status.mpuZ < 5),
+        setColor(abs(status.mpuZ) <= storage.getMpuZThreshold()),
         display.print(status.mpuZ);
 }
 
@@ -225,7 +225,7 @@ void OLED::renderStatus()
  */
 OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D &a2d)
     : address(address), width(width), height(height),
-      needUpdate(true), display(width, height, &Wire, -1)
+      needUpdate(true), display(width, height, &Wire, -1), storage(storage)
 {
     currentMenu = menu =
         new MENU("Main Menu",
@@ -259,6 +259,23 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D
                                                       { storage.setServoLimit(menu->config.value); }, 30, 100),
                                              new MENU("Calibrate joystick", [&a2d](MENU *menu)
                                                       { menu->updateDisplay(), a2d.calibrate(*menu->display); }),
+                                         }),
+                     new MENU("Display", {
+                                             new MENU("Network THLD (ms)", [&storage](MENU *menu)
+                                                      { menu->config.value = storage.getNetworkThreshold(); }, [&storage](MENU *menu)
+                                                      { storage.setNetworkThreshold(menu->config.value); }, 1000, 10000),
+                                             new MENU("Battery THLD (%)", [&storage](MENU *menu)
+                                                      { menu->config.value = storage.getBatteryThreshold(); }, [&storage](MENU *menu)
+                                                      { storage.setBatteryThreshold(menu->config.value); }, 30, 70),
+                                             new MENU("MPU X THLD", [&storage](MENU *menu)
+                                                      { menu->config.value = storage.getMpuXThreshold(); }, [&storage](MENU *menu)
+                                                      { storage.setMpuXThreshold(menu->config.value); }, 1, 7),
+                                             new MENU("MPU Y THLD", [&storage](MENU *menu)
+                                                      { menu->config.value = storage.getMpuYThreshold(); }, [&storage](MENU *menu)
+                                                      { storage.setMpuYThreshold(menu->config.value); }, 1, 7),
+                                             new MENU("MPU Z THLD", [&storage](MENU *menu)
+                                                      { menu->config.value = storage.getMpuZThreshold(); }, [&storage](MENU *menu)
+                                                      { storage.setMpuZThreshold(menu->config.value); }, 7, 10),
                                          }),
                      new MENU("Reset to default", [&storage](MENU *menu)
                               { storage.reset(); }),

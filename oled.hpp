@@ -102,6 +102,7 @@ private:
     STATUS status;
     MENU *menu, *currentMenu;
     bool needUpdate;
+    STORAGE &storage;
 
     void setColor(bool black);
 

@@ -92,3 +92,38 @@ bool STORAGE::setServoLimit(uint8_t servoLimit)
     data.servoLimit = servoLimit;
     return save();
 }
+
+uint16_t STORAGE::getNetworkThreshold() { return data.networkThreshold; }
+bool STORAGE::setNetworkThreshold(uint16_t networkThreshold)
+{
+    data.networkThreshold = networkThreshold;
+    return save();
+}
+
+uint8_t STORAGE::getBatteryThreshold() { return data.batteryThreshold; }
+bool STORAGE::setBatteryThreshold(uint8_t batteryThreshold)
+{
+    data.batteryThreshold = batteryThreshold;
+    return save();
+}
+
+float_t STORAGE::getMpuXThreshold() { return data.mpuXThreshold; }
+bool STORAGE::setMpuXThreshold(float_t mpuXThreshold)
+{
+    data.mpuXThreshold = mpuXThreshold;
+    return save();
+}
+
+float_t STORAGE::getMpuYThreshold() { return data.mpuYThreshold; }
+bool STORAGE::setMpuYThreshold(float_t mpuYThreshold)
+{
+    data.mpuYThreshold = mpuYThreshold;
+    return save();
+}
+
+float_t STORAGE::getMpuZThreshold() { return data.mpuZThreshold; }
+bool STORAGE::setMpuZThreshold(float_t mpuZThreshold)
+{
+    data.mpuZThreshold = mpuZThreshold;
+    return save();
+}

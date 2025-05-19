@@ -31,17 +31,27 @@ private:
         uint8_t backwardLimit;                  // 0 ~ 100 %
         uint8_t dirThreshold;                   // 20 ~ 90 %
         uint8_t servoLimit;                     // 30 ~ 100 d
+        uint16_t networkThreshold;              // 1000 ~ 10000 ms
+        uint8_t batteryThreshold;               // 30 ~ 70 %
+        float_t mpuXThreshold;                  // 1 ~ 7
+        float_t mpuYThreshold;                  // 1 ~ 7
+        float_t mpuZThreshold;                  // 7 ~ 10
     } data;
     const DATA defaultData = {
-        .controlTimeout = 10, // 100
-        .maxSpeed = 100,      // 100
-        .leftServoDelta = 0,  // 0
-        .rightServoDelta = 0, // 0
-        .leftMotorDelta = 0,  // 0
-        .rightMotorDelta = 0, // 0
-        .backwardLimit = 30,  // 30
-        .dirThreshold = 30,   // 30
-        .servoLimit = 60      // 60
+        .controlTimeout = 10,
+        .maxSpeed = 100,
+        .leftServoDelta = 0,
+        .rightServoDelta = 0,
+        .leftMotorDelta = 0,
+        .rightMotorDelta = 0,
+        .backwardLimit = 30,
+        .dirThreshold = 30,
+        .servoLimit = 60,
+        .networkThreshold = 5000,
+        .batteryThreshold = 50,
+        .mpuXThreshold = 3.0,
+        .mpuYThreshold = 3.0,
+        .mpuZThreshold = 9.5,
     };
 
 public:
@@ -75,4 +85,19 @@ public:
 
     uint8_t getServoLimit();
     bool setServoLimit(uint8_t servoLimit);
+
+    uint16_t getNetworkThreshold();
+    bool setNetworkThreshold(uint16_t networkThreshold);
+
+    uint8_t getBatteryThreshold();
+    bool setBatteryThreshold(uint8_t batteryThreshold);
+
+    float_t getMpuXThreshold();
+    bool setMpuXThreshold(float_t mpuXThreshold);
+
+    float_t getMpuYThreshold();
+    bool setMpuYThreshold(float_t mpuYThreshold);
+
+    float_t getMpuZThreshold();
+    bool setMpuZThreshold(float_t mpuZThreshold);
 };

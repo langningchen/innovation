@@ -34,6 +34,7 @@ uint32_t lastMsg;
 uint8_t config, speedCruise;
 int8_t motorControl, servoControl;
 bool enableCruise, enableLock;
+OLED::STATUS status;
 
 void setup()
 {
@@ -114,13 +115,11 @@ void loop()
         CONTROL_MSG controlMsg = {.leftServoDegree = leftServoDegree, .rightServoDegree = rightServoDegree, .leftMotorSpeed = leftMotorSpeed, .rightMotorSpeed = rightMotorSpeed};
         BOAT_MSG boatMsg = {0, 0, 0};
 
-        OLED::STATUS status = {
-            .leftServoDegree = leftServoDegree,
-            .rightServoDegree = rightServoDegree,
-            .leftMotorSpeed = leftMotorSpeed,
-            .rightMotorSpeed = rightMotorSpeed,
-            .networkStatus = network.proceedClient(controlMsg, boatMsg),
-        };
+        status.leftServoDegree = leftServoDegree;
+        status.rightServoDegree = rightServoDegree;
+        status.leftMotorSpeed = leftMotorSpeed;
+        status.rightMotorSpeed = rightMotorSpeed;
+        status.networkStatus = network.proceedClient(controlMsg, boatMsg);
         if (status.networkStatus == RADIOLIB_ERR_NONE)
         {
             status.batteryVoltage = boatMsg.batteryVoltage;
