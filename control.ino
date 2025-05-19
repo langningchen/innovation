@@ -123,7 +123,8 @@ void loop()
             status.batteryVoltage = boatMsg.batteryVoltage;
             status.batteryPercentage = boatMsg.batteryPercentage;
             status.lastMsgTime = millis();
-            status.mpuX = boatMsg.mpuX, status.mpuY = boatMsg.mpuY, status.mpuZ = boatMsg.mpuZ;
+            status.mpuAX = boatMsg.mpuAX, status.mpuAY = boatMsg.mpuAY, status.mpuAZ = boatMsg.mpuAZ;
+            status.mpuGX = boatMsg.mpuGX, status.mpuGY = boatMsg.mpuGY, status.mpuGZ = boatMsg.mpuGZ;
         }
         oled.updateStatus(status);
     }

@@ -41,7 +41,8 @@ public:
         int8_t leftMotorSpeed, rightMotorSpeed;
         int16_t networkStatus;
         uint32_t lastMsgTime;
-        float_t mpuX, mpuY, mpuZ;
+        float_t mpuAX, mpuAY, mpuAZ;
+        float_t mpuGX, mpuGY, mpuGZ;
     };
 
     class MENU

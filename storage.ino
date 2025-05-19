@@ -107,21 +107,21 @@ bool STORAGE::setBatteryThreshold(uint8_t batteryThreshold)
     return save();
 }
 
-float_t STORAGE::getMpuXThreshold() { return data.mpuXThreshold; }
+float_t STORAGE::getMpuGXThreshold() { return data.mpuXThreshold; }
 bool STORAGE::setMpuXThreshold(float_t mpuXThreshold)
 {
     data.mpuXThreshold = mpuXThreshold;
     return save();
 }
 
-float_t STORAGE::getMpuYThreshold() { return data.mpuYThreshold; }
+float_t STORAGE::getMpuGYThreshold() { return data.mpuYThreshold; }
 bool STORAGE::setMpuYThreshold(float_t mpuYThreshold)
 {
     data.mpuYThreshold = mpuYThreshold;
     return save();
 }
 
-float_t STORAGE::getMpuZThreshold() { return data.mpuZThreshold; }
+float_t STORAGE::getMpuGZThreshold() { return data.mpuZThreshold; }
 bool STORAGE::setMpuZThreshold(float_t mpuZThreshold)
 {
     data.mpuZThreshold = mpuZThreshold;

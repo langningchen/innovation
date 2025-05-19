@@ -92,12 +92,12 @@ public:
     uint8_t getBatteryThreshold();
     bool setBatteryThreshold(uint8_t batteryThreshold);
 
-    float_t getMpuXThreshold();
+    float_t getMpuGXThreshold();
     bool setMpuXThreshold(float_t mpuXThreshold);
 
-    float_t getMpuYThreshold();
+    float_t getMpuGYThreshold();
     bool setMpuYThreshold(float_t mpuYThreshold);
 
-    float_t getMpuZThreshold();
+    float_t getMpuGZThreshold();
     bool setMpuZThreshold(float_t mpuZThreshold);
 };

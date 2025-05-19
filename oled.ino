@@ -207,14 +207,21 @@ void OLED::renderStatus()
         display.print(String(status.batteryPercentage) + "%");
 
     display.setCursor(4, 4 + 3 * OLED_CHAR_HEIGHT),
-        setColor(abs(status.mpuX) >= storage.getMpuXThreshold()),
-        display.print(status.mpuX);
+        display.print(status.mpuAX);
     display.setCursor(44, 4 + 3 * OLED_CHAR_HEIGHT),
-        setColor(abs(status.mpuY) >= storage.getMpuYThreshold()),
-        display.print(status.mpuY);
+        display.print(status.mpuAY);
     display.setCursor(84, 4 + 3 * OLED_CHAR_HEIGHT),
-        setColor(abs(status.mpuZ) <= storage.getMpuZThreshold()),
-        display.print(status.mpuZ);
+        display.print(status.mpuAZ);
+
+    display.setCursor(4, 4 + 4 * OLED_CHAR_HEIGHT),
+        setColor(abs(status.mpuGX) >= storage.getMpuGXThreshold()),
+        display.print(status.mpuGX);
+    display.setCursor(44, 4 + 4 * OLED_CHAR_HEIGHT),
+        setColor(abs(status.mpuGY) >= storage.getMpuGYThreshold()),
+        display.print(status.mpuGY);
+    display.setCursor(84, 4 + 4 * OLED_CHAR_HEIGHT),
+        setColor(abs(status.mpuGZ) <= storage.getMpuGZThreshold()),
+        display.print(status.mpuGZ);
 }
 
 /**
@@ -268,13 +275,13 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D
                                                       { menu->config.value = storage.getBatteryThreshold(); }, [&storage](MENU *menu)
                                                       { storage.setBatteryThreshold(menu->config.value); }, 30, 70),
                                              new MENU("MPU X THLD", [&storage](MENU *menu)
-                                                      { menu->config.value = storage.getMpuXThreshold(); }, [&storage](MENU *menu)
+                                                      { menu->config.value = storage.getMpuGXThreshold(); }, [&storage](MENU *menu)
                                                       { storage.setMpuXThreshold(menu->config.value); }, 1, 7),
                                              new MENU("MPU Y THLD", [&storage](MENU *menu)
-                                                      { menu->config.value = storage.getMpuYThreshold(); }, [&storage](MENU *menu)
+                                                      { menu->config.value = storage.getMpuGYThreshold(); }, [&storage](MENU *menu)
                                                       { storage.setMpuYThreshold(menu->config.value); }, 1, 7),
                                              new MENU("MPU Z THLD", [&storage](MENU *menu)
-                                                      { menu->config.value = storage.getMpuZThreshold(); }, [&storage](MENU *menu)
+                                                      { menu->config.value = storage.getMpuGZThreshold(); }, [&storage](MENU *menu)
                                                       { storage.setMpuZThreshold(menu->config.value); }, 7, 10),
                                          }),
                      new MENU("Reset to default", [&storage](MENU *menu)

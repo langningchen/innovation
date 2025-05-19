@@ -64,9 +64,7 @@ void setup()
                 boatMsg.result = 0;
                 boatMsg.batteryVoltage = battery.getVoltage();
                 boatMsg.batteryPercentage = battery.getPercentage();
-                float_t ax, ay, az, gx, gy, gz;
-                mpu6050.readData(ax, ay, az, gx, gy, gz);
-                boatMsg.mpuX = ax, boatMsg.mpuY = ay, boatMsg.mpuZ = az;
+                mpu6050.readData(boatMsg.mpuAX, boatMsg.mpuAY, boatMsg.mpuAZ, boatMsg.mpuGX, boatMsg.mpuGY, boatMsg.mpuGZ);
                 return boatMsg;
             }))
     {
