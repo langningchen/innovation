@@ -21,9 +21,7 @@
 #include <define.hpp>
 #include <network.hpp>
 #include <messages.hpp>
-#include <a2d.hpp>
 #include <oled.hpp>
-#include <storage.hpp>
 
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_IRQ, PIN_RESET, PIN_BUSY);
 STORAGE storage;
