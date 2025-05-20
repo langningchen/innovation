@@ -110,22 +110,14 @@ void loop()
         int8_t leftMotorSpeed = motorSpeed + storage.getLeftMotorDelta(),
                rightMotorSpeed = motorSpeed + storage.getRightMotorDelta();
 
-        CONTROL_MSG controlMsg = {.leftServoDegree = leftServoDegree, .rightServoDegree = rightServoDegree, .leftMotorSpeed = leftMotorSpeed, .rightMotorSpeed = rightMotorSpeed};
-        BOAT_MSG boatMsg = {0, 0, 0};
+        status.controlMsg = {.leftServoDegree = leftServoDegree,
+                             .rightServoDegree = rightServoDegree,
+                             .leftMotorSpeed = leftMotorSpeed,
+                             .rightMotorSpeed = rightMotorSpeed};
 
-        status.leftServoDegree = leftServoDegree;
-        status.rightServoDegree = rightServoDegree;
-        status.leftMotorSpeed = leftMotorSpeed;
-        status.rightMotorSpeed = rightMotorSpeed;
-        status.networkStatus = network.proceedClient(controlMsg, boatMsg);
+        status.networkStatus = network.proceedClient(status.controlMsg, status.boatMsg);
         if (status.networkStatus == RADIOLIB_ERR_NONE)
-        {
-            status.batteryVoltage = boatMsg.batteryVoltage;
-            status.batteryPercentage = boatMsg.batteryPercentage;
             status.lastMsgTime = millis();
-            status.mpuAX = boatMsg.mpuAX, status.mpuAY = boatMsg.mpuAY, status.mpuAZ = boatMsg.mpuAZ;
-            status.mpuGX = boatMsg.mpuGX, status.mpuGY = boatMsg.mpuGY, status.mpuGZ = boatMsg.mpuGZ;
-        }
         oled.updateStatus(status);
     }
 }

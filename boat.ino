@@ -33,20 +33,18 @@ MOTOR motor1(PIN_MOTOR1, PIN_DIR1, 5000, 8, false);
 BATTERY battery(INA_ADDRESS, 14.8, 16.8);
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_IRQ, PIN_RESET, PIN_BUSY);
 MPU6050 mpu6050(MPU_ADDRESS, MPU6050_RANGE_2_G, MPU6050_RANGE_250_DEG);
+BOAT_MSG boatInitMsg;
 
 void setup()
 {
     Serial.begin(115200);
     SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
+
+    boatInitMsg.type = BOAT_MSG::BOAT_INIT_MSG;
+    boatInitMsg.initMsg.status = BOAT_MSG::INIT_MSG::SUCCESS;
+    strcpy(boatInitMsg.initMsg.compileDatetime, __DATE__ " " __TIME__);
     pinMode(PIN_DIR0, OUTPUT);
     pinMode(PIN_DIR1, OUTPUT);
-
-    if (!Wire.begin(PIN_SDA, PIN_SCL))
-    {
-        Serial.println("I2C initialization failed");
-        while (1)
-            ;
-    }
 
     if (!network.begin())
     {
@@ -58,12 +56,20 @@ void setup()
     if (!network.setServer(
             [&](CONTROL_MSG controlMsg) -> BOAT_MSG
             {
+                static bool firstSent = false;
+                if (!firstSent)
+                {
+                    firstSent = true;
+                    return boatInitMsg;
+                }
                 servo0.setAngle(controlMsg.leftServoDegree), servo1.setAngle(controlMsg.rightServoDegree);
                 motor0.setSpeed(controlMsg.leftMotorSpeed), motor1.setSpeed(controlMsg.rightMotorSpeed);
                 BOAT_MSG boatMsg;
-                boatMsg.batteryVoltage = battery.getVoltage();
-                boatMsg.batteryPercentage = battery.getPercentage();
-                mpu6050.readData(boatMsg.mpuAX, boatMsg.mpuAY, boatMsg.mpuAZ, boatMsg.mpuGX, boatMsg.mpuGY, boatMsg.mpuGZ);
+                boatMsg.type = BOAT_MSG::BOAT_STATUS_MSG;
+                boatMsg.statusMsg.batteryVoltage = battery.getVoltage();
+                boatMsg.statusMsg.batteryPercentage = battery.getPercentage();
+                mpu6050.readData(boatMsg.statusMsg.mpuAX, boatMsg.statusMsg.mpuAY, boatMsg.statusMsg.mpuAZ,
+                                 boatMsg.statusMsg.mpuGX, boatMsg.statusMsg.mpuGY, boatMsg.statusMsg.mpuGZ);
                 return boatMsg;
             }))
     {
@@ -72,47 +78,20 @@ void setup()
             ;
     }
 
+    if (!Wire.begin(PIN_SDA, PIN_SCL))
+        boatInitMsg.initMsg.status = BOAT_MSG::INIT_MSG::I2C_FAILED;
     if (!servo0.begin())
-    {
-        Serial.println("Servo 1 initialization failed");
-        while (1)
-            ;
-    }
-
+        boatInitMsg.initMsg.status = BOAT_MSG::INIT_MSG::SERVO0_FAILED;
     if (!servo1.begin())
-    {
-        Serial.println("Servo 2 initialization failed");
-        while (1)
-            ;
-    }
-
+        boatInitMsg.initMsg.status = BOAT_MSG::INIT_MSG::SERVO1_FAILED;
     if (!motor0.begin())
-    {
-        Serial.println("Motor 1 initialization failed");
-        while (1)
-            ;
-    }
-
+        boatInitMsg.initMsg.status = BOAT_MSG::INIT_MSG::MOTOR0_FAILED;
     if (!motor1.begin())
-    {
-        Serial.println("Motor 2 initialization failed");
-        while (1)
-            ;
-    }
-
+        boatInitMsg.initMsg.status = BOAT_MSG::INIT_MSG::MOTOR1_FAILED;
     if (!battery.begin())
-    {
-        Serial.println("Battery initialization failed");
-        while (1)
-            ;
-    }
-
+        boatInitMsg.initMsg.status = BOAT_MSG::INIT_MSG::BATTERY_FAILED;
     if (!mpu6050.begin())
-    {
-        Serial.println("MPU6050 initialization failed");
-        while (1)
-            ;
-    }
+        boatInitMsg.initMsg.status = BOAT_MSG::INIT_MSG::MPU6050_FAILED;
 
     Serial.println("Boat initialization completed");
 }

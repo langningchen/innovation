@@ -196,32 +196,51 @@ void OLED::renderStatus()
 
     setColor(false);
     display.setCursor(4, 4 + OLED_CHAR_HEIGHT),
-        display.print(String(status.leftServoDegree) + "d " + String(status.leftMotorSpeed) + "%");
+        display.print(String(status.controlMsg.leftServoDegree) + "d " + String(status.controlMsg.leftMotorSpeed) + "%");
     display.setCursor(64, 4 + OLED_CHAR_HEIGHT),
-        display.print(String(status.rightServoDegree) + "d " + String(status.rightMotorSpeed) + "%");
+        display.print(String(status.controlMsg.rightServoDegree) + "d " + String(status.controlMsg.rightMotorSpeed) + "%");
 
-    setColor(status.batteryPercentage <= storage.getBatteryThreshold());
-    display.setCursor(4, 4 + 2 * OLED_CHAR_HEIGHT),
-        display.print(String(status.batteryVoltage) + "V");
-    display.setCursor(64, 4 + 2 * OLED_CHAR_HEIGHT),
-        display.print(String(status.batteryPercentage) + "%");
+    if (status.boatMsg.type == BOAT_MSG::BOAT_INIT_MSG)
+    {
+        display.setCursor(4, 4 + 2 * OLED_CHAR_HEIGHT),
+            display.print(status.boatMsg.initMsg.compileDatetime);
+        display.setCursor(4, 4 + 3 * OLED_CHAR_HEIGHT),
+            display.print(std::vector<String>({
+                "SUCCESS",
+                "I2C_FAILED",
+                "SERVO0_FAILED",
+                "SERVO1_FAILED",
+                "MOTOR0_FAILED",
+                "MOTOR1_FAILED",
+                "BATTERY_FAILED",
+                "MPU6050_FAILED",
+            })[status.boatMsg.initMsg.status]);
+    }
+    else if (status.boatMsg.type == BOAT_MSG::BOAT_STATUS_MSG)
+    {
+        setColor(status.boatMsg.statusMsg.batteryPercentage <= storage.getBatteryThreshold());
+        display.setCursor(4, 4 + 2 * OLED_CHAR_HEIGHT),
+            display.print(String(status.boatMsg.statusMsg.batteryVoltage) + "V");
+        display.setCursor(64, 4 + 2 * OLED_CHAR_HEIGHT),
+            display.print(String(status.boatMsg.statusMsg.batteryPercentage) + "%");
 
-    display.setCursor(4, 4 + 3 * OLED_CHAR_HEIGHT),
-        display.print(status.mpuAX);
-    display.setCursor(44, 4 + 3 * OLED_CHAR_HEIGHT),
-        display.print(status.mpuAY);
-    display.setCursor(84, 4 + 3 * OLED_CHAR_HEIGHT),
-        display.print(status.mpuAZ);
+        display.setCursor(4, 4 + 3 * OLED_CHAR_HEIGHT),
+            display.print(status.boatMsg.statusMsg.mpuAX);
+        display.setCursor(44, 4 + 3 * OLED_CHAR_HEIGHT),
+            display.print(status.boatMsg.statusMsg.mpuAY);
+        display.setCursor(84, 4 + 3 * OLED_CHAR_HEIGHT),
+            display.print(status.boatMsg.statusMsg.mpuAZ);
 
-    display.setCursor(4, 4 + 4 * OLED_CHAR_HEIGHT),
-        setColor(abs(status.mpuGX) >= storage.getMpuGXThreshold()),
-        display.print(status.mpuGX);
-    display.setCursor(44, 4 + 4 * OLED_CHAR_HEIGHT),
-        setColor(abs(status.mpuGY) >= storage.getMpuGYThreshold()),
-        display.print(status.mpuGY);
-    display.setCursor(84, 4 + 4 * OLED_CHAR_HEIGHT),
-        setColor(abs(status.mpuGZ) <= storage.getMpuGZThreshold()),
-        display.print(status.mpuGZ);
+        display.setCursor(4, 4 + 4 * OLED_CHAR_HEIGHT),
+            setColor(abs(status.boatMsg.statusMsg.mpuGX) >= storage.getMpuGXThreshold()),
+            display.print(status.boatMsg.statusMsg.mpuGX);
+        display.setCursor(44, 4 + 4 * OLED_CHAR_HEIGHT),
+            setColor(abs(status.boatMsg.statusMsg.mpuGY) >= storage.getMpuGYThreshold()),
+            display.print(status.boatMsg.statusMsg.mpuGY);
+        display.setCursor(84, 4 + 4 * OLED_CHAR_HEIGHT),
+            setColor(abs(status.boatMsg.statusMsg.mpuGZ) <= storage.getMpuGZThreshold()),
+            display.print(status.boatMsg.statusMsg.mpuGZ);
+    }
 }
 
 /**

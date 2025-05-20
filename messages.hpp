@@ -35,8 +35,37 @@ struct CONTROL_MSG
  */
 struct BOAT_MSG
 {
-    float_t batteryVoltage;
-    uint8_t batteryPercentage;
-    float_t mpuAX, mpuAY, mpuAZ;
-    float_t mpuGX, mpuGY, mpuGZ;
+    enum
+    {
+        BOAT_NOP,
+        BOAT_INIT_MSG,
+        BOAT_STATUS_MSG,
+    } type;
+    struct INIT_MSG
+    {
+        char compileDatetime[32];
+        enum
+        {
+            SUCCESS,
+            I2C_FAILED,
+            SERVO0_FAILED,
+            SERVO1_FAILED,
+            MOTOR0_FAILED,
+            MOTOR1_FAILED,
+            BATTERY_FAILED,
+            MPU6050_FAILED,
+        } status;
+    };
+    struct STATUS_MSG
+    {
+        float_t batteryVoltage;
+        uint8_t batteryPercentage;
+        float_t mpuAX, mpuAY, mpuAZ;
+        float_t mpuGX, mpuGY, mpuGZ;
+    };
+    union
+    {
+        INIT_MSG initMsg;
+        STATUS_MSG statusMsg;
+    };
 };

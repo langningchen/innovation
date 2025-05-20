@@ -22,6 +22,7 @@
 #include <Adafruit_SSD1306.h>
 #include <storage.hpp>
 #include <a2d.hpp>
+#include <messages.hpp>
 
 class OLED
 {
@@ -35,14 +36,10 @@ public:
 
     struct STATUS
     {
-        float_t batteryVoltage;
-        uint8_t batteryPercentage;
-        int16_t leftServoDegree, rightServoDegree;
-        int8_t leftMotorSpeed, rightMotorSpeed;
+        BOAT_MSG boatMsg;
+        CONTROL_MSG controlMsg;
         int16_t networkStatus;
         uint32_t lastMsgTime;
-        float_t mpuAX, mpuAY, mpuAZ;
-        float_t mpuGX, mpuGY, mpuGZ;
     };
 
     class MENU
