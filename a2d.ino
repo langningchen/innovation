@@ -104,11 +104,6 @@ void A2D::reset()
 }
 
 /**
- * @brief Set current values as the basis
- */
-void A2D::setBasis() { speedControlBasis = speedControl, steerControlBasis = steerControl; }
-
-/**
  * @brief Record a new data
  * @param collaborate whether to collaborate the data
  * @details This function will record the new data,
@@ -197,6 +192,7 @@ void A2D::calibrate(Adafruit_SSD1306 &display)
         display.display();
         delay(10);
     }
-    setBasis();
+    speedControlBasis = speedControl;
+    steerControlBasis = steerControl;
     display.display();
 }
