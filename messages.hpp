@@ -35,7 +35,6 @@ struct CONTROL_MSG
  */
 struct BOAT_MSG
 {
-    uint8_t result;
     float_t batteryVoltage;
     uint8_t batteryPercentage;
     float_t mpuAX, mpuAY, mpuAZ;

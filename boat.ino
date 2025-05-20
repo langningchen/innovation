@@ -61,7 +61,6 @@ void setup()
                 servo0.setAngle(controlMsg.leftServoDegree), servo1.setAngle(controlMsg.rightServoDegree);
                 motor0.setSpeed(controlMsg.leftMotorSpeed), motor1.setSpeed(controlMsg.rightMotorSpeed);
                 BOAT_MSG boatMsg;
-                boatMsg.result = 0;
                 boatMsg.batteryVoltage = battery.getVoltage();
                 boatMsg.batteryPercentage = battery.getPercentage();
                 mpu6050.readData(boatMsg.mpuAX, boatMsg.mpuAY, boatMsg.mpuAZ, boatMsg.mpuGX, boatMsg.mpuGY, boatMsg.mpuGZ);
