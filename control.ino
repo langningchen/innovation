@@ -73,8 +73,6 @@ void setup()
                           { oled.dirInput(dir); });
     Serial.println("Control initialization completed");
     lastMsg = millis();
-
-    storage.reset();
 }
 
 void loop()
