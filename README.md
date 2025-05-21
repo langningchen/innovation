@@ -19,7 +19,7 @@
 
 # Innovation for the Future
 
-[![wakatime](https://wakatime.com/badge/user/576a8b82-13f2-4f92-aa69-6fff06354a54/project/70d26c7c-18f7-4863-a7f6-ae7049ec9f53.svg)](https://wakatime.com/badge/user/576a8b82-13f2-4f92-aa69-6fff06354a54/project/70d26c7c-18f7-4863-a7f6-ae7049ec9f53)
+[![wakatime](https://wakatime.com/badge/user/576a8b82-13f2-4f92-aa69-6fff06354a54/project/70d26c7c-18f7-4863-a7f6-ae7049ec9f53.svg)](https://wakatime.com/@langningchen/projects/puzdlllyuq?start=2025-05-16&end=2025-05-22)
 
 The school has an event called "Innovation for the Future", which requires each group to design an innovative ship model. The ship model should be able to sail on water and can be made of any material. The design should be creative and practical, and the ship model should be able to carry a certain amount of weight. The event encourages students to think outside the box and come up with unique ideas for their ship models.
 
@@ -34,13 +34,28 @@ sequenceDiagram
     participant Boat
 
     Note over Control,Boat: 2.4G wireless (SX1281, RadioLib)
-    Control -->> Boat: CONTROL_MSG
-    Control -->> Boat: CONTROL_MSG
+    activate Control
+    Control -->> Boat: CONTROL_MSG (type: CONTROL_COMMAND_MSG)
+    Control -->> Boat: CONTROL_MSG (type: CONTROL_COMMAND_MSG)
     Note over Boat: Boat initialized
-    Control ->> Boat: CONTROL_MSG
+    Control ->> Boat: CONTROL_MSG (type: CONTROL_COMMAND_MSG)
+    deactivate Control
+    activate Boat
     Boat ->> Control: BOAT_MSG (type: BOAT_INIT_MSG)
-    Control ->> Boat: CONTROL_MSG
+    deactivate Boat
+    activate Control
+    Control ->> Boat: CONTROL_MSG (type: CONTROL_CONFIG_MSG)
+    deactivate Control
+    activate Boat
     Boat ->> Control: BOAT_MSG (type: BOAT_STATUS_MSG)
+    deactivate Boat
+    activate Control
+    Control ->> Boat: CONTROL_MSG (type: CONTROL_COMMAND_MSG)
+    deactivate Control
+    activate Boat
+    Boat ->> Control: BOAT_MSG (type: BOAT_STATUS_MSG)
+    deactivate Boat
+    Note over Control,Boat: etc...
 ```
 
 #### Network Message Structure
