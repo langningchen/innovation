@@ -75,6 +75,8 @@ void setup()
     lastMsg = millis();
 }
 
+bool sendConfig = false;
+
 void loop()
 {
     a2d.process(false);
@@ -108,14 +110,28 @@ void loop()
         int8_t leftMotorSpeed = motorSpeed + storage.getLeftMotorDelta(),
                rightMotorSpeed = motorSpeed + storage.getRightMotorDelta();
 
-        status.controlMsg = {.leftServoDegree = leftServoDegree,
-                             .rightServoDegree = rightServoDegree,
-                             .leftMotorSpeed = leftMotorSpeed,
-                             .rightMotorSpeed = rightMotorSpeed};
+        if (sendConfig)
+        {
+            sendConfig = false;
+            status.controlMsg.type = CONTROL_MSG::CONTROL_CONFIG_MSG;
+            status.controlMsg.configMsg = {.motor0Direction = storage.getLeftMotorDir(),
+                                           .motor1Direction = storage.getRightMotorDir(),
+                                           .controlTimeout = storage.getControlTimeout()};
+        }
+        else
+        {
+            status.controlMsg.type = CONTROL_MSG::CONTROL_COMMAND_MSG;
+            status.controlMsg.commandMsg = {.leftServoDegree = leftServoDegree,
+                                            .rightServoDegree = rightServoDegree,
+                                            .leftMotorSpeed = leftMotorSpeed,
+                                            .rightMotorSpeed = rightMotorSpeed};
+        }
 
         status.networkStatus = network.proceedClient(status.controlMsg, status.boatMsg);
         if (status.networkStatus == RADIOLIB_ERR_NONE)
             status.lastMsgTime = millis();
+        if (status.boatMsg.type == BOAT_MSG::BOAT_INIT_MSG)
+            sendConfig = true;
         oled.updateStatus(status);
     }
 }

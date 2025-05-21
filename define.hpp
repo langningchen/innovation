@@ -18,7 +18,6 @@
 #pragma once
 
 #include <pin.hpp>
-#define CONTROL_TIMEOUT 3000 // ms
 #define MPU_ADDRESS 0x68
 #define OLED_ADDRESS 0x3C
 #define INA_ADDRESS 0x40

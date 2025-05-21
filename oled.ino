@@ -196,9 +196,9 @@ void OLED::renderStatus()
 
     setColor(false);
     display.setCursor(4, 4 + OLED_CHAR_HEIGHT),
-        display.print(String(status.controlMsg.leftServoDegree) + "d " + String(status.controlMsg.leftMotorSpeed) + "%");
+        display.print(String(status.controlMsg.commandMsg.leftServoDegree) + "d " + String(status.controlMsg.commandMsg.leftMotorSpeed) + "%");
     display.setCursor(64, 4 + OLED_CHAR_HEIGHT),
-        display.print(String(status.controlMsg.rightServoDegree) + "d " + String(status.controlMsg.rightMotorSpeed) + "%");
+        display.print(String(status.controlMsg.commandMsg.rightServoDegree) + "d " + String(status.controlMsg.commandMsg.rightMotorSpeed) + "%");
 
     if (status.boatMsg.type == BOAT_MSG::BOAT_INIT_MSG)
     {
@@ -272,6 +272,12 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D
                                           new MENU("R motor delta (%)", [&storage](MENU *menu)
                                                    { menu->config.value = storage.getRightMotorDelta(); }, [&storage](MENU *menu)
                                                    { storage.setRightMotorDelta(menu->config.value); }, -30, 30),
+                                          new MENU("L motor dir", [&storage](MENU *menu)
+                                                   { menu->config.value = storage.getLeftMotorDir(); }, [&storage](MENU *menu)
+                                                   { storage.setLeftMotorDir(menu->config.value); }, 0, 1),
+                                          new MENU("R motor dir", [&storage](MENU *menu)
+                                                   { menu->config.value = storage.getRightMotorDir(); }, [&storage](MENU *menu)
+                                                   { storage.setRightMotorDir(menu->config.value); }, 0, 1),
                                       }),
                      new MENU("Control", {
                                              new MENU("Backward limit (%)", [&storage](MENU *menu)

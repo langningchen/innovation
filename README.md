@@ -47,11 +47,23 @@ sequenceDiagram
 ```mermaid
 classDiagram
     class CONTROL_MSG {
+        type: CONTROL_NOP | CONTROL_CONFIG_MSG | CONTROL_COMMAND_MSG
+    }
+
+    class CONFIG_MSG {
+        bool motor0Direction, motor1Direction
+        uint8_t controlTimeout
+    }
+
+    class COMMAND_MSG {
         int16_t leftServoDegree
         int16_t rightServoDegree
         int8_t leftMotorSpeed
         int8_t rightMotorSpeed
     }
+
+    CONTROL_MSG --> CONFIG_MSG
+    CONTROL_MSG --> COMMAND_MSG
 
     class BOAT_MSG {
         type: BOAT_NOP | BOAT_INIT_MSG | BOAT_STATUS_MSG

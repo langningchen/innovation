@@ -27,6 +27,12 @@ MOTOR::MOTOR(uint8_t pin, uint8_t dirPin, uint32_t freq, uint8_t resolution, boo
     : PWM(pin, freq, resolution), dirPin(dirPin), dir(dir) {}
 
 /**
+ * @brief Set the direction of the motor
+ * @param dir Direction, boolean
+ */
+void MOTOR::setDirection(bool dir) { this->dir = dir; }
+
+/**
  * @brief Set the speed of the motor
  * @param speed Speed in percentage (%), range is [0, 100]
  * @return true if successful, false otherwise

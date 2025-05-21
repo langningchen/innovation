@@ -24,7 +24,7 @@ class STORAGE
 private:
     struct DATA
     {
-        uint8_t controlTimeout;                 // 0 ~ 3000 ms
+        uint8_t controlTimeout;                 // 3 ~ 10 s
         uint8_t maxSpeed;                       // 0 ~ 100 %
         int8_t leftServoDelta, rightServoDelta; // -30 ~ 30 d
         int8_t leftMotorDelta, rightMotorDelta; // -30 ~ 30 %
@@ -36,9 +36,10 @@ private:
         float_t mpuXThreshold;                  // 1 ~ 7
         float_t mpuYThreshold;                  // 1 ~ 7
         float_t mpuZThreshold;                  // 7 ~ 10
+        uint8_t leftMotorDir, rightMotorDir;    // 0 ~ 1
     } data;
     const DATA defaultData = {
-        .controlTimeout = 10,
+        .controlTimeout = 3,
         .maxSpeed = 100,
         .leftServoDelta = 0,
         .rightServoDelta = 0,
@@ -52,6 +53,8 @@ private:
         .mpuXThreshold = 3.0,
         .mpuYThreshold = 3.0,
         .mpuZThreshold = 9.5,
+        .leftMotorDir = 0,
+        .rightMotorDir = 0,
     };
 
 public:
@@ -100,4 +103,10 @@ public:
 
     float_t getMpuGZThreshold();
     bool setMpuZThreshold(float_t mpuZThreshold);
+
+    bool getLeftMotorDir();
+    bool setLeftMotorDir(bool leftMotorDir);
+
+    bool getRightMotorDir();
+    bool setRightMotorDir(bool rightMotorDir);
 };

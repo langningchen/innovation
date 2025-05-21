@@ -23,10 +23,29 @@
  */
 struct CONTROL_MSG
 {
-    int16_t leftServoDegree;
-    int16_t rightServoDegree;
-    int8_t leftMotorSpeed;
-    int8_t rightMotorSpeed;
+    enum
+    {
+        CONTROL_NOP,
+        CONTROL_CONFIG_MSG,
+        CONTROL_COMMAND_MSG,
+    } type;
+    struct CONFIG_MSG
+    {
+        bool motor0Direction, motor1Direction;
+        uint8_t controlTimeout;
+    };
+    struct COMMAND_MSG
+    {
+        int16_t leftServoDegree;
+        int16_t rightServoDegree;
+        int8_t leftMotorSpeed;
+        int8_t rightMotorSpeed;
+    };
+    union
+    {
+        CONFIG_MSG configMsg;
+        COMMAND_MSG commandMsg;
+    };
 };
 
 /**

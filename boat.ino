@@ -34,6 +34,7 @@ BATTERY battery(INA_ADDRESS, 14.8, 16.8);
 NETWORK<CONTROL_MSG, BOAT_MSG> network(PIN_CS, PIN_IRQ, PIN_RESET, PIN_BUSY);
 MPU6050 mpu6050(MPU_ADDRESS, MPU6050_RANGE_2_G, MPU6050_RANGE_250_DEG);
 BOAT_MSG boatInitMsg;
+uint8_t controlTimeout = 3;
 
 void setup()
 {
@@ -56,14 +57,24 @@ void setup()
     if (!network.setServer(
             [&](CONTROL_MSG controlMsg) -> BOAT_MSG
             {
+                if (controlMsg.type == CONTROL_MSG::CONTROL_CONFIG_MSG)
+                {
+                    motor0.setDirection(controlMsg.configMsg.motor0Direction), motor1.setDirection(controlMsg.configMsg.motor1Direction);
+                    controlTimeout = controlMsg.configMsg.controlTimeout;
+                }
+                else if (controlMsg.type == CONTROL_MSG::CONTROL_COMMAND_MSG)
+                {
+                    servo0.setAngle(controlMsg.commandMsg.leftServoDegree), servo1.setAngle(controlMsg.commandMsg.rightServoDegree);
+                    motor0.setSpeed(controlMsg.commandMsg.leftMotorSpeed), motor1.setSpeed(controlMsg.commandMsg.rightMotorSpeed);
+                }
+
                 static bool firstSent = false;
                 if (!firstSent)
                 {
+                    Serial.println("Sending boat initialization message");
                     firstSent = true;
                     return boatInitMsg;
                 }
-                servo0.setAngle(controlMsg.leftServoDegree), servo1.setAngle(controlMsg.rightServoDegree);
-                motor0.setSpeed(controlMsg.leftMotorSpeed), motor1.setSpeed(controlMsg.rightMotorSpeed);
                 BOAT_MSG boatMsg;
                 boatMsg.type = BOAT_MSG::BOAT_STATUS_MSG;
                 boatMsg.statusMsg.batteryVoltage = battery.getVoltage();
@@ -110,7 +121,7 @@ void loop()
     }
     if (hasData)
         lst_msg = clock();
-    else if (clock() - lst_msg > CONTROL_TIMEOUT && clock() - lst_chk > 1000)
+    else if ((clock() - lst_msg) / 1000 > controlTimeout && clock() - lst_chk > 1000)
     {
         if (lst_msg != 0)
         {

@@ -127,3 +127,17 @@ bool STORAGE::setMpuZThreshold(float_t mpuZThreshold)
     data.mpuZThreshold = mpuZThreshold;
     return save();
 }
+
+bool STORAGE::getLeftMotorDir() { return data.leftMotorDir; }
+bool STORAGE::setLeftMotorDir(bool leftMotorDir)
+{
+    data.leftMotorDir = leftMotorDir;
+    return save();
+}
+
+bool STORAGE::getRightMotorDir() { return data.rightMotorDir; }
+bool STORAGE::setRightMotorDir(bool rightMotorDir)
+{
+    data.rightMotorDir = rightMotorDir;
+    return save();
+}
