@@ -26,19 +26,3 @@ The school has an event called "Innovation for the Future", which requires each 
 #### Network communication
 
 The ship model should be able to communicate with a controller via a 2.4G wireless network. 
-
-```mermaid
-sequenceDiagram
-    participant SP as Ship Processor
-    participant S as Ship Model
-    participant C as Controller
-    participant CP as Controller processor
-    C-->>CP: Query command
-    CP-->>C: Return command
-    C->>S: Send command
-    S-->>SP: Process command
-    S-->>SP: Query status
-    SP-->>S: Return status
-    S->>C: Send status
-    C->>CP: Process status
-```
