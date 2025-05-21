@@ -257,6 +257,9 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D
         new MENU("Main Menu",
                  {
                      new MENU("Boat", {
+                                          new MENU("Timeout (s)", [&storage](MENU *menu)
+                                                   { menu->config.value = storage.getControlTimeout(); }, [&storage](MENU *menu)
+                                                   { storage.setControlTimeout(menu->config.value); }, 3, 10),
                                           new MENU("Max speed (%)", [&storage](MENU *menu)
                                                    { menu->config.value = storage.getMaxSpeed(); }, [&storage](MENU *menu)
                                                    { storage.setMaxSpeed(menu->config.value); }, 0, 100),
@@ -314,10 +317,15 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D
                      new MENU("About", {
                                            new MENU("Innovation"),
                                            new MENU(""),
+                                           new MENU("Repo URL", {
+                                                                    new MENU("https://github.com"),
+                                                                    new MENU("/langningchen"),
+                                                                    new MENU("/innovation"),
+                                                                }),
                                            new MENU("Project URL", {
                                                                        new MENU("https://github.com"),
-                                                                       new MENU("/langningchen"),
-                                                                       new MENU("/innovation"),
+                                                                       new MENU("/users/langningchen"),
+                                                                       new MENU("/projects/6"),
                                                                    }),
                                            new MENU("Authors", {
                                                                    new MENU("langningchen"),
