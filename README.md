@@ -189,14 +189,11 @@ Main Menu
     |   |-- https://github.com
     |   |-- /langningchen
     |   |-- /innovation
-    |-- Project URL
-    |   |-- https://github.com
-    |   |-- /users/langningchen
-    |   |-- /projects/6
     |-- Authors
     |   |-- langningchen
     |   |-- lmyzzzz
     |   |-- zzsqjdhqgb
+    |   |-- SenkoNekomimiBeat
     |-- Open source license
     |   |-- GNU General Public
     |   |-- License Version 3

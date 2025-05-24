@@ -353,15 +353,11 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D
                                                                     new MENU("/langningchen"),
                                                                     new MENU("/innovation"),
                                                                 }),
-                                           new MENU("Project URL", {
-                                                                       new MENU("https://github.com"),
-                                                                       new MENU("/users/langningchen"),
-                                                                       new MENU("/projects/6"),
-                                                                   }),
                                            new MENU("Authors", {
                                                                    new MENU("langningchen"),
                                                                    new MENU("lmyzzzz"),
                                                                    new MENU("zzsqjdhqgb"),
+                                                                   new MENU("SenkoNekomimiBeat"),
                                                                }),
                                            new MENU("Open source license", {
                                                                                new MENU("GNU General Public"),
