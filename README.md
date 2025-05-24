@@ -144,3 +144,63 @@ graph TD
     BC --> BG
     Boat --> A
 ```
+
+## Config menu structure
+
+```
+Main Menu
+|-- Boat basic
+|   |-- Limits
+|   |   |-- Max speed (%)
+|   |   |-- Backward limit (%)
+|   |   |-- Servo limit (d)
+|   |-- Deltas
+|   |   |-- L servo delta (d)
+|   |   |-- R servo delta (d)
+|   |   |-- L motor delta (%)
+|   |   |-- R motor delta (%)
+|   |-- Diff speed
+|       |-- Enable DS
+|       |-- DS rate (%)
+|-- Boat advanced
+|   |-- Changing these
+|   |-- requires a reboot
+|   |-- of the boat
+|   |-- 
+|   |-- Timeout (s)
+|   |-- L motor dir
+|   |-- R motor dir
+|-- Control
+|   |-- Dir threshold (%)
+|   |-- Calibrate joystick
+|   |-- Display
+|       |-- Network THLD (ms)
+|       |-- Battery THLD (%)
+|       |-- MPU X THLD
+|       |-- MPU Y THLD
+|       |-- MPU Z THLD
+|-- Reset to default
+|   |-- Are you sure?
+|   |-- Yes, reset
+|-- About
+    |-- Innovation
+    |-- 
+    |-- Repo URL
+    |   |-- https://github.com
+    |   |-- /langningchen
+    |   |-- /innovation
+    |-- Project URL
+    |   |-- https://github.com
+    |   |-- /users/langningchen
+    |   |-- /projects/6
+    |-- Authors
+    |   |-- langningchen
+    |   |-- lmyzzzz
+    |   |-- zzsqjdhqgb
+    |-- Open source license
+    |   |-- GNU General Public
+    |   |-- License Version 3
+    |-- Compile time
+        |-- __DATE__
+        |-- __TIME__
+```
