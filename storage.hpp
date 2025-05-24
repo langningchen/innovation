@@ -58,7 +58,7 @@ private:
         .leftMotorDir = 0,
         .rightMotorDir = 0,
         .enableDS = 0,
-        .dsRate = 50,
+        .dsRate = 40,
     };
 
 public:

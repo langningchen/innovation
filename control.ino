@@ -121,12 +121,13 @@ void loop()
             if (motorSpeed > 30)
                 servoControl *= 1.0 - (motorSpeed - 30) / 100.0;
             int16_t servoDegree = map(servoControl, -100, 100, -SERVO_RANGE, SERVO_RANGE);
-            if (enableLock)
-                motorSpeed = servoDegree = 0;
 
             leftServoDegree = rightServoDegree = servoDegree;
             leftMotorSpeed = rightMotorSpeed = motorSpeed;
         }
+
+        if (enableLock)
+            leftServoDegree = rightServoDegree = leftMotorSpeed = rightMotorSpeed = 0;
         leftServoDegree += storage.getLeftServoDelta();
         rightServoDegree += storage.getRightServoDelta();
         leftMotorSpeed += storage.getLeftMotorDelta();
