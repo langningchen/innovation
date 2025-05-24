@@ -256,52 +256,57 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D
     currentMenu = menu =
         new MENU("Main Menu",
                  {
-                     new MENU("Boat", {
-                                          new MENU("Timeout (s)", [&storage](MENU *menu)
-                                                   { menu->config.value = storage.getControlTimeout(); }, [&storage](MENU *menu)
-                                                   { storage.setControlTimeout(menu->config.value); }, 3, 10),
-                                          new MENU("Max speed (%)", [&storage](MENU *menu)
-                                                   { menu->config.value = storage.getMaxSpeed(); }, [&storage](MENU *menu)
-                                                   { storage.setMaxSpeed(menu->config.value); }, 0, 100),
-                                          new MENU("L servo delta (d)", [&storage](MENU *menu)
-                                                   { menu->config.value = storage.getLeftServoDelta(); }, [&storage](MENU *menu)
-                                                   { storage.setLeftServoDelta(menu->config.value); }, -30, 30),
-                                          new MENU("R servo delta (d)", [&storage](MENU *menu)
-                                                   { menu->config.value = storage.getRightServoDelta(); }, [&storage](MENU *menu)
-                                                   { storage.setRightServoDelta(menu->config.value); }, -30, 30),
-                                          new MENU("L motor delta (%)", [&storage](MENU *menu)
-                                                   { menu->config.value = storage.getLeftMotorDelta(); }, [&storage](MENU *menu)
-                                                   { storage.setLeftMotorDelta(menu->config.value); }, -30, 30),
-                                          new MENU("R motor delta (%)", [&storage](MENU *menu)
-                                                   { menu->config.value = storage.getRightMotorDelta(); }, [&storage](MENU *menu)
-                                                   { storage.setRightMotorDelta(menu->config.value); }, -30, 30),
-                                          new MENU("L motor dir", [&storage](MENU *menu)
-                                                   { menu->config.value = storage.getLeftMotorDir(); }, [&storage](MENU *menu)
-                                                   { storage.setLeftMotorDir(menu->config.value); }, 0, 1),
-                                          new MENU("R motor dir", [&storage](MENU *menu)
-                                                   { menu->config.value = storage.getRightMotorDir(); }, [&storage](MENU *menu)
-                                                   { storage.setRightMotorDir(menu->config.value); }, 0, 1),
-                                      }),
+                     new MENU("Boat basic", {
+                                                new MENU("Max speed (%)", [&storage](MENU *menu)
+                                                         { menu->config.value = storage.getMaxSpeed(); }, [&storage](MENU *menu)
+                                                         { storage.setMaxSpeed(menu->config.value); }, 0, 100),
+                                                new MENU("Backward limit (%)", [&storage](MENU *menu)
+                                                         { menu->config.value = storage.getBackwardLimit(); }, [&storage](MENU *menu)
+                                                         { storage.setBackwardLimit(menu->config.value); }, 0, 100),
+                                                new MENU("Dir threshold (%)", [&storage](MENU *menu)
+                                                         { menu->config.value = storage.getDirThreshold(); }, [&storage](MENU *menu)
+                                                         { storage.setDirThreshold(menu->config.value); }, 20, 90),
+                                                new MENU("Servo limit (d)", [&storage](MENU *menu)
+                                                         { menu->config.value = storage.getServoLimit(); }, [&storage](MENU *menu)
+                                                         { storage.setServoLimit(menu->config.value); }, 30, 100),
+                                                new MENU("Deltas", {
+                                                                       new MENU("L servo delta (d)", [&storage](MENU *menu)
+                                                                                { menu->config.value = storage.getLeftServoDelta(); }, [&storage](MENU *menu)
+                                                                                { storage.setLeftServoDelta(menu->config.value); }, -30, 30),
+                                                                       new MENU("R servo delta (d)", [&storage](MENU *menu)
+                                                                                { menu->config.value = storage.getRightServoDelta(); }, [&storage](MENU *menu)
+                                                                                { storage.setRightServoDelta(menu->config.value); }, -30, 30),
+                                                                       new MENU("L motor delta (%)", [&storage](MENU *menu)
+                                                                                { menu->config.value = storage.getLeftMotorDelta(); }, [&storage](MENU *menu)
+                                                                                { storage.setLeftMotorDelta(menu->config.value); }, -30, 30),
+                                                                       new MENU("R motor delta (%)", [&storage](MENU *menu)
+                                                                                { menu->config.value = storage.getRightMotorDelta(); }, [&storage](MENU *menu)
+                                                                                { storage.setRightMotorDelta(menu->config.value); }, -30, 30),
+                                                                   }),
+                                                new MENU("Enable DS", [&storage](MENU *menu)
+                                                         { menu->config.value = storage.getEnableDS(); }, [&storage](MENU *menu)
+                                                         { storage.setEnableDS(menu->config.value); }, 0, 1),
+                                                new MENU("DS rate (%)", [&storage](MENU *menu)
+                                                         { menu->config.value = storage.getDSRate(); }, [&storage](MENU *menu)
+                                                         { storage.setDSRate(menu->config.value); }, 0, 100),
+                                            }),
+                     new MENU("Boat advanced", {
+                                                   new MENU("Changing these settings"),
+                                                   new MENU("requires a reboot of boat"),
+                                                   new MENU(""),
+                                                   new MENU("Timeout (s)", [&storage](MENU *menu)
+                                                            { menu->config.value = storage.getControlTimeout(); }, [&storage](MENU *menu)
+                                                            { storage.setControlTimeout(menu->config.value); }, 3, 10),
+                                                   new MENU("L motor dir", [&storage](MENU *menu)
+                                                            { menu->config.value = storage.getLeftMotorDir(); }, [&storage](MENU *menu)
+                                                            { storage.setLeftMotorDir(menu->config.value); }, 0, 1),
+                                                   new MENU("R motor dir", [&storage](MENU *menu)
+                                                            { menu->config.value = storage.getRightMotorDir(); }, [&storage](MENU *menu)
+                                                            { storage.setRightMotorDir(menu->config.value); }, 0, 1),
+                                               }),
                      new MENU("Control", {
-                                             new MENU("Backward limit (%)", [&storage](MENU *menu)
-                                                      { menu->config.value = storage.getBackwardLimit(); }, [&storage](MENU *menu)
-                                                      { storage.setBackwardLimit(menu->config.value); }, 0, 100),
-                                             new MENU("Dir threshold (%)", [&storage](MENU *menu)
-                                                      { menu->config.value = storage.getDirThreshold(); }, [&storage](MENU *menu)
-                                                      { storage.setDirThreshold(menu->config.value); }, 20, 90),
-                                             new MENU("Servo limit (d)", [&storage](MENU *menu)
-                                                      { menu->config.value = storage.getServoLimit(); }, [&storage](MENU *menu)
-                                                      { storage.setServoLimit(menu->config.value); }, 30, 100),
-                                             new MENU("Enable DS", [&storage](MENU *menu)
-                                                      { menu->config.value = storage.getEnableDS(); }, [&storage](MENU *menu)
-                                                      { storage.setEnableDS(menu->config.value); }, 0, 1),
-                                             new MENU("DS rate (%)", [&storage](MENU *menu)
-                                                      { menu->config.value = storage.getDSRate(); }, [&storage](MENU *menu)
-                                                      { storage.setDSRate(menu->config.value); }, 0, 100),
                                              new MENU("Calibrate joystick", [&a2d](MENU *menu)
                                                       { menu->updateDisplay(), a2d.calibrate(*menu->display); }),
-                                         }),
-                     new MENU("Display", {
                                              new MENU("Network THLD (ms)", [&storage](MENU *menu)
                                                       { menu->config.value = storage.getNetworkThreshold(); }, [&storage](MENU *menu)
                                                       { storage.setNetworkThreshold(menu->config.value); }, 1000, 10000),
@@ -318,8 +323,11 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D
                                                       { menu->config.value = storage.getMpuGZThreshold(); }, [&storage](MENU *menu)
                                                       { storage.setMpuZThreshold(menu->config.value); }, 7, 10),
                                          }),
-                     new MENU("Reset to default", [&storage](MENU *menu)
-                              { storage.reset(); }),
+                     new MENU("Reset to default", {
+                                                      new MENU("Are you sure?"),
+                                                      new MENU("Yes, reset", [&storage](MENU *menu)
+                                                               { storage.reset(); }),
+                                                  }),
                      new MENU("About", {
                                            new MENU("Innovation"),
                                            new MENU(""),
