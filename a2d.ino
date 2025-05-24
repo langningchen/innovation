@@ -132,7 +132,7 @@ void A2D::process(bool noUpdateDirection)
  * @param steerControl output steer control
  * @param enableCruise output whether cruise control is enabled
  * @param enableLock output whether control lock is enabled
- * @details This function will get all the data and convert it to the range of [0, 100]
+ * @details This function will get all the data and convert it to the range of [-100, 100] or [0, 1]
  */
 void A2D::getData(uint8_t &config, uint8_t &speedCruise,
                   int8_t &speedControl, int8_t &steerControl,
