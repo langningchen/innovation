@@ -106,13 +106,13 @@ void loop()
             int8_t dsSpeed = 100 - (abs(servoControl) * storage.getDSRate() / 100);
             if (servoControl > 0)
             {
-                leftMotorSpeed = motorSpeed * dsSpeed / 100;
-                rightMotorSpeed = motorSpeed;
+                leftMotorSpeed = motorSpeed;
+                rightMotorSpeed = motorSpeed * dsSpeed / 100;
             }
             else
             {
-                leftMotorSpeed = motorSpeed;
-                rightMotorSpeed = motorSpeed * dsSpeed / 100;
+                leftMotorSpeed = motorSpeed * dsSpeed / 100;
+                rightMotorSpeed = motorSpeed;
             }
         }
         else
@@ -120,7 +120,7 @@ void loop()
             servoControl = servoControl * storage.getServoLimit() * 1.0 / SERVO_RANGE;
             if (motorSpeed > 30)
                 servoControl *= 1.0 - (motorSpeed - 30) / 100.0;
-            int16_t servoDegree = map(servoControl, -100, 100, -SERVO_RANGE, SERVO_RANGE);
+            int16_t servoDegree = -map(servoControl, -100, 100, -SERVO_RANGE, SERVO_RANGE);
 
             leftServoDegree = rightServoDegree = servoDegree;
             leftMotorSpeed = rightMotorSpeed = motorSpeed;
