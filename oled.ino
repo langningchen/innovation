@@ -339,11 +339,12 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D
                                                       new MENU("Yes, reset", [&storage, this](MENU *menu)
                                                                {
                                                                    storage.reset();
+                                                                   display.clearDisplay();
+                                                                   setColor(false);
                                                                    display.setCursor(0, 0);
-                                                                   display.setTextSize(1);
-                                                                   setColor(true);
                                                                    display.println("Done");
-                                                                   delay(1000); }),
+                                                                   display.display();
+                                                                   delay(500); }),
                                                   }),
                      new MENU("About", {
                                            new MENU("Innovation"),
