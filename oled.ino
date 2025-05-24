@@ -117,6 +117,10 @@ void OLED::MENU::render()
         const int16_t width = display->width() / OLED_CHAR_WIDTH;
         if (item->type == TYPE::CONFIG)
             rightText = item->config.value;
+        else if (item->type == TYPE::FOLDER)
+            rightText = ">";
+        else if (item->type == TYPE::BUTTON)
+            rightText = "=";
         if (leftText.length() + rightText.length() > width)
             display->print(leftText.substring(0, width - rightText.length() - 3) + "...");
         else
@@ -257,18 +261,17 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D
         new MENU("Main Menu",
                  {
                      new MENU("Boat basic", {
-                                                new MENU("Max speed (%)", [&storage](MENU *menu)
-                                                         { menu->config.value = storage.getMaxSpeed(); }, [&storage](MENU *menu)
-                                                         { storage.setMaxSpeed(menu->config.value); }, 0, 100),
-                                                new MENU("Backward limit (%)", [&storage](MENU *menu)
-                                                         { menu->config.value = storage.getBackwardLimit(); }, [&storage](MENU *menu)
-                                                         { storage.setBackwardLimit(menu->config.value); }, 0, 100),
-                                                new MENU("Dir threshold (%)", [&storage](MENU *menu)
-                                                         { menu->config.value = storage.getDirThreshold(); }, [&storage](MENU *menu)
-                                                         { storage.setDirThreshold(menu->config.value); }, 20, 90),
-                                                new MENU("Servo limit (d)", [&storage](MENU *menu)
-                                                         { menu->config.value = storage.getServoLimit(); }, [&storage](MENU *menu)
-                                                         { storage.setServoLimit(menu->config.value); }, 30, 100),
+                                                new MENU("Limits", {
+                                                                       new MENU("Max speed (%)", [&storage](MENU *menu)
+                                                                                { menu->config.value = storage.getMaxSpeed(); }, [&storage](MENU *menu)
+                                                                                { storage.setMaxSpeed(menu->config.value); }, 0, 100),
+                                                                       new MENU("Backward limit (%)", [&storage](MENU *menu)
+                                                                                { menu->config.value = storage.getBackwardLimit(); }, [&storage](MENU *menu)
+                                                                                { storage.setBackwardLimit(menu->config.value); }, 0, 100),
+                                                                       new MENU("Servo limit (d)", [&storage](MENU *menu)
+                                                                                { menu->config.value = storage.getServoLimit(); }, [&storage](MENU *menu)
+                                                                                { storage.setServoLimit(menu->config.value); }, 30, 100),
+                                                                   }),
                                                 new MENU("Deltas", {
                                                                        new MENU("L servo delta (d)", [&storage](MENU *menu)
                                                                                 { menu->config.value = storage.getLeftServoDelta(); }, [&storage](MENU *menu)
@@ -283,16 +286,19 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D
                                                                                 { menu->config.value = storage.getRightMotorDelta(); }, [&storage](MENU *menu)
                                                                                 { storage.setRightMotorDelta(menu->config.value); }, -30, 30),
                                                                    }),
-                                                new MENU("Enable DS", [&storage](MENU *menu)
-                                                         { menu->config.value = storage.getEnableDS(); }, [&storage](MENU *menu)
-                                                         { storage.setEnableDS(menu->config.value); }, 0, 1),
-                                                new MENU("DS rate (%)", [&storage](MENU *menu)
-                                                         { menu->config.value = storage.getDSRate(); }, [&storage](MENU *menu)
-                                                         { storage.setDSRate(menu->config.value); }, 0, 100),
+                                                new MENU("Diff speed", {
+                                                                           new MENU("Enable DS", [&storage](MENU *menu)
+                                                                                    { menu->config.value = storage.getEnableDS(); }, [&storage](MENU *menu)
+                                                                                    { storage.setEnableDS(menu->config.value); }, 0, 1),
+                                                                           new MENU("DS rate (%)", [&storage](MENU *menu)
+                                                                                    { menu->config.value = storage.getDSRate(); }, [&storage](MENU *menu)
+                                                                                    { storage.setDSRate(menu->config.value); }, 0, 100),
+                                                                       }),
                                             }),
                      new MENU("Boat advanced", {
-                                                   new MENU("Changing these settings"),
-                                                   new MENU("requires a reboot of boat"),
+                                                   new MENU("Changing these"),
+                                                   new MENU("requires a reboot"),
+                                                   new MENU("of the boat"),
                                                    new MENU(""),
                                                    new MENU("Timeout (s)", [&storage](MENU *menu)
                                                             { menu->config.value = storage.getControlTimeout(); }, [&storage](MENU *menu)
@@ -305,28 +311,39 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D
                                                             { storage.setRightMotorDir(menu->config.value); }, 0, 1),
                                                }),
                      new MENU("Control", {
+                                             new MENU("Dir threshold (%)", [&storage](MENU *menu)
+                                                      { menu->config.value = storage.getDirThreshold(); }, [&storage](MENU *menu)
+                                                      { storage.setDirThreshold(menu->config.value); }, 20, 90),
                                              new MENU("Calibrate joystick", [&a2d](MENU *menu)
                                                       { menu->updateDisplay(), a2d.calibrate(*menu->display); }),
-                                             new MENU("Network THLD (ms)", [&storage](MENU *menu)
-                                                      { menu->config.value = storage.getNetworkThreshold(); }, [&storage](MENU *menu)
-                                                      { storage.setNetworkThreshold(menu->config.value); }, 1000, 10000),
-                                             new MENU("Battery THLD (%)", [&storage](MENU *menu)
-                                                      { menu->config.value = storage.getBatteryThreshold(); }, [&storage](MENU *menu)
-                                                      { storage.setBatteryThreshold(menu->config.value); }, 30, 70),
-                                             new MENU("MPU X THLD", [&storage](MENU *menu)
-                                                      { menu->config.value = storage.getMpuGXThreshold(); }, [&storage](MENU *menu)
-                                                      { storage.setMpuXThreshold(menu->config.value); }, 1, 7),
-                                             new MENU("MPU Y THLD", [&storage](MENU *menu)
-                                                      { menu->config.value = storage.getMpuGYThreshold(); }, [&storage](MENU *menu)
-                                                      { storage.setMpuYThreshold(menu->config.value); }, 1, 7),
-                                             new MENU("MPU Z THLD", [&storage](MENU *menu)
-                                                      { menu->config.value = storage.getMpuGZThreshold(); }, [&storage](MENU *menu)
-                                                      { storage.setMpuZThreshold(menu->config.value); }, 7, 10),
+                                             new MENU("Display", {
+                                                                     new MENU("Network THLD (ms)", [&storage](MENU *menu)
+                                                                              { menu->config.value = storage.getNetworkThreshold(); }, [&storage](MENU *menu)
+                                                                              { storage.setNetworkThreshold(menu->config.value); }, 1000, 10000),
+                                                                     new MENU("Battery THLD (%)", [&storage](MENU *menu)
+                                                                              { menu->config.value = storage.getBatteryThreshold(); }, [&storage](MENU *menu)
+                                                                              { storage.setBatteryThreshold(menu->config.value); }, 30, 70),
+                                                                     new MENU("MPU X THLD", [&storage](MENU *menu)
+                                                                              { menu->config.value = storage.getMpuGXThreshold(); }, [&storage](MENU *menu)
+                                                                              { storage.setMpuXThreshold(menu->config.value); }, 1, 7),
+                                                                     new MENU("MPU Y THLD", [&storage](MENU *menu)
+                                                                              { menu->config.value = storage.getMpuGYThreshold(); }, [&storage](MENU *menu)
+                                                                              { storage.setMpuYThreshold(menu->config.value); }, 1, 7),
+                                                                     new MENU("MPU Z THLD", [&storage](MENU *menu)
+                                                                              { menu->config.value = storage.getMpuGZThreshold(); }, [&storage](MENU *menu)
+                                                                              { storage.setMpuZThreshold(menu->config.value); }, 7, 10),
+                                                                 }),
                                          }),
                      new MENU("Reset to default", {
                                                       new MENU("Are you sure?"),
-                                                      new MENU("Yes, reset", [&storage](MENU *menu)
-                                                               { storage.reset(); }),
+                                                      new MENU("Yes, reset", [&storage, this](MENU *menu)
+                                                               {
+                                                                   storage.reset();
+                                                                   display.setCursor(0, 0);
+                                                                   display.setTextSize(1);
+                                                                   setColor(true);
+                                                                   display.println("Done");
+                                                                   delay(1000); }),
                                                   }),
                      new MENU("About", {
                                            new MENU("Innovation"),
