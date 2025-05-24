@@ -292,6 +292,12 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D
                                              new MENU("Servo limit (d)", [&storage](MENU *menu)
                                                       { menu->config.value = storage.getServoLimit(); }, [&storage](MENU *menu)
                                                       { storage.setServoLimit(menu->config.value); }, 30, 100),
+                                             new MENU("Enable DS", [&storage](MENU *menu)
+                                                      { menu->config.value = storage.getEnableDS(); }, [&storage](MENU *menu)
+                                                      { storage.setEnableDS(menu->config.value); }, 0, 1),
+                                             new MENU("DS rate (%)", [&storage](MENU *menu)
+                                                      { menu->config.value = storage.getDSRate(); }, [&storage](MENU *menu)
+                                                      { storage.setDSRate(menu->config.value); }, 0, 100),
                                              new MENU("Calibrate joystick", [&a2d](MENU *menu)
                                                       { menu->updateDisplay(), a2d.calibrate(*menu->display); }),
                                          }),

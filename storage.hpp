@@ -37,6 +37,8 @@ private:
         float_t mpuYThreshold;                  // 1 ~ 7
         float_t mpuZThreshold;                  // 7 ~ 10
         uint8_t leftMotorDir, rightMotorDir;    // 0 ~ 1
+        uint8_t enableDS;                       // 0 ~ 1
+        uint8_t dsRate;                         // 0 ~ 100 %
     } data;
     const DATA defaultData = {
         .controlTimeout = 3,
@@ -55,6 +57,8 @@ private:
         .mpuZThreshold = 9.5,
         .leftMotorDir = 0,
         .rightMotorDir = 0,
+        .enableDS = 0,
+        .dsRate = 50,
     };
 
 public:
@@ -109,4 +113,10 @@ public:
 
     bool getRightMotorDir();
     bool setRightMotorDir(bool rightMotorDir);
+
+    bool getEnableDS();
+    bool setEnableDS(bool enableDS);
+
+    uint8_t getDSRate();
+    bool setDSRate(uint8_t dsRate);
 };

@@ -141,3 +141,17 @@ bool STORAGE::setRightMotorDir(bool rightMotorDir)
     data.rightMotorDir = rightMotorDir;
     return save();
 }
+
+bool STORAGE::getEnableDS() { return data.enableDS; }
+bool STORAGE::setEnableDS(bool enableDS)
+{
+    data.enableDS = enableDS;
+    return save();
+}
+
+uint8_t STORAGE::getDSRate() { return data.dsRate; }
+bool STORAGE::setDSRate(uint8_t dsRate)
+{
+    data.dsRate = dsRate;
+    return save();
+}

@@ -98,17 +98,13 @@ void loop()
         if (enableCruise)
             motorControl = speedCruise;
         int8_t motorSpeed = motorControl * (motorControl < 0 ? storage.getBackwardLimit() : storage.getMaxSpeed()) / 100;
-
-        
         int16_t leftServoDegree = 0, rightServoDegree = 0;
         int8_t leftMotorSpeed = 0, rightMotorSpeed = 0;
-        
-        if (true) 
+
+        if (storage.getEnableDS())
         {
-            // 需要定义一个新参数，表示差速百分比: dsRate
-            uint8_t dsRate = 0; // 0 ~ 100
-            int8_t dsSpeed = 100 - (abs(servoControl) * dsRate / 100);
-            if (servoControl > 0) // 左转
+            int8_t dsSpeed = 100 - (abs(servoControl) * storage.getDSRate() / 100);
+            if (servoControl > 0)
             {
                 leftMotorSpeed = motorSpeed * dsSpeed / 100;
                 rightMotorSpeed = motorSpeed;
@@ -119,7 +115,7 @@ void loop()
                 rightMotorSpeed = motorSpeed * dsSpeed / 100;
             }
         }
-        else 
+        else
         {
             servoControl = servoControl * storage.getServoLimit() * 1.0 / SERVO_RANGE;
             if (motorSpeed > 30)
@@ -128,11 +124,13 @@ void loop()
             if (enableLock)
                 motorSpeed = servoDegree = 0;
 
-            leftServoDegree = servoDegree + storage.getLeftServoDelta();
-            rightServoDegree = servoDegree + storage.getRightServoDelta();
-            leftMotorSpeed = motorSpeed + storage.getLeftMotorDelta();
-            rightMotorSpeed = motorSpeed + storage.getRightMotorDelta();
+            leftServoDegree = rightServoDegree = servoDegree;
+            leftMotorSpeed = rightMotorSpeed = motorSpeed;
         }
+        leftServoDegree += storage.getLeftServoDelta();
+        rightServoDegree += storage.getRightServoDelta();
+        leftMotorSpeed += storage.getLeftMotorDelta();
+        rightMotorSpeed += storage.getRightMotorDelta();
 
         if (sendConfig)
         {
