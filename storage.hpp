@@ -35,7 +35,7 @@ private:
         uint8_t batteryThreshold;               // 30 ~ 70 %
         float_t mpuXThreshold;                  // 1 ~ 7
         float_t mpuYThreshold;                  // 1 ~ 7
-        float_t mpuZThreshold;                  // 7 ~ 10
+        float_t mpuZThreshold;                  // 1 ~ 7
         uint8_t leftMotorDir, rightMotorDir;    // 0 ~ 1
         uint8_t enableDS;                       // 0 ~ 1
         uint8_t dsRate;                         // 0 ~ 100 %
@@ -54,7 +54,7 @@ private:
         .batteryThreshold = 50,
         .mpuXThreshold = 3.0,
         .mpuYThreshold = 3.0,
-        .mpuZThreshold = 9.5,
+        .mpuZThreshold = 3.0,
         .leftMotorDir = 0,
         .rightMotorDir = 0,
         .enableDS = 0,
@@ -99,13 +99,13 @@ public:
     uint8_t getBatteryThreshold();
     bool setBatteryThreshold(uint8_t batteryThreshold);
 
-    float_t getMpuGXThreshold();
+    float_t getMpuXThreshold();
     bool setMpuXThreshold(float_t mpuXThreshold);
 
-    float_t getMpuGYThreshold();
+    float_t getMpuYThreshold();
     bool setMpuYThreshold(float_t mpuYThreshold);
 
-    float_t getMpuGZThreshold();
+    float_t getMpuZThreshold();
     bool setMpuZThreshold(float_t mpuZThreshold);
 
     bool getLeftMotorDir();

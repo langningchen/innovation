@@ -28,6 +28,7 @@
 #define OLED_LINE_CNT 8     // lines
 #define OLED_CHAR_WIDTH 6   // px
 #define OLED_CHAR_HEIGHT 12 // px
+#define GRAVITY 9.81f       // m/s^2
 
 enum DIR
 {

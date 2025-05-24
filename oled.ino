@@ -191,18 +191,20 @@ void OLED::renderStatus()
     display.setCursor(0, 0);
     display.setTextSize(1);
     display.drawRoundRect(0, 0, 128, 64, 5, WHITE);
+
     display.setCursor(4, 4),
         setColor(status.networkStatus),
-        display.print(status.networkStatus);
+        display.print(String("Network ") + status.networkStatus);
     display.setCursor(64, 4),
         setColor(timeDelta >= storage.getNetworkThreshold()),
-        display.print(timeDelta);
+        display.print(String(timeDelta) + "ms");
 
     setColor(false);
     display.setCursor(4, 4 + OLED_CHAR_HEIGHT),
         display.print(String(status.controlMsg.commandMsg.leftServoDegree) + "d " + String(status.controlMsg.commandMsg.leftMotorSpeed) + "%");
     display.setCursor(64, 4 + OLED_CHAR_HEIGHT),
         display.print(String(status.controlMsg.commandMsg.rightServoDegree) + "d " + String(status.controlMsg.commandMsg.rightMotorSpeed) + "%");
+    display.drawFastHLine(0, 1 + 2 * OLED_CHAR_HEIGHT, display.width(), WHITE);
 
     if (status.boatMsg.type == BOAT_MSG::BOAT_INIT_MSG)
     {
@@ -224,25 +226,24 @@ void OLED::renderStatus()
     {
         setColor(status.boatMsg.statusMsg.batteryPercentage <= storage.getBatteryThreshold());
         display.setCursor(4, 4 + 2 * OLED_CHAR_HEIGHT),
-            display.print(String(status.boatMsg.statusMsg.batteryVoltage) + "V");
-        display.setCursor(64, 4 + 2 * OLED_CHAR_HEIGHT),
-            display.print(String(status.boatMsg.statusMsg.batteryPercentage) + "%");
+            display.print(String("Battery ") + status.boatMsg.statusMsg.batteryPercentage + "% " + status.boatMsg.statusMsg.batteryVoltage + "V");
 
         display.setCursor(4, 4 + 3 * OLED_CHAR_HEIGHT),
+            setColor(abs(status.boatMsg.statusMsg.mpuAX) >= storage.getMpuXThreshold()),
             display.print(status.boatMsg.statusMsg.mpuAX);
         display.setCursor(44, 4 + 3 * OLED_CHAR_HEIGHT),
+            setColor(abs(status.boatMsg.statusMsg.mpuAY) >= storage.getMpuYThreshold()),
             display.print(status.boatMsg.statusMsg.mpuAY);
         display.setCursor(84, 4 + 3 * OLED_CHAR_HEIGHT),
+            setColor(abs(status.boatMsg.statusMsg.mpuAZ - GRAVITY) <= storage.getMpuZThreshold()),
             display.print(status.boatMsg.statusMsg.mpuAZ);
 
+        setColor(false);
         display.setCursor(4, 4 + 4 * OLED_CHAR_HEIGHT),
-            setColor(abs(status.boatMsg.statusMsg.mpuGX) >= storage.getMpuGXThreshold()),
             display.print(status.boatMsg.statusMsg.mpuGX);
         display.setCursor(44, 4 + 4 * OLED_CHAR_HEIGHT),
-            setColor(abs(status.boatMsg.statusMsg.mpuGY) >= storage.getMpuGYThreshold()),
             display.print(status.boatMsg.statusMsg.mpuGY);
         display.setCursor(84, 4 + 4 * OLED_CHAR_HEIGHT),
-            setColor(abs(status.boatMsg.statusMsg.mpuGZ) <= storage.getMpuGZThreshold()),
             display.print(status.boatMsg.statusMsg.mpuGZ);
     }
 }
@@ -324,13 +325,13 @@ OLED::OLED(uint8_t address, uint8_t width, uint8_t height, STORAGE &storage, A2D
                                                                               { menu->config.value = storage.getBatteryThreshold(); }, [&storage](MENU *menu)
                                                                               { storage.setBatteryThreshold(menu->config.value); }, 30, 70),
                                                                      new MENU("MPU X THLD", [&storage](MENU *menu)
-                                                                              { menu->config.value = storage.getMpuGXThreshold(); }, [&storage](MENU *menu)
+                                                                              { menu->config.value = storage.getMpuXThreshold(); }, [&storage](MENU *menu)
                                                                               { storage.setMpuXThreshold(menu->config.value); }, 1, 7),
                                                                      new MENU("MPU Y THLD", [&storage](MENU *menu)
-                                                                              { menu->config.value = storage.getMpuGYThreshold(); }, [&storage](MENU *menu)
+                                                                              { menu->config.value = storage.getMpuYThreshold(); }, [&storage](MENU *menu)
                                                                               { storage.setMpuYThreshold(menu->config.value); }, 1, 7),
                                                                      new MENU("MPU Z THLD", [&storage](MENU *menu)
-                                                                              { menu->config.value = storage.getMpuGZThreshold(); }, [&storage](MENU *menu)
+                                                                              { menu->config.value = storage.getMpuZThreshold(); }, [&storage](MENU *menu)
                                                                               { storage.setMpuZThreshold(menu->config.value); }, 7, 10),
                                                                  }),
                                          }),
