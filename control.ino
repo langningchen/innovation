@@ -98,17 +98,41 @@ void loop()
         if (enableCruise)
             motorControl = speedCruise;
         int8_t motorSpeed = motorControl * (motorControl < 0 ? storage.getBackwardLimit() : storage.getMaxSpeed()) / 100;
-        servoControl = servoControl * storage.getServoLimit() * 1.0 / SERVO_RANGE;
-        if (motorSpeed > 30)
-            servoControl *= 1.0 - (motorSpeed - 30) / 100.0;
-        int16_t servoDegree = map(servoControl, -100, 100, -SERVO_RANGE, SERVO_RANGE);
-        if (enableLock)
-            motorSpeed = servoDegree = 0;
 
-        int16_t leftServoDegree = servoDegree + storage.getLeftServoDelta(),
-                rightServoDegree = servoDegree + storage.getRightServoDelta();
-        int8_t leftMotorSpeed = motorSpeed + storage.getLeftMotorDelta(),
-               rightMotorSpeed = motorSpeed + storage.getRightMotorDelta();
+        
+        int16_t leftServoDegree = 0, rightServoDegree = 0;
+        int8_t leftMotorSpeed = 0, rightMotorSpeed = 0;
+        
+        if (true) 
+        {
+            // 需要定义一个新参数，表示差速百分比: dsRate
+            uint8_t dsRate = 0; // 0 ~ 100
+            int8_t dsSpeed = 100 - (abs(servoControl) * dsRate / 100);
+            if (servoControl > 0) // 左转
+            {
+                leftMotorSpeed = motorSpeed * dsSpeed / 100;
+                rightMotorSpeed = motorSpeed;
+            }
+            else
+            {
+                leftMotorSpeed = motorSpeed;
+                rightMotorSpeed = motorSpeed * dsSpeed / 100;
+            }
+        }
+        else 
+        {
+            servoControl = servoControl * storage.getServoLimit() * 1.0 / SERVO_RANGE;
+            if (motorSpeed > 30)
+                servoControl *= 1.0 - (motorSpeed - 30) / 100.0;
+            int16_t servoDegree = map(servoControl, -100, 100, -SERVO_RANGE, SERVO_RANGE);
+            if (enableLock)
+                motorSpeed = servoDegree = 0;
+
+            leftServoDegree = servoDegree + storage.getLeftServoDelta();
+            rightServoDegree = servoDegree + storage.getRightServoDelta();
+            leftMotorSpeed = motorSpeed + storage.getLeftMotorDelta();
+            rightMotorSpeed = motorSpeed + storage.getRightMotorDelta();
+        }
 
         if (sendConfig)
         {
