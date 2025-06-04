@@ -22,6 +22,8 @@
 #define PIN_RESET 18 // SX1281 RESET
 #define PIN_IRQ 21   // SX1281 IRQ
 #define PIN_BUSY 3   // SX1281 BUSY
+#define PIN_LNA_EN 14 // LNA EN
+#define PIN_PA_EN 17  // PA EN
 
 #define PIN_SDA 6 // MPU6050 SDA
 #define PIN_SCL 7 // MPU6050 SCL

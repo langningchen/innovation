@@ -194,7 +194,7 @@ void OLED::renderStatus()
 
     display.setCursor(4, 4),
         setColor(status.networkStatus),
-        display.print(String("Network ") + status.networkStatus);
+        display.print(String("Net ") + status.networkStatus);
     display.setCursor(64, 4),
         setColor(timeDelta >= storage.getNetworkThreshold()),
         display.print(String(timeDelta) + "ms");

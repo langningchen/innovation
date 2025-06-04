@@ -39,6 +39,8 @@ private:
         uint8_t leftMotorDir, rightMotorDir;    // 0 ~ 1
         uint8_t enableDS;                       // 0 ~ 1
         uint8_t dsRate;                         // 0 ~ 100 %
+        uint16_t speedControlBasis;             
+        uint16_t steerControlBasis;             
     } data;
     const DATA defaultData = {
         .controlTimeout = 3,
@@ -59,6 +61,8 @@ private:
         .rightMotorDir = 0,
         .enableDS = 0,
         .dsRate = 40,
+        .speedControlBasis = 1 << 11, 
+        .steerControlBasis = 1 << 11, 
     };
 
 public:
@@ -119,4 +123,10 @@ public:
 
     uint8_t getDSRate();
     bool setDSRate(uint8_t dsRate);
+
+    uint16_t getSpeedControlBasis();
+    bool setSpeedControlBasis(uint16_t speedControlBasis);
+
+    uint16_t getSteerControlBasis();
+    bool setSteerControlBasis(uint16_t steerControlBasis);
 };

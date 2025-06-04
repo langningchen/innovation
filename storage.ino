@@ -155,3 +155,17 @@ bool STORAGE::setDSRate(uint8_t dsRate)
     data.dsRate = dsRate;
     return save();
 }
+
+uint16_t STORAGE::getSpeedControlBasis() { return data.speedControlBasis; }
+bool STORAGE::setSpeedControlBasis(uint16_t speedControlBasis)
+{
+    data.speedControlBasis = speedControlBasis;
+    return save();
+}
+
+uint16_t STORAGE::getSteerControlBasis() { return data.steerControlBasis; }
+bool STORAGE::setSteerControlBasis(uint16_t steerControlBasis)
+{
+    data.steerControlBasis = steerControlBasis;
+    return save();
+}

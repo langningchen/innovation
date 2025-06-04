@@ -87,7 +87,16 @@ void A2D::begin()
 
     configMin = speedCruiseMin = speedControlMin = steerControlMin = 0;
     configMax = speedCruiseMax = speedControlMax = steerControlMax = (1 << ADC_RESOLUTION) - 1;
-    speedControlBasis = steerControlBasis = 1 << (ADC_RESOLUTION - 1);
+    
+    // 从存储中读取校准值
+    speedControlBasis = storage.getSpeedControlBasis();
+    steerControlBasis = storage.getSteerControlBasis();
+    
+    // 如果读取的值超出范围，则使用默认值
+    if (speedControlBasis == 0 || speedControlBasis >= (1 << ADC_RESOLUTION))
+        speedControlBasis = 1 << (ADC_RESOLUTION - 1);
+    if (steerControlBasis == 0 || steerControlBasis >= (1 << ADC_RESOLUTION))
+        steerControlBasis = 1 << (ADC_RESOLUTION - 1);
 
     config = analogRead(configPin), speedCruise = analogRead(speedCruisePin);
     speedControl = analogRead(speedControlPin), steerControl = analogRead(steerControlPin);
@@ -194,5 +203,10 @@ void A2D::calibrate(Adafruit_SSD1306 &display)
     }
     speedControlBasis = speedControl;
     steerControlBasis = steerControl;
+    
+    // Save the calibrated values to storage
+    storage.setSpeedControlBasis(speedControlBasis);
+    storage.setSteerControlBasis(steerControlBasis);
+    
     display.display();
 }
